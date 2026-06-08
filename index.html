@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Michael Watkins — Mechanical Engineer & Designer</title>
+  <meta name="description" content="Michael Watkins — Mechanical Engineer & Designer based in Christchurch, New Zealand.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --white: #ffffff;
+      --text: #111111;
+      --text-muted: #666666;
+      --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-deep: 0 32px 64px -12px rgba(0, 0, 0, 0.12),
+                     0 16px 32px -8px rgba(0, 0, 0, 0.08);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--white);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    img, video {
+      display: block;
+      max-width: 100%;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ─── Sticky Banner ────────────────────────────────────────── */
+    .banner {
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 48px;
+      background: transparent;
+      opacity: 0;
+      transform: translateY(-100%);
+      transition: opacity 0.4s var(--ease-premium),
+                  transform 0.4s var(--ease-premium);
+      pointer-events: none;
+    }
+
+    .banner.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .banner__left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .banner__photo {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--text);
+    }
+
+    .banner__name {
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .banner__right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.01em;
+    }
+
+    .banner__contact {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--text);
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      padding: 2px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.15s var(--ease-premium);
+    }
+
+    .banner__contact:hover {
+      font-size: 1.25rem;
+    }
+
+    .banner__close {
+      display: none;
+      background: none;
+      border: none;
+      color: black;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0 4px;
+      font-weight: 400;
+      transition: font-size 0.15s var(--ease-premium);
+    }
+
+    .banner__close:hover {
+      color: #333;
+      font-size: 2rem;
+    }
+
+    /* Banner text turns white when over the dark About section */
+    .banner--light:not(.contact-open) .banner__name,
+    .banner--light:not(.contact-open) .banner__contact {
+      color: white;
+    }
+
+    .banner--light:not(.contact-open) .banner__close {
+      color: white;
+    }
+
+    .banner--light:not(.contact-open) .banner__right {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .banner--light:not(.contact-open) .banner__photo {
+      border-color: white;
+    }
+
+    /* Contact overlay - white rest of screen, banner stays on top */
+    .contact-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      z-index: 95;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .contact-overlay.visible {
+      display: flex;
+    }
+
+    .contact-overlay.visible {
+      display: flex;
+    }
+
+    .contact-email {
+      position: relative;
+      z-index: 2;
+      color: black;
+      font-size: 2.5rem;
+      font-weight: 400;
+      cursor: pointer;
+      /* no outline, only writing */
+      border: none;
+      background: none;
+      padding: 0;
+      text-decoration: none;
+      transition: font-size 0.25s ease;
+    }
+
+    .contact-email:hover {
+      font-size: 3rem; /* appear bigger on hover */
+    }
+
+    .contact-car {
+      position: absolute;
+      width: clamp(85px, 15vw, 150px);
+      height: auto;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.82;
+      /* position, top, left and transform controlled by JS for curved path */
+    }
+
+    .contact-tire-marks {
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      /* width, left, top set by JS to match the fixed email width and position (snapshot at open to not grow on hover) */
+      /* The image has been rotated so the tracks are horizontal. Tune background-size and height to make the tracks span the full width of the container (email length) and have appropriate visual thickness. */
+      background-image: url('Media/tire-tracks.jpg');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 100% auto;
+      height: 8px; /* further reduced thickness for thinner tyre track; tune as needed */
+      /* Progressive reveal from right to left as the car drives left (using CSS var set from JS) */
+      clip-path: inset(0 0 0 calc(100% - var(--progress, 0) * 100%));
+    }
+
+    #transition-circle {
+      position: fixed;
+      background: white;
+      border: 4px solid black; /* black line outline */
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 96;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      /* size and position controlled by JS; transition for smooth growth */
+      transition: width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease;
+    }
+
+    /* When contact open: hide contact+flag, show X on banner */
+    .banner.contact-open .banner__contact,
+    .banner.contact-open .banner__flag {
+      display: none;
+    }
+
+    .banner.contact-open .banner__close {
+      display: inline-block;
+    }
+
+    /* CUSTOMIZE: Replace src with NZ flag image URL */
+    .banner__flag {
+      width: 28px;
+      height: auto;
+      border-radius: 2px;
+    }
+
+    /* ─── Hero Section ─────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20vh 48px 10vh;
+      overflow: hidden;
+    }
+
+    /* Quote */
+    .hero__quote {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: -0.01em;
+      text-align: center;
+      color: var(--text);
+      max-width: 640px;
+      margin-bottom: 24px;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.6s var(--ease-premium),
+                  transform 0.6s var(--ease-premium);
+    }
+
+    .hero__quote.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Media container */
+    .hero__media {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto; /* ensures the media block (and its centered trio) stays perfectly centered on all screen sizes */
+      transition: gap 1.6s var(--ease-out-expo);
+    }
+
+    .hero__media.split {
+      gap: 36px;
+      /* justify-content: center from the base .hero__media rule keeps the video+graph+photo trio
+         as a compact centered group. The whole block stays centered on resize (the container itself
+         is centered via .hero align-items + max-width). Previously space-between spread items to
+         the edges of the 1200px box, making the layout feel uncentered on size changes. */
+    }
+
+    /* When we start in split state, avoid any entrance transition flash on the media columns */
+    .hero__media.split .hero__video-wrap,
+    .hero__media.split .hero__image-wrap,
+    .hero__media.split .hero__photo-wrap {
+      transition: none;
+    }
+
+    /* Video wrapper */
+    .hero__video-wrap {
+      flex-shrink: 0;
+      width: min(72vw, 680px);
+      aspect-ratio: 1198 / 1080;
+      overflow: hidden;
+      background-color: var(--white);
+      opacity: 0;
+      transition: width 1.6s var(--ease-out-expo),
+                  transform 1.6s var(--ease-out-expo),
+                  opacity 1.2s var(--ease-premium);
+    }
+
+    .hero__media.split .hero__video-wrap {
+      width: min(20vw, 260px);
+      transform: translateX(-20px);
+    }
+
+    .hero__video-wrap video {
+      width: 100%;
+      height: 100%;
+      background-color: var(--white);
+    }
+
+    /* Photo wrapper - right side, symmetrical to video on left */
+    .hero__photo-wrap {
+      flex-shrink: 0;
+      width: min(32vw, 360px);
+      aspect-ratio: 1198 / 1080;
+      overflow: hidden;
+      background-color: var(--white);
+      opacity: 0;
+      transition: width 1.6s var(--ease-out-expo),
+                  transform 1.6s var(--ease-out-expo),
+                  opacity 1.2s var(--ease-premium);
+    }
+
+    .hero__media.split .hero__photo-wrap {
+      width: min(20vw, 260px);
+      transform: translateX(20px);
+    }
+
+    .hero__photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: var(--white);
+    }
+
+    /* Project image */
+    .hero__image-wrap {
+      flex-shrink: 0;
+      width: 0;
+      opacity: 0;
+      overflow: hidden;
+      aspect-ratio: 1264 / 816;
+      background-color: var(--white);
+      transition: width 1.6s var(--ease-out-expo),
+                  opacity 1.4s var(--ease-premium) 0.15s,
+                  transform 1.6s var(--ease-out-expo) 0.15s;
+      transform: translateX(40px);
+    }
+
+    .hero__media.split .hero__image-wrap {
+      width: min(34vw, 420px);
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .hero__image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: var(--white);
+    }
+
+    .hero__image-wrap canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: transparent;
+    }
+
+    /* Closing statement */
+    .hero__statement {
+      max-width: 1000px;
+      margin-top: 12px;
+      font-size: clamp(0.9375rem, 2vw, 1.0625rem);
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      text-align: center;
+      color: var(--text-muted);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.6s var(--ease-premium),
+                  transform 0.6s var(--ease-premium);
+    }
+
+    .hero__statement.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── Footer ───────────────────────────────────────────────── */
+    .footer {
+      padding: 80px 48px 48px;
+      text-align: center;
+      border-top: none;
+    }
+
+    .footer__name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+
+    .footer__title {
+      font-size: 0.8125rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .footer__location {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    /* ─── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero__media.split {
+        flex-direction: column;
+        gap: 32px;
+        justify-content: center;
+      }
+
+      .hero__media.split .hero__video-wrap {
+        width: 100%;
+        max-width: 520px;
+        transform: none;
+      }
+
+      .hero__media.split .hero__image-wrap {
+        width: 100%;
+        max-width: 520px;
+      }
+
+      .hero__media.split .hero__photo-wrap {
+        width: 100%;
+        max-width: 520px;
+        transform: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .banner {
+        padding: 12px 24px;
+      }
+
+      .banner__name {
+        font-size: 1rem;
+      }
+
+      .banner__right span {
+        display: none;
+      }
+
+      .hero {
+        padding: 15vh 24px 8vh;
+      }
+
+      .hero__quote {
+        margin-bottom: 24px;
+      }
+
+      .hero__video-wrap {
+        width: 100%;
+        max-width: 520px;
+      }
+
+      .hero__photo-wrap {
+        width: 100%;
+        max-width: 520px;
+      }
+
+      .hero__statement {
+        margin-top: 16px;
+        max-width: 100vw;
+        padding: 0 8px;
+      }
+
+      .footer {
+        padding: 64px 24px 40px;
+      }
+    }
+
+    /* ─── About Section ──────────────────────────────────────────── */
+    .about-section {
+      background-color: #111111;
+      background-image: url('Media/blackboard.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+    }
+
+    .about-section::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 45% 30% at 22% 25%, rgba(0, 150, 255, 0.22) 0%, transparent 65%),
+        radial-gradient(ellipse 35% 25% at 68% 42%, rgba(30, 144, 255, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 30% 22% at 35% 68%, rgba(0, 180, 255, 0.2) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 28% at 78% 78%, rgba(0, 140, 255, 0.16) 0%, transparent 65%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .about-content {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 72px 48px;
+      display: flex;
+      gap: 72px;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .about-text {
+      flex: 1 1 52%;
+      font-size: 1.0625rem;
+      line-height: 1.65;
+      color: #f5f5f5;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    }
+
+    .about-lead {
+      font-size: 1.45rem;
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      margin-bottom: 1.15em;
+    }
+
+    .about-text p {
+      margin-bottom: 0.85em;
+    }
+
+    .about-text p:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .about-image {
+      flex: 1 1 42%;
+      max-width: 460px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .about-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (max-width: 900px) {
+      .about-content {
+        flex-direction: column;
+        padding: 56px 24px;
+        gap: 40px;
+      }
+
+      .about-image {
+        max-width: 100%;
+      }
+
+      .about-lead {
+        font-size: 1.28rem;
+      }
+    }
+
+    /* ─── Teams Section ──────────────────────────────────────────── */
+    .teams-section {
+      background: white;
+      padding: 60px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .teams-header {
+      color: black;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      text-align: center;
+      letter-spacing: -0.02em;
+    }
+
+    .teams-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    .team-item {
+      text-align: center;
+    }
+
+    .team-photo {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 12px;
+      display: block;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .team-caption {
+      font-size: 1rem;
+      color: #333;
+      margin: 0;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 700px) {
+      .teams-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+
+      .teams-header {
+        font-size: 1.75rem;
+        margin-bottom: 32px;
+      }
+
+      .team-caption {
+        font-size: 0.875rem;
+      }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ Sticky Banner (appears at 7500ms) ═══ -->
+  <header class="banner" id="banner" role="banner">
+    <div class="banner__left">
+      <img
+        class="banner__photo"
+        src="Media/michael-watkins-profile.jpg"
+        alt="Michael Watkins"
+        width="256"
+        height="256"
+      >
+      <span class="banner__name">Michael Watkins</span>
+    </div>
+    <div class="banner__right">
+      <button class="banner__contact" id="contactBtn">Contact</button>
+      <!-- New Zealand flag to the right of the Contact button -->
+      <img
+        class="banner__flag"
+        src="https://flagcdn.com/w40/nz.png"
+        alt="New Zealand flag"
+        width="28"
+        height="14"
+      >
+      <button class="banner__close" id="closeContactBtn">×</button>
+    </div>
+  </header>
+
+  <!-- Contact overlay: white screen below banner -->
+  <div id="contact-overlay" class="contact-overlay">
+    <img class="contact-car" src="Media/race-car.jpg" alt="Race car">
+    <div class="contact-tire-marks"></div>
+    <div id="contact-email" class="contact-email">mwatkins1470@gmail.com</div>
+  </div>
+
+  <!-- Transition circle: black outline, white inside, grows from button on contact toggle -->
+  <div id="transition-circle"></div>
+
+  <!-- ═══ Hero ═══ -->
+  <section class="hero" id="hero" aria-label="Introduction">
+    <blockquote class="hero__quote" id="heroQuote">
+      "To finish first you must first finish."
+    </blockquote>
+
+    <div class="hero__media split" id="heroMedia">
+      <div class="hero__video-wrap">
+        <video
+          id="heroVideo"
+          autoplay
+          muted
+          loop
+          playsinline
+        >
+          <source src="Media/8-11-2025%20Modelled%20with%20Pneumatic%20Trail.MP4" type="video/mp4">
+        </video>
+      </div>
+
+      <div class="hero__image-wrap" id="heroImage">
+        <!-- Dynamic graph: blue line (model) + orange dots (recorded) animate in sync with video time.
+             Full graph background (grid, labels, title, legend) appears at ~27s. -->
+        <canvas id="forceGraph" width="1264" height="816" aria-label="Toe link force over time. The data traces from the original graph are revealed via a left-to-right sweep in sync with the video time. The full graph background appears at the end of the 27-second lap."></canvas>
+      </div>
+
+      <div class="hero__photo-wrap">
+        <img src="Media/strain-gauge.jpg" alt="Strain gauge" />
+      </div>
+    </div>
+
+    <p class="hero__statement" id="heroStatement">
+      Great products work from understanding the real service conditions and applying appropriate factors of safety to components.
+    </p>
+  </section>
+
+  <!-- ═══ About Section ═══ -->
+  <section class="about-section">
+    <div class="about-content">
+      <div class="about-text">
+        <p class="about-lead">Mechanical engineer building practical systems understanding from first principles.</p>
+        <p>Previously led a technical subsystem on an internationally winning FSAE team.</p>
+        <p>Currently rotating through engineering, manufacturing, and operations in a graduate program.</p>
+      </div>
+      <div class="about-image">
+        <img src="Media/about-photo.jpg" alt="Michael Watkins" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Teams Section ═══ -->
+  <section class="teams-section">
+    <h2 class="teams-header">Teams</h2>
+    <div class="teams-grid">
+      <div class="team-item">
+        <img src="Media/516863505_24798187366437419_8997355559184687490_n.jpg" alt="St. Bede's College Cricket Team" class="team-photo">
+        <p class="team-caption">St. Bede's College 1st XI Cricket Team</p>
+      </div>
+      <div class="team-item">
+        <img src="Media/131225377_3856008241078822_3005329660061055385_n.jpg" alt="Cricket Team 2019" class="team-photo">
+        <p class="team-caption">Cricket Team - 2019 Season</p>
+      </div>
+      <div class="team-item">
+        <img src="Media/ucm25.jpg" alt="UCM24 Team" class="team-photo">
+        <p class="team-caption">UCM24 Team</p>
+      </div>
+      <div class="team-item">
+        <img src="Media/ucm24.jpg" alt="UCM25 Team" class="team-photo">
+        <p class="team-caption">UCM25 Team</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="footer">
+    <p class="footer__name">Michael Watkins</p>
+    <p class="footer__title">Mechanical Engineer &amp; Designer</p>
+    <p class="footer__location">Christchurch, New Zealand</p>
+  </footer>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ─── Element references ─────────────────────────────────── */
+      const banner        = document.getElementById('banner');
+      const heroQuote     = document.getElementById('heroQuote');
+      const heroMedia     = document.getElementById('heroMedia');
+      const heroVideo     = document.getElementById('heroVideo');
+      const heroStatement = document.getElementById('heroStatement');
+      const contactBtn    = document.getElementById('contactBtn');
+      const closeContactBtn = document.getElementById('closeContactBtn');
+      const contactOverlay = document.getElementById('contact-overlay');
+      const contactEmailEl = document.getElementById('contact-email');
+      const transitionCircle = document.getElementById('transition-circle');
+      const aboutSection = document.querySelector('.about-section');
+
+      /* ─── Graph layers for image sweep (using original image) ────── */
+      const graphCanvas = document.getElementById('forceGraph');
+      let graphCtx = null;
+      let graphComplete = false;
+      let bgFadeStart = 0;
+      let finalCrossfadeStart = 0;
+
+      const dataImg = new Image(); // data traces only (blue + orange) from processed original
+      const bgImg   = new Image(); // background (grid + labels + legend) from processed original
+      const fullImg = new Image(); // full original graph for the final static image
+      dataImg.src = 'Media/toe-link-data.jpg';
+      bgImg.src   = 'Media/toe-link-bg.jpg';
+      fullImg.src = 'Media/toe-link-force-comparison.jpg';
+
+      let graphImagesReady = 0;
+      function onGraphLayerReady() {
+        graphImagesReady++;
+        if (graphImagesReady >= 2) {
+          // Safety: if images loaded after video already passed the lap end,
+          // immediately mark complete so the background can appear.
+          if (heroVideo && heroVideo.currentTime >= 26.5 && !graphComplete) {
+            graphComplete = true;
+            if (!bgFadeStart) bgFadeStart = Date.now();
+          }
+          drawForceGraph();
+        }
+      }
+      dataImg.onload = onGraphLayerReady;
+      bgImg.onload = onGraphLayerReady;
+
+      // When the full original loads, force a redraw if we're in the final static state
+      fullImg.onload = () => {
+        if (graphComplete) drawForceGraph();
+      };
+
+      /* ─── Image sweep draw — data reveals left-to-right with video time */
+      function drawForceGraph() {
+        if (!graphCanvas || !graphCtx) return;
+        const w = graphCanvas.width;
+        const h = graphCanvas.height;
+
+        graphCtx.clearRect(0, 0, w, h);
+
+        if (!dataImg.complete || !bgImg.complete) return;
+
+        let t = 0;
+        if (heroVideo && typeof heroVideo.currentTime === 'number') t = heroVideo.currentTime;
+
+        let progress = 0;
+        if (!graphComplete) {
+          progress = Math.min(t / 26.5, 1);
+          if (progress >= 1) {
+            graphComplete = true;
+            if (!bgFadeStart) bgFadeStart = Date.now();
+          }
+        } else {
+          progress = 1;
+        }
+
+        const revealW = progress * w;
+
+        // Slowly fade in the graph background once the sweep completes (one time only)
+        let bgAlpha = 0;
+        if (graphComplete && bgFadeStart > 0) {
+          const fadeDuration = 2500; // ms — make background fade slower / smoother
+          const elapsed = Date.now() - bgFadeStart;
+          bgAlpha = Math.min(elapsed / fadeDuration, 1);
+        }
+
+        // Draw the background layer with fade (this is what was appearing too suddenly)
+        if (bgAlpha > 0) {
+          graphCtx.globalAlpha = bgAlpha;
+          graphCtx.drawImage(bgImg, 0, 0, w, h);
+          graphCtx.globalAlpha = 1;
+        }
+
+        // Cross-fade: once background is fully in, fade out the separate "graph lines only" photo
+        // while fading in the full original static image.
+        let dataAlpha = 1;
+        let fullAlpha = 0;
+
+        if (graphComplete && bgAlpha >= 1) {
+          if (!finalCrossfadeStart) finalCrossfadeStart = Date.now();
+
+          const crossDuration = 1200; // ms — smooth disappearance of the lines photo
+          const crossElapsed = Date.now() - finalCrossfadeStart;
+          const cross = Math.min(crossElapsed / crossDuration, 1);
+          dataAlpha = 1 - cross;
+          fullAlpha = cross;
+        }
+
+        if (graphComplete) {
+          // Data / lines photo (fading out during crossfade)
+          if (dataAlpha > 0) {
+            graphCtx.globalAlpha = dataAlpha;
+            graphCtx.drawImage(dataImg, 0, 0, w, h);
+            graphCtx.globalAlpha = 1;
+          }
+
+          // Full original image (fading in)
+          if (fullAlpha > 0 && fullImg.complete) {
+            graphCtx.globalAlpha = fullAlpha;
+            graphCtx.drawImage(fullImg, 0, 0, w, h);
+            graphCtx.globalAlpha = 1;
+          } else if (dataAlpha <= 0) {
+            // Fallback if full not ready yet
+            graphCtx.drawImage(dataImg, 0, 0, w, h);
+          }
+        } else {
+          // During the sweep: only the data layer (clipped)
+          graphCtx.save();
+          graphCtx.beginPath();
+          graphCtx.rect(0, 0, revealW, h);
+          graphCtx.clip();
+          graphCtx.drawImage(dataImg, 0, 0, w, h);
+          graphCtx.restore();
+        }
+      }
+
+      function startGraph() {
+        if (!graphCanvas) return;
+        graphCtx = graphCanvas.getContext('2d', { alpha: true });
+
+        drawForceGraph();
+
+        function frame() {
+          drawForceGraph();
+
+          // Stop the animation loop once the graph has played once, background has faded in,
+          // and the crossfade to the full static image is complete.
+          const crossDone = finalCrossfadeStart > 0 && (Date.now() - finalCrossfadeStart > 1200);
+          const fullyDone = graphComplete && crossDone;
+          if (heroVideo && !heroVideo.paused && !heroVideo.ended && !fullyDone) {
+            requestAnimationFrame(frame);
+          }
+        }
+        requestAnimationFrame(frame);
+
+        if (heroVideo) {
+          heroVideo.addEventListener('timeupdate', () => {
+            if (heroVideo && !heroVideo.paused) {
+              // Ensure we mark completion the first time video reaches the end of the lap,
+              // even if images loaded late or RAF is throttled.
+              if (!graphComplete && heroVideo.currentTime >= 26.5) {
+                graphComplete = true;
+                if (!bgFadeStart) bgFadeStart = Date.now();
+              }
+              drawForceGraph();
+            }
+          });
+          heroVideo.addEventListener('play', () => {
+            // Only restart the loop if we haven't finished the one-time graph animation + crossfade yet
+            const crossDone = finalCrossfadeStart > 0 && (Date.now() - finalCrossfadeStart > 1200);
+            if (!graphComplete || !crossDone) {
+              requestAnimationFrame(frame);
+            }
+          });
+        }
+      }
+
+      // Ensure we draw the initial state of the graph sweep as soon as images are ready
+      // (the canvas container reserves space via CSS aspect-ratio even before content)
+
+      /* ─── Ensure video plays (autoplay policies) ───────────────── */
+      function startVideo() {
+        if (!heroVideo) return;
+        heroVideo.muted = true;
+        const play = heroVideo.play();
+        if (play && play.catch) {
+          play.catch(function () {
+            document.addEventListener('click', function retry() {
+              heroVideo.play();
+              document.removeEventListener('click', retry);
+            }, { once: true });
+          });
+        }
+      }
+
+      /* ─── Orchestrate hero sequence ──────────────────────────── */
+      function initSequence() {
+        startVideo();
+        startGraph();   // graph starts drawing immediately, synced to video time
+
+        /* Fade in the video (left) and picture (right) on load instead of instant appear.
+           Short delay ensures layout is settled; the split state snaps widths/transforms instantly
+           (via the transition:none rule), while we control opacity separately for fade. */
+        setTimeout(function () {
+          const videoWrap = document.querySelector('.hero__video-wrap');
+          const photoWrap = document.querySelector('.hero__photo-wrap');
+          if (videoWrap) {
+            videoWrap.style.transition = 'opacity 1.2s var(--ease-premium)';
+            videoWrap.style.opacity = '1';
+          }
+          if (photoWrap) {
+            photoWrap.style.transition = 'opacity 1.2s var(--ease-premium)';
+            photoWrap.style.opacity = '1';
+          }
+        }, 150);
+
+        /* Quote fades in at 1s */
+        setTimeout(function () {
+          heroQuote.classList.add('visible');
+        }, 1000);
+
+        /* Sticky banner at 1.5s */
+        setTimeout(function () {
+          banner.classList.add('visible');
+        }, 1500);
+
+        /* Closing statement at 2s */
+        setTimeout(function () {
+          heroStatement.classList.add('visible');
+        }, 2000);
+      }
+
+      /* ─── Boot ─────────────────────────────────────────────────── */
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSequence);
+      } else {
+        initSequence();
+      }
+
+      /* ─── Banner text color change when over dark About section ── */
+      function updateBannerTheme() {
+        if (!banner || !aboutSection) return;
+        const aboutRect = aboutSection.getBoundingClientRect();
+        const bannerHeight = banner.offsetHeight || 70;
+        // Banner overlaps the about section only while the about section straddles the top of the viewport (under the banner)
+        if (aboutRect.top < bannerHeight && aboutRect.bottom > 0) {
+          banner.classList.add('banner--light');
+        } else {
+          banner.classList.remove('banner--light');
+        }
+      }
+      window.addEventListener('scroll', updateBannerTheme, { passive: true });
+      window.addEventListener('resize', updateBannerTheme);
+      // Initial check (after banner may be visible)
+      setTimeout(updateBannerTheme, 1600);
+
+      /* ─── Contact mode with black circle transition (outline black, inside white) ── */
+      if (contactBtn && closeContactBtn && contactOverlay && contactEmailEl && transitionCircle) {
+        let carAnimFrame = null;
+        let currentTrackDrawn = 0;
+        let fixedUnderlineWidth = 0;
+        let fixedUnderlineCenter = 0;
+        let fixedBaseTop = 0;
+
+        function updateTracks() {
+          const marks = document.querySelector('.contact-tire-marks');
+          if (!marks) return;
+
+          // Container always full fixed email width and position (from snapshot at open)
+          // so the tyre marks image spans exactly the email length and stays the same size on hover.
+          const leftPx = fixedUnderlineCenter - fixedUnderlineWidth / 2;
+          const w = fixedUnderlineWidth;
+
+          marks.style.left = leftPx + 'px';
+          marks.style.top = fixedBaseTop + 'px';
+          marks.style.width = w + 'px';
+          // height, background-size, clip-path etc. are in CSS (tuned to the edited horizontal tracks image)
+
+          // Set progress for clip-path reveal (0 = hidden from left, 1 = full visible)
+          marks.style.setProperty('--progress', currentTrackDrawn);
+        }
+
+        // Keep tracks positioned correctly under the email on any window resize (re-snapshot fixed size/position from current email rect)
+        window.addEventListener('resize', () => {
+          if (contactOverlay.classList.contains('visible')) {
+            if (contactEmailEl) {
+              const emailRect = contactEmailEl.getBoundingClientRect();
+              const overlayRect = contactOverlay.getBoundingClientRect();
+              fixedUnderlineWidth = emailRect.width;
+              fixedUnderlineCenter = emailRect.left + emailRect.width / 2;
+              fixedBaseTop = emailRect.bottom - overlayRect.top - 2;
+            }
+            updateTracks();
+          }
+        });
+
+        function startCarDrive() {
+          const car = document.querySelector('.contact-car');
+          const overlay = contactOverlay;
+          if (!car || !overlay) return;
+
+          // Cancel any running animation
+          if (carAnimFrame) {
+            cancelAnimationFrame(carAnimFrame);
+            carAnimFrame = null;
+          }
+
+          // Snapshot the email size and position at the moment the contact screen opens (non-hovered state)
+          // so the tire tracks/underline stay fixed size and position even when hovering the email
+          if (contactEmailEl) {
+            const emailRect = contactEmailEl.getBoundingClientRect();
+            const overlayRect = contactOverlay.getBoundingClientRect();
+            fixedUnderlineWidth = emailRect.width;
+            fixedUnderlineCenter = emailRect.left + emailRect.width / 2;
+            fixedBaseTop = emailRect.bottom - overlayRect.top - 2;
+          }
+
+          // Path with a few bends (wavy turns) above the email, extending further right,
+          // then curves down on the far right side to a turnaround point under the email,
+          // turns around, and drives straight left in a horizontal line (parallel to the
+          // email text) very close to the email (almost underlining it from below).
+          // This keeps the car from interfering with the email writing.
+          // Catmull-Rom spline makes all direction changes smooth.
+          // Values are percentages of the full-screen contact overlay.
+          const path = [
+            { x: -15, y: 25 },  // start left, high above the email
+            { x: 8,  y: 18 },   // bend 1 above
+            { x: 22, y: 32 },   // bend 2 above
+            { x: 35, y: 20 },   // bend 3 above
+            { x: 52, y: 28 },   // last bend above
+            { x: 72, y: 26 },   // further right, still above
+            { x: 78, y: 28 },
+            { x: 85, y: 32 },
+            { x: 91, y: 38 },
+            { x: 95, y: 47 },
+            { x: 97, y: 52 },
+            { x: 94, y: 52 },
+            { x: 85, y: 52 },  // end of semicircle turn on the right
+            { x: 65, y: 52 },   // straight left under the email (horizontal, parallel to text, even closer to bottom of email - almost underlining)
+            { x: 30, y: 52 },
+            { x: 0,  y: 52 },
+            { x: -15, y: 52 },
+            { x: -25, y: 52 }   // exit off left
+          ];
+
+          const duration = 13500; // slow ~13.5s drive
+
+          let startTime = null;
+          let virtualElapsed = 0;
+          let lastTime = null;
+
+          // Catmull-Rom spline for smooth position
+          function catmullRomPoint(t) {
+            const n = path.length;
+            if (t <= 0) return { ...path[0] };
+            if (t >= 1) return { ...path[n - 1] };
+
+            const seg = (n - 1) * t;
+            let i = Math.floor(seg);
+            const u = seg - i;
+
+            const p0 = path[Math.max(0, i - 1)];
+            const p1 = path[i];
+            const p2 = path[Math.min(n - 1, i + 1)];
+            const p3 = path[Math.min(n - 1, i + 2)];
+
+            const u2 = u * u;
+            const u3 = u2 * u;
+
+            const x = 0.5 * (
+              (2 * p1.x) +
+              (-p0.x + p2.x) * u +
+              (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * u2 +
+              (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * u3
+            );
+
+            const y = 0.5 * (
+              (2 * p1.y) +
+              (-p0.y + p2.y) * u +
+              (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * u2 +
+              (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * u3
+            );
+
+            return { x, y };
+          }
+
+          // Smooth angle by sampling the spline derivative (tangent)
+          function getSmoothAngle(t) {
+            const eps = 0.008;
+            const t1 = Math.max(0, t - eps);
+            const t2 = Math.min(1, t + eps);
+            const p1 = catmullRomPoint(t1);
+            const p2 = catmullRomPoint(t2);
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            return Math.atan2(dy, dx) * (180 / Math.PI);
+          }
+
+          function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            if (lastTime === null) lastTime = timestamp;
+            const delta = timestamp - lastTime;
+            lastTime = timestamp;
+
+            // Variable speed with smooth transitions (extended ramps for C1 smooth accel/decel)
+            let speed = 1.0;
+            const currentP = virtualElapsed / duration;
+            const turnStartP = 5 / (path.length - 1);
+            const turnEndP = 10 / (path.length - 1);
+            const turnRange = turnEndP - turnStartP;
+            const rampStart = turnStartP - turnRange * 0.5;
+            const rampEnd = turnEndP + turnRange * 0.5;
+            if (currentP > rampStart && currentP < rampEnd) {
+              let t = (currentP - rampStart) / (rampEnd - rampStart);
+              t = Math.max(0, Math.min(1, t));
+              // smoothstep for smooth speed ramp up and down
+              t = t * t * (3 - 2 * t);
+              speed = 1.0 + 1.5 * t; // smoothly up to 2.5 during turn
+            }
+            if (currentP > turnEndP) {
+              let sprog = (currentP - turnEndP) / (1 - turnEndP);
+              let decelT = Math.min(1, sprog / 0.25);
+              decelT = decelT * decelT * (3 - 2 * decelT);
+              speed = 1.0 - 0.35 * decelT; // smoothly down to ~0.65 for slower straight travel under email
+            }
+            virtualElapsed += delta * speed;
+
+            let prog = Math.min(virtualElapsed / duration, 1);
+
+            // Milder acceleration during the straight-line portion (after turnaround)
+            // Polynomial with f'(0)=1 for smooth velocity transition from the (ramped) turn
+            const straightStart = 10 / (path.length - 1);
+            if (prog > straightStart) {
+              let t = (prog - straightStart) / (1 - straightStart);
+              // f(t) = t + 0.25*t*t - 0.25*t*t*t  => f'(0)=1, mild accel, f(1)=1
+              t = t + 0.25 * t * t - 0.25 * t * t * t;
+              prog = straightStart + (1 - straightStart) * t;
+            }
+
+            const pos = catmullRomPoint(prog);
+            pos.x = Math.min(98, Math.max(-25, pos.x)); // prevent off right of screen
+            car.style.left = pos.x + '%';
+            car.style.top = pos.y + '%';
+
+            // Move the car down by another half the tyre track thickness (now total 8px / full thickness)
+            // only during the straight drive underneath the email, so the tyres line up with the track lines
+            if (prog > straightStart) {
+              const overlayRect = overlay.getBoundingClientRect();
+              const overlayHeight = overlayRect.height || window.innerHeight;
+              const trackThickness = 8; // from .contact-tire-marks height in CSS
+              const offsetPx = trackThickness;  // another half (was /2 before)
+              const offsetPercent = (offsetPx / overlayHeight) * 100;
+              let currentTop = parseFloat(car.style.top);
+              car.style.top = (currentTop + offsetPercent) + '%';
+            }
+
+            const ang = getSmoothAngle(prog);
+            car.style.transform = `rotate(${ang}deg)`;
+
+            // Paint the tyre marks progressively as the car drives straight underneath the email.
+            // The reveal starts precisely when the *front tyre* (not the front wing/nose of the image) reaches the right edge of the email area.
+            // This makes the marks appear to be laid down by the tyres at the correct geometric position.
+            // Reveal speed matches car speed exactly (linear with car position after the geometric offset).
+            if (prog > straightStart) {
+              const carLeftPercent = parseFloat(car.style.left) || 100;
+              // car % is relative to overlay width; use current rect for accuracy on resize
+              const currentOverlayWidth = overlay.getBoundingClientRect().width;
+              const carXPx = (carLeftPercent / 100) * currentOverlayWidth;
+
+              // Offset so reveal starts when front *tyre* (not front wing) reaches the target.
+              // Tune this value based on the race-car.jpg image: pixels from the left edge of the car image
+              // (when rotated for leftward travel) to the center/leading edge of the front tyre.
+              // Positive because tyre is to the right of the image's leading edge.
+              const frontTyreOffsetPx = 32; // adjust to align start with front tyre
+              const effectiveCarXPx = carXPx + frontTyreOffsetPx;
+
+              const targetRight = fixedUnderlineCenter + fixedUnderlineWidth / 2;
+              const targetLeft = fixedUnderlineCenter - fixedUnderlineWidth / 2;
+
+              let frac = 0;
+              if (effectiveCarXPx < targetRight) {
+                frac = Math.max(0, (targetRight - effectiveCarXPx) / fixedUnderlineWidth);
+                frac = Math.min(1, frac);
+              } else if (effectiveCarXPx <= targetLeft) {
+                frac = 1;
+              }
+              currentTrackDrawn = frac;
+              updateTracks();
+            }
+
+            if (prog < 1 && overlay.classList.contains('visible')) {
+              carAnimFrame = requestAnimationFrame(animate);
+            } else {
+              carAnimFrame = null;
+              if (prog >= 1) {
+                car.style.left = '110%';
+                // ensure tyre marks are fully visible at the end
+                currentTrackDrawn = 1;
+                updateTracks();
+              }
+            }
+          }
+
+          // Initialize at start of path
+          const initPos = path[0];
+          car.style.left = initPos.x + '%';
+          car.style.top = initPos.y + '%';
+          car.style.transform = 'rotate(0deg)';
+
+          currentTrackDrawn = 0;
+          updateTracks();
+
+          carAnimFrame = requestAnimationFrame(animate);
+        }
+
+        function startCircleTransition(originBtn, entering) {
+          if (!originBtn) return;
+
+          const rect = originBtn.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+
+          const size = Math.max(window.innerWidth, window.innerHeight) * 2.5;
+
+          if (entering) {
+            // Entering: hide the contact button + NZ flag straight away (X appears immediately)
+            // Circle grows from the original button position to reveal the white overlay
+            banner.classList.add('contact-open');
+            banner.classList.remove('banner--light');
+
+            // Entering: start small at Contact button, grow large (white inside reveals contact state, black outline is the expanding line)
+            transitionCircle.style.transition = 'none';
+            transitionCircle.style.left = centerX + 'px';
+            transitionCircle.style.top = centerY + 'px';
+            transitionCircle.style.width = '0px';
+            transitionCircle.style.height = '0px';
+            transitionCircle.style.opacity = '1';
+            transitionCircle.offsetWidth;
+
+            transitionCircle.style.transition = 'width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease';
+            transitionCircle.style.width = size + 'px';
+            transitionCircle.style.height = size + 'px';
+            transitionCircle.style.left = (centerX - size / 2) + 'px';
+            transitionCircle.style.top = (centerY - size / 2) + 'px';
+
+            // Switch to contact mode (overlay + car) near the end of the growth
+            setTimeout(() => {
+              contactOverlay.classList.add('visible');
+
+              // Start the race car: drives slowly along a path with a few bends, then underneath the email
+              startCarDrive();
+
+              // Hide the circle after switch (white blends with overlay)
+              transitionCircle.style.transition = 'opacity 0.15s ease';
+              transitionCircle.style.opacity = '0';
+              setTimeout(() => {
+                transitionCircle.style.transition = 'none';
+                transitionCircle.style.width = '0px';
+                transitionCircle.style.height = '0px';
+                // leave opacity at 0 so the circle is invisible when not transitioning
+              }, 200);
+            }, 550);
+          } else {
+            // Exiting (reverse): start large at X (covering current contact white), shrink to small at X (revealing normal content as white area contracts, black outline contracts)
+            transitionCircle.style.transition = 'none';
+            transitionCircle.style.left = (centerX - size / 2) + 'px';
+            transitionCircle.style.top = (centerY - size / 2) + 'px';
+            transitionCircle.style.width = size + 'px';
+            transitionCircle.style.height = size + 'px';
+            transitionCircle.style.opacity = '1';
+            transitionCircle.offsetWidth;
+
+            // Immediately switch out of contact mode (overlay and banner restore) -- visual stays the same because large circle still covers with white
+            contactOverlay.classList.remove('visible');
+            banner.classList.remove('contact-open');
+            updateBannerTheme();
+
+            if (carAnimFrame) {
+              cancelAnimationFrame(carAnimFrame);
+              carAnimFrame = null;
+            }
+            // Reset car to starting position off left for next open
+            const resetCar = document.querySelector('.contact-car');
+            if (resetCar) {
+              resetCar.style.left = '-12%';
+              resetCar.style.top = '68%';
+              resetCar.style.transform = 'rotate(0deg)';
+            }
+            currentTrackDrawn = 0;
+            updateTracks();
+
+            // Now start the shrink
+            transitionCircle.style.transition = 'width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease';
+            transitionCircle.style.width = '0px';
+            transitionCircle.style.height = '0px';
+            transitionCircle.style.left = centerX + 'px';
+            transitionCircle.style.top = centerY + 'px';
+
+            // After shrink, fade out the circle
+            setTimeout(() => {
+              transitionCircle.style.transition = 'opacity 0.15s ease';
+              transitionCircle.style.opacity = '0';
+              setTimeout(() => {
+                transitionCircle.style.transition = 'none';
+                transitionCircle.style.width = '0px';
+                transitionCircle.style.height = '0px';
+                // leave opacity at 0 so the circle is invisible when not transitioning
+              }, 200);
+            }, 550);
+          }
+        }
+
+        // Open: grow circle from Contact button
+        contactBtn.addEventListener('click', () => {
+          if (!contactOverlay.classList.contains('visible')) {
+            startCircleTransition(contactBtn, true);
+          }
+        });
+
+        // Close: grow circle from the X button
+        closeContactBtn.addEventListener('click', () => {
+          if (contactOverlay.classList.contains('visible')) {
+            startCircleTransition(closeContactBtn, false);
+          }
+        });
+
+        // Email as plain text button (no outline)
+        contactEmailEl.style.cursor = 'pointer';
+        contactEmailEl.addEventListener('click', function() {
+          window.location.href = 'mailto:mwatkins1470@gmail.com';
+        });
+
+        // Close on ESC: use X as origin
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && contactOverlay.classList.contains('visible')) {
+            startCircleTransition(closeContactBtn, false);
+          }
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>
