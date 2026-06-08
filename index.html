@@ -242,6 +242,22 @@
       transition: width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease;
     }
 
+    /* ─── Loading screen (white, blank, covers everything until video + graph ready) ─── */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #ffffff;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.75s var(--ease-premium);
+      /* completely blank as requested — no text, no spinner */
+    }
+
+    #loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
     /* When contact open: hide contact+flag, show X on banner */
     .banner.contact-open .banner__contact,
     .banner.contact-open .banner__flag {
@@ -683,6 +699,9 @@
 </head>
 <body>
 
+  <!-- Full white loading screen shown until video + graph assets are ready -->
+  <div id="loading-screen"></div>
+
   <!-- ═══ Sticky Banner (appears at 7500ms) ═══ -->
   <header class="banner" id="banner" role="banner">
     <div class="banner__left">
@@ -815,6 +834,26 @@
       const transitionCircle = document.getElementById('transition-circle');
       const aboutSection = document.querySelector('.about-section');
 
+      /* ─── Loading gate: wait for video + graph images before starting sequence ─── */
+      let videoReady = false;
+      function markVideoReady() {
+        if (!videoReady) {
+          videoReady = true;
+          tryStartSequence();
+        }
+      }
+      if (heroVideo) {
+        heroVideo.addEventListener('canplaythrough', markVideoReady, { once: true });
+        heroVideo.addEventListener('loadeddata', () => {
+          if (heroVideo.readyState >= 3) markVideoReady();
+        }, { once: true });
+        heroVideo.addEventListener('error', markVideoReady, { once: true });
+        // If already ready (cached / fast load)
+        if (heroVideo.readyState >= 3) {
+          videoReady = true;
+        }
+      }
+
       /* ─── Graph layers for image sweep (using original image) ────── */
       const graphCanvas = document.getElementById('forceGraph');
       let graphCtx = null;
@@ -841,6 +880,7 @@
           }
           drawForceGraph();
         }
+        tryStartSequence();
       }
       dataImg.onload = onGraphLayerReady;
       bgImg.onload = onGraphLayerReady;
@@ -975,6 +1015,38 @@
         }
       }
 
+      /* ─── Loading gate helpers ─────────────────────────────────── */
+      function tryStartSequence() {
+        const graphOk = (typeof graphImagesReady !== 'undefined' && graphImagesReady >= 2);
+        if (graphOk && videoReady) {
+          hideLoadingScreenAndStart();
+        }
+      }
+
+      function hideLoadingScreenAndStart() {
+        const loader = document.getElementById('loading-screen');
+        if (!loader) {
+          initSequence();
+          return;
+        }
+        // Fade the pure white loader away
+        loader.style.transition = 'opacity 0.75s var(--ease-premium)';
+        loader.style.opacity = '0';
+
+        // After the fade completes, remove the overlay and start the original hero sequence
+        setTimeout(() => {
+          if (loader.parentNode) loader.parentNode.removeChild(loader);
+          initSequence();
+        }, 800);
+      }
+
+      // Safety: if something is slow or blocked, don't leave the user on a blank white screen forever
+      setTimeout(() => {
+        if (!videoReady) videoReady = true;
+        if (typeof graphImagesReady !== 'undefined' && graphImagesReady < 2) graphImagesReady = 2;
+        tryStartSequence();
+      }, 4500);
+
       // Ensure we draw the initial state of the graph sweep as soon as images are ready
       // (the canvas container reserves space via CSS aspect-ratio even before content)
 
@@ -1030,11 +1102,15 @@
         }, 2000);
       }
 
-      /* ─── Boot ─────────────────────────────────────────────────── */
+      /* ─── Boot (now gated behind the loading screen) ───────────── */
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initSequence);
+        document.addEventListener('DOMContentLoaded', () => {
+          // The video listener and image onloads are already wired.
+          // Kick a check in case the critical assets finished before or during DOM ready.
+          setTimeout(tryStartSequence, 30);
+        });
       } else {
-        initSequence();
+        setTimeout(tryStartSequence, 30);
       }
 
       /* ─── Banner text color change when over dark About section ── */
