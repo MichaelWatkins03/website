@@ -9,7 +9,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Urbanist:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
     /* ─── Reset & Base ─────────────────────────────────────────── */
@@ -256,6 +256,49 @@
     #loading-screen.hidden {
       opacity: 0;
       pointer-events: none;
+    }
+
+    /* 
+      "M W" uses Urbanist (modern sans-serif, added via Google Fonts).
+      Clean and contemporary for the loading initials and flip animation.
+    */
+
+    .loading-initials {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Urbanist', sans-serif;
+      font-size: clamp(72px, 18vw, 140px);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #111111;
+      line-height: 1;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Two 180° clockwise flips (smooth with a brief hold between them) before fade */
+    .loading-initials.flipping {
+      animation: mw-flip 2.4s cubic-bezier(0.22, 1, 0.36, 1) 1s forwards;
+    }
+
+    @keyframes mw-flip {
+      0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      42% {
+        transform: translate(-50%, -50%) rotate(180deg);
+      }
+      50% {
+        transform: translate(-50%, -50%) rotate(180deg); /* brief hold / smooth step */
+      }
+      92% {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+      100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
     }
 
     /* When contact open: hide contact+flag, show X on banner */
@@ -700,7 +743,9 @@
 <body>
 
   <!-- Full white loading screen shown until video + graph assets are ready -->
-  <div id="loading-screen"></div>
+  <div id="loading-screen">
+    <div class="loading-initials">M W</div>
+  </div>
 
   <!-- ═══ Sticky Banner (appears at 7500ms) ═══ -->
   <header class="banner" id="banner" role="banner">
@@ -748,7 +793,6 @@
       <div class="hero__video-wrap">
         <video
           id="heroVideo"
-          autoplay
           muted
           loop
           playsinline
@@ -1016,36 +1060,48 @@
       }
 
       /* ─── Loading gate helpers ─────────────────────────────────── */
+      let loaderExitStarted = false;
+
       function tryStartSequence() {
         const graphOk = (typeof graphImagesReady !== 'undefined' && graphImagesReady >= 2);
-        if (graphOk && videoReady) {
-          hideLoadingScreenAndStart();
+        if (graphOk && videoReady && !loaderExitStarted) {
+          loaderExitStarted = true;
+          startLoaderExitAnimation();
         }
       }
 
-      function hideLoadingScreenAndStart() {
+      function startLoaderExitAnimation() {
         const loader = document.getElementById('loading-screen');
-        if (!loader) {
+        const initials = loader ? loader.querySelector('.loading-initials') : null;
+
+        if (!loader || !initials) {
           initSequence();
           return;
         }
-        // Fade the pure white loader away
-        loader.style.transition = 'opacity 0.75s var(--ease-premium)';
-        loader.style.opacity = '0';
 
-        // After the fade completes, remove the overlay and start the original hero sequence
-        setTimeout(() => {
-          if (loader.parentNode) loader.parentNode.removeChild(loader);
-          initSequence();
-        }, 800);
+        // Start the two 180° clockwise flips (the animation itself holds the screen visible longer)
+        initials.classList.add('flipping');
+
+        // After the flip animation finishes, fade the white screen and immediately
+        // start the hero sequence (video + graph reveal start together from t=0).
+        initials.addEventListener('animationend', () => {
+          loader.style.transition = 'opacity 0.75s var(--ease-premium)';
+          loader.style.opacity = '0';
+
+          setTimeout(() => {
+            if (loader.parentNode) loader.parentNode.removeChild(loader);
+            initSequence();
+          }, 800);
+        }, { once: true });
       }
 
-      // Safety: if something is slow or blocked, don't leave the user on a blank white screen forever
+      // Safety: if something is slow or blocked, don't leave the user on a blank white screen forever.
+      // Increased to give the MW flip animation time to play even on slow loads.
       setTimeout(() => {
         if (!videoReady) videoReady = true;
         if (typeof graphImagesReady !== 'undefined' && graphImagesReady < 2) graphImagesReady = 2;
         tryStartSequence();
-      }, 4500);
+      }, 6000);
 
       // Ensure we draw the initial state of the graph sweep as soon as images are ready
       // (the canvas container reserves space via CSS aspect-ratio even before content)
@@ -1053,6 +1109,7 @@
       /* ─── Ensure video plays (autoplay policies) ───────────────── */
       function startVideo() {
         if (!heroVideo) return;
+        heroVideo.currentTime = 0;
         heroVideo.muted = true;
         const play = heroVideo.play();
         if (play && play.catch) {
