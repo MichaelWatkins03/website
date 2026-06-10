@@ -1164,7 +1164,7 @@
         let x = parseFloat(particle.style.left);
         let y = parseFloat(particle.style.top);
         let vx = (Math.random() - 0.5) * 1.2;
-        let vy = 18 + Math.random() * 8;  // halved speed but still faster than I descent
+        let vy = 18 + Math.random() * 8;  // half the speed of the particles (still faster than I on typical screens)
         // Ground set to the actual bottom of the MIW text + small offset so particles form an underline right under the letters without going below the writing
         const mRect = initials.querySelector('.m').getBoundingClientRect();
         const wRect = initials.querySelector('.w').getBoundingClientRect();
@@ -1186,7 +1186,7 @@
             hasHit = true;
             y = groundY;
             vy = -0.2 - Math.random() * 0.5;
-            vx = (Math.random() > 0.5 ? 1 : -1) * (7.5 + Math.random() * 9.6);  // wider splay on ground hit
+            vx = (Math.random() > 0.5 ? 1 : -1) * (3.75 + Math.random() * 4.8);  // wider splay on ground hit (halved speed)
             particle.style.opacity = '0.9';
           } else if (hasHit) {
             y = groundY;  // never go below the writing
