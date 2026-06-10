@@ -93,6 +93,7 @@
     }
 
     .banner__name {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 1.125rem;
       font-weight: 700;
       letter-spacing: -0.02em;
@@ -112,6 +113,7 @@
       background: none;
       border: 1px solid transparent;
       color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 1.125rem;
       font-weight: 700;
       letter-spacing: -0.02em;
@@ -196,6 +198,7 @@
       padding: 0;
       text-decoration: none;
       transition: font-size 0.25s ease;
+      max-width: 90vw;
     }
 
     .contact-email:hover {
@@ -268,14 +271,47 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.12em;
       font-family: 'Urbanist', sans-serif;
-      font-size: clamp(72px, 18vw, 140px);
+      font-size: clamp(36px, 9vw, 70px);
       font-weight: 600;
-      letter-spacing: 0.02em;
       color: #111111;
       line-height: 1;
       user-select: none;
       pointer-events: none;
+    }
+
+    .loading-initials .i {
+      opacity: 0;
+    }
+
+    .loading-initials .i.landing {
+      animation: i-rocket-land 2.0s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    }
+
+    @keyframes i-rocket-land {
+      0% {
+        opacity: 0;
+        transform: translateY(-120vh);
+      }
+      18% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .exhaust-particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      box-shadow: 0 0 1px rgba(0,0,0,0.3);
     }
 
     /* Two 180° clockwise flips (smooth with a brief hold between them) before fade */
@@ -578,6 +614,14 @@
       .footer {
         padding: 64px 24px 40px;
       }
+
+      .contact-email {
+        font-size: 1.1rem;
+      }
+
+      .contact-email:hover {
+        font-size: 1.3rem;
+      }
     }
 
     /* ─── About Section ──────────────────────────────────────────── */
@@ -744,7 +788,11 @@
 
   <!-- Full white loading screen shown until video + graph assets are ready -->
   <div id="loading-screen">
-    <div class="loading-initials">M W</div>
+    <div class="loading-initials">
+      <span class="m">M</span>
+      <span class="i">I</span>
+      <span class="w">W</span>
+    </div>
   </div>
 
   <!-- ═══ Sticky Banner (appears at 7500ms) ═══ -->
@@ -1070,6 +1118,96 @@
         }
       }
 
+      function startExhaustGases(iEl, loader, initials) {
+        if (!iEl || !loader || !initials) return;
+        const emitDuration = 1200;
+        const emitInterval = 6;
+        let emitted = 0;
+        const maxParticles = 100;
+        // Fire a burst of particles immediately as soon as the I starts appearing/moving
+        for (let i = 0; i < 6; i++) {
+          createExhaustParticle(iEl, loader, initials);
+          emitted++;
+        }
+        const intervalId = setInterval(() => {
+          if (emitted >= maxParticles || !iEl.parentNode || !loader.parentNode) {
+            clearInterval(intervalId);
+            return;
+          }
+          createExhaustParticle(iEl, loader, initials);
+          emitted++;
+        }, emitInterval);
+        setTimeout(() => {
+          clearInterval(intervalId);
+        }, emitDuration);
+      }
+
+      function createExhaustParticle(iEl, loader, initials) {
+        const particle = document.createElement('div');
+        particle.className = 'exhaust-particle';
+        const iRect = iEl.getBoundingClientRect();
+        const loaderRect = loader.getBoundingClientRect();
+        const baseX = iRect.left + iRect.width / 2 + (Math.random() - 0.5) * 5;
+        const baseY = iRect.bottom + (Math.random() - 0.5) * 2;
+        particle.style.left = (baseX - loaderRect.left) + 'px';
+        particle.style.top = (baseY - loaderRect.top) + 'px';
+        const size = 2.5 + Math.random() * 2.5;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        particle.style.background = '#111';
+        particle.style.position = 'absolute';
+        particle.style.borderRadius = '50%';
+        particle.style.opacity = Math.min(1, (0.55 + Math.random() * 0.35) * 2).toString();
+        particle.style.zIndex = '1';
+        loader.appendChild(particle);
+
+        let x = parseFloat(particle.style.left);
+        let y = parseFloat(particle.style.top);
+        let vx = (Math.random() - 0.5) * 1.2;
+        let vy = 18 + Math.random() * 8;  // halved speed but still faster than I descent
+        // Ground set to the actual bottom of the MIW text + small offset so particles form an underline right under the letters without going below the writing
+        const mRect = initials.querySelector('.m').getBoundingClientRect();
+        const wRect = initials.querySelector('.w').getBoundingClientRect();
+        const miwBottom = Math.max(mRect.bottom, wRect.bottom);
+        const groundY = miwBottom - loaderRect.top + 2;  // 2px below text bottom for underline effect
+        let hasHit = false;
+        const maxLife = 1050;
+        let life = 0;
+
+        function step() {
+          life += 16;
+          if (life > maxLife) {
+            particle.remove();
+            return;
+          }
+          x += vx;
+          y += vy;
+          if (!hasHit && y >= groundY) {
+            hasHit = true;
+            y = groundY;
+            vy = -0.2 - Math.random() * 0.5;
+            vx = (Math.random() > 0.5 ? 1 : -1) * (7.5 + Math.random() * 9.6);  // wider splay on ground hit
+            particle.style.opacity = '0.9';
+          } else if (hasHit) {
+            y = groundY;  // never go below the writing
+            vx *= 0.95;
+            vy *= 0.93;
+          } else {
+            vy += 0.15;
+          }
+          particle.style.left = x + 'px';
+          particle.style.top = y + 'px';
+          const fadeFactor = hasHit ? 0.88 : 0.7;
+          particle.style.opacity = Math.max(0.03, parseFloat(particle.style.opacity) * fadeFactor - 0.006).toString();
+          if (hasHit && Math.abs(vx) < 0.4 && Math.abs(vy) < 0.3) {
+            particle.remove();
+            return;
+          }
+          requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
       function startLoaderExitAnimation() {
         const loader = document.getElementById('loading-screen');
         const initials = loader ? loader.querySelector('.loading-initials') : null;
@@ -1082,16 +1220,36 @@
         // Start the two 180° clockwise flips (the animation itself holds the screen visible longer)
         initials.classList.add('flipping');
 
-        // After the flip animation finishes, fade the white screen and immediately
-        // start the hero sequence (video + graph reveal start together from t=0).
+        // After the flip animation finishes, trigger the "I" to fly straight down like a rocket
+        // landing between M and W. Once the I has landed (forming "MIW"), then fade the loader
+        // and start the hero sequence.
         initials.addEventListener('animationend', () => {
-          loader.style.transition = 'opacity 0.75s var(--ease-premium)';
-          loader.style.opacity = '0';
+          const iEl = initials.querySelector('.i');
+          if (iEl) {
+            iEl.classList.add('landing');
+            // Start exhaust gases shooting out the bottom *during* the landing (not after)
+            startExhaustGases(iEl, loader, initials);
+            iEl.addEventListener('animationend', () => {
+              // Add half a second at the end of the loading screen with exhaust visible
+              setTimeout(() => {
+                loader.style.transition = 'opacity 0.75s var(--ease-premium)';
+                loader.style.opacity = '0';
 
-          setTimeout(() => {
-            if (loader.parentNode) loader.parentNode.removeChild(loader);
-            initSequence();
-          }, 800);
+                setTimeout(() => {
+                  if (loader.parentNode) loader.parentNode.removeChild(loader);
+                  initSequence();
+                }, 800);
+              }, 500);
+            }, { once: true });
+          } else {
+            // fallback
+            loader.style.transition = 'opacity 0.75s var(--ease-premium)';
+            loader.style.opacity = '0';
+            setTimeout(() => {
+              if (loader.parentNode) loader.parentNode.removeChild(loader);
+              initSequence();
+            }, 800);
+          }
         }, { once: true });
       }
 
