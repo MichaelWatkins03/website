@@ -262,8 +262,8 @@
     }
 
     /* 
-      "M W" uses Urbanist (modern sans-serif, added via Google Fonts).
-      Clean and contemporary for the loading initials and flip animation.
+      "MIW" loading animation with rocket "I" landing.
+      Urbanist font for the letters.
     */
 
     .loading-initials {
@@ -285,23 +285,140 @@
     }
 
     .loading-initials .i {
+      position: relative;
+      display: inline-block;
+    }
+
+    .loading-initials .i-text {
+      /* the final I text in "MIW", hidden until the rocket disappears */
+      opacity: 0;
+    }
+
+    .loading-initials .i-rocket {
+      /* the rocket stem "I" that flies and then disappears */
+      position: absolute;
+      top: 0;
+      left: 0;
+      font: inherit;
+      color: inherit;
+      opacity: 0;
+    }
+
+    .loading-initials .i {
+      /* Control leg attachment and angle via vars so retraction transition can explicitly start
+         from the exact unretracted (angled) pose/position the legs have at the end of landing.
+         Legs positioned via em so they scale with font-size (consistent on mobile/tablet). */
+      --leg-bottom: 0.16em;
+      --leg-angle: 50deg;
+    }
+
+    .loading-initials .i::before,
+    .loading-initials .i::after {
+      content: '';
+      position: absolute;
+      bottom: var(--leg-bottom);
+      width: 0.19em;  /* length of each leg/flange, scales with font-size */
+      height: 0.086em;  /* thickness of each leg/flange (same as top), scales with font-size */
+      background: #111;
+      transition: transform 0.35s ease, bottom 0.35s ease;
+      z-index: 3;
+      opacity: 0;
+    }
+
+    .loading-initials .i.landing::before,
+    .loading-initials .i.landing::after,
+    .loading-initials .i.landed::before,
+    .loading-initials .i.landed::after {
+      opacity: 1;
+    }
+
+    .loading-initials .i::before {
+      left: calc(50% - 0.19em);
+      transform-origin: 100% 50%;
+      transform: rotate(calc(-1 * var(--leg-angle)));
+    }
+
+    .loading-initials .i::after {
+      left: 50%;
+      transform-origin: 0% 50%;
+      transform: rotate(var(--leg-angle));
+    }
+
+    .loading-initials .i.landing .i-rocket {
+      opacity: 1;
+    }
+
+    .loading-initials .i.landing .i-text {
       opacity: 0;
     }
 
     .loading-initials .i.landing {
-      animation: i-rocket-land 2.0s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+      animation: i-rocket-land 2.67s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    }
+
+    .loading-initials .i.landed .i-rocket {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading-initials .i.landed .i-text {
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading-initials .i.landed {
+      /* The rocket body + legs (the .i container) must not move upwards (or vertically at all)
+         during leg retraction. It remains at the exact position it reached at the end of the
+         i-rocket-land keyframe (translateY(0)). Only the legs pivot to horizontal around their
+         attachment point. The attachment itself has been moved slightly lower on the I stem
+         (see --leg-bottom on .i above). Relative positioning between legs and I body is preserved. */
+    }
+
+    /* Explicit final leg state when landed (more specific than the base angled rules).
+       These provide the clear target transform: rotate(0deg) so the transition (declared on the
+       pseudos) smoothly pivots the legs to horizontal from their angled landing pose.
+       The I container itself receives no transform and does not move vertically. */
+    .loading-initials .i.landed::before {
+      transform: rotate(0deg);
+    }
+
+    .loading-initials .i.landed::after {
+      transform: rotate(0deg);
+    }
+
+    /* Top flanges (horizontal serifs) for the I, same length (0.19em) and thickness (0.086em) as the legs.
+       All dimensions use em so they scale proportionally with the font-size (clamp) for mobile/tablet.
+       Always horizontal. Visible during rocket landing (on the rocket I) and after landing (on the landed I).
+       They live on the .i container so they appear with both .i-rocket and .i-text, and disappear
+       together with M, W and the final I when the loading screen fades. */
+    .loading-initials .i-top {
+      position: absolute;
+      top: 0.14em;  /* scales with font-size so top flanges align at the top of the "I" glyph on all screen sizes */
+      height: 0.086em;  /* thickness matches legs */
+      width: 0.19em;  /* length matches legs (each way) */
+      background: #111;
+      z-index: 3;
+      opacity: 0;
+    }
+
+    .loading-initials .i.landing .i-top,
+    .loading-initials .i.landed .i-top {
+      opacity: 1;
+    }
+
+    .loading-initials .i-top-left {
+      left: calc(50% - 0.19em);
+    }
+
+    .loading-initials .i-top-right {
+      left: 50%;
     }
 
     @keyframes i-rocket-land {
       0% {
-        opacity: 0;
         transform: translateY(-120vh);
       }
-      18% {
-        opacity: 1;
-      }
       100% {
-        opacity: 1;
         transform: translateY(0);
       }
     }
@@ -775,6 +892,13 @@
       }
     }
 
+    @media (max-width: 480px) {
+      .teams-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -790,7 +914,12 @@
   <div id="loading-screen">
     <div class="loading-initials">
       <span class="m">M</span>
-      <span class="i">I</span>
+      <span class="i">
+        <span class="i-top i-top-left"></span>
+        <span class="i-top i-top-right"></span>
+        <span class="i-text">I</span>
+        <span class="i-rocket">I</span>
+      </span>
       <span class="w">W</span>
     </div>
   </div>
@@ -1120,26 +1249,36 @@
 
       function startExhaustGases(iEl, loader, initials) {
         if (!iEl || !loader || !initials) return;
-        const emitDuration = 1200;
-        const emitInterval = 6;
-        let emitted = 0;
-        const maxParticles = 100;
-        // Fire a burst of particles immediately as soon as the I starts appearing/moving
-        for (let i = 0; i < 6; i++) {
-          createExhaustParticle(iEl, loader, initials);
-          emitted++;
-        }
-        const intervalId = setInterval(() => {
-          if (emitted >= maxParticles || !iEl.parentNode || !loader.parentNode) {
-            clearInterval(intervalId);
-            return;
-          }
-          createExhaustParticle(iEl, loader, initials);
-          emitted++;
-        }, emitInterval);
+        // Delay exhaust ejection by 0.5 seconds into the rocket landing animation.
+        // Particles will originate from the rocket's *current* position (via getBoundingClientRect)
+        // at the exact moment each one is created, not from the start of the descent.
         setTimeout(() => {
-          clearInterval(intervalId);
-        }, emitDuration);
+          if (!iEl.parentNode || !loader.parentNode) return;
+          const emitDuration = 2170;
+          const emitInterval = 46;
+          let emitted = 0;
+          const maxParticles = 50;
+          // Fire a burst of particles 0.5s after the rocket I starts its landing animation,
+          // so they eject from the current (later) position of the rocket.
+          // Ejection stops exactly when the rocket landing animation ends (at 2.67s),
+          // so particles stop at the same time the rocket is fully landed.
+          // Particle speeds increased by 75% (50% + another 25%).
+          for (let i = 0; i < 3; i++) {
+            createExhaustParticle(iEl, loader, initials);
+            emitted++;
+          }
+          const intervalId = setInterval(() => {
+            if (emitted >= maxParticles || !iEl.parentNode || !loader.parentNode) {
+              clearInterval(intervalId);
+              return;
+            }
+            createExhaustParticle(iEl, loader, initials);
+            emitted++;
+          }, emitInterval);
+          setTimeout(() => {
+            clearInterval(intervalId);
+          }, emitDuration);
+        }, 500);
       }
 
       function createExhaustParticle(iEl, loader, initials) {
@@ -1163,15 +1302,15 @@
 
         let x = parseFloat(particle.style.left);
         let y = parseFloat(particle.style.top);
-        let vx = (Math.random() - 0.5) * 1.2;
-        let vy = 18 + Math.random() * 8;  // half the speed of the particles (still faster than I on typical screens)
+        let vx = (Math.random() - 0.5) * 1.125;
+        let vy = 16.875 + Math.random() * 7.5;  // speed of the exhaust particles increased by 75% (50% + another 25%)
         // Ground set to the actual bottom of the MIW text + small offset so particles form an underline right under the letters without going below the writing
         const mRect = initials.querySelector('.m').getBoundingClientRect();
         const wRect = initials.querySelector('.w').getBoundingClientRect();
         const miwBottom = Math.max(mRect.bottom, wRect.bottom);
         const groundY = miwBottom - loaderRect.top + 2;  // 2px below text bottom for underline effect
         let hasHit = false;
-        const maxLife = 1050;
+        const maxLife = 2100;
         let life = 0;
 
         function step() {
@@ -1185,21 +1324,21 @@
           if (!hasHit && y >= groundY) {
             hasHit = true;
             y = groundY;
-            vy = -0.2 - Math.random() * 0.5;
-            vx = (Math.random() > 0.5 ? 1 : -1) * (3.75 + Math.random() * 4.8);  // wider splay on ground hit (halved speed)
+            vy = -0.1875 - Math.random() * 0.46875;
+            vx = (Math.random() > 0.5 ? 1 : -1) * (3.515625 + Math.random() * 4.5);  // wider splay on ground hit
             particle.style.opacity = '0.9';
           } else if (hasHit) {
             y = groundY;  // never go below the writing
             vx *= 0.95;
             vy *= 0.93;
           } else {
-            vy += 0.15;
+            vy += 0.140625;
           }
           particle.style.left = x + 'px';
           particle.style.top = y + 'px';
           const fadeFactor = hasHit ? 0.88 : 0.7;
-          particle.style.opacity = Math.max(0.03, parseFloat(particle.style.opacity) * fadeFactor - 0.006).toString();
-          if (hasHit && Math.abs(vx) < 0.4 && Math.abs(vy) < 0.3) {
+          particle.style.opacity = Math.max(0.03, parseFloat(particle.style.opacity) * fadeFactor - 0.003).toString();
+          if (hasHit && Math.abs(vx) < 0.375 && Math.abs(vy) < 0.28125) {
             particle.remove();
             return;
           }
@@ -1227,19 +1366,36 @@
           const iEl = initials.querySelector('.i');
           if (iEl) {
             iEl.classList.add('landing');
-            // Start exhaust gases shooting out the bottom *during* the landing (not after)
+            // Start exhaust gases shooting out the bottom during the landing (delayed by 0.5s
+            // so particles originate from the rocket's current position at the time of ejection).
+            // Ejection duration set so particles stop exactly when the rocket landing animation ends.
+            // Exhaust particle velocities increased by 75% (50% + another 25%).
             startExhaustGases(iEl, loader, initials);
             iEl.addEventListener('animationend', () => {
-              // Add half a second at the end of the loading screen with exhaust visible
+              // Rocket has landed. The I (rocket body + legs) stays at its final landing position
+              // (no upward movement on retraction). The legs start from the exact angled unretracted
+              // pose (now with attachment 1px higher up the I body per --leg-bottom). Adding
+              // 'landed' applies the explicit horizontal rotate(0deg) targets on the pseudos (higher
+              // specificity) so the transition on the pseudos smoothly pivots the legs only.
+              iEl.style.animation = 'none';
+              // Force reflow to ensure we capture the current (post-landing) rendered state as the
+              // start for the .landed pseudo transitions, then add the class that supplies the targets.
+              void iEl.offsetWidth;
+              iEl.classList.add('landed');
+              // After the legs have fully retracted (0.35s CSS transition), hold the loading screen
+              // for an additional 1 second before fading (increases total loading screen length by 1s
+              // after retraction completes).
               setTimeout(() => {
-                loader.style.transition = 'opacity 0.75s var(--ease-premium)';
-                loader.style.opacity = '0';
-
                 setTimeout(() => {
-                  if (loader.parentNode) loader.parentNode.removeChild(loader);
-                  initSequence();
-                }, 800);
-              }, 500);
+                  loader.style.transition = 'opacity 0.75s var(--ease-premium)';
+                  loader.style.opacity = '0';
+
+                  setTimeout(() => {
+                    if (loader.parentNode) loader.parentNode.removeChild(loader);
+                    initSequence();
+                  }, 800);
+                }, 1000);
+              }, 350);
             }, { once: true });
           } else {
             // fallback
