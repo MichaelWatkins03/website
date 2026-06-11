@@ -709,6 +709,14 @@
         display: none;
       }
 
+      /* Phone-only adjustment: move top and bottom flanges/legs down by 5px to match desktop/tablet visual alignment */
+      .loading-initials .i-top {
+        top: calc(0.14em + 5px);
+      }
+      .loading-initials .i {
+        --leg-bottom: calc(0.16em - 5px);
+      }
+
       .hero {
         padding: 15vh 24px 8vh;
       }
