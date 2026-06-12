@@ -317,7 +317,7 @@
       --leg-bottom: calc((11/6) * var(--flange-thickness)); /* move the bottom flange + landing legs up by 1 5/6 of the (matching) flange thickness; larger value lifts the pseudos higher on the stem (fixed attachment for pure pivot) */
       --retract-drop: 0.145em; /* approx 0.19em * sin(50deg) — the vertical distance the body must drop during the 0.35s leg retract so the free ends (toes) of the angled legs stay planted on the final ground level while the legs rotate to horizontal. This drop amount is also the final settlement of the I (after the drop the "I" reaches the correct positional height the user confirmed). */
       --i-settle-y: 0; /* controls extra translateY on the rocket body (.i). Default 0 = natural landing pose from the keyframe. During retract we transition it to +var(--retract-drop) for a smooth drop of the whole I (stem + top/bottom flanges + legs) while the legs retract. */
-      --top-flange-shift: 0.107em; /* move the relative positional height of the top flange down on the rocket, but adjusted upwards by 0.3% of the font-size from the prior value (reduced from 0.11em to 0.107em / ~10.7%, decreased by 0.003em). The rocket stem itself is in the correct position. The shift is applied in the .i-top rule to ensure the position actually changes relative to the rocket. */
+      --top-flange-shift: 0.105em; /* move the relative positional height of the top flange down on the rocket, but adjusted upwards by another 0.2% of the font-size (reduced from 0.107em to 0.105em / ~10.5%, decreased by additional 0.002em). The rocket stem itself is in the correct position. The shift is applied in the .i-top rule to ensure the position actually changes relative to the rocket. */
       --bottom-flange-shift: 0.02em; /* move the relative positional height of the bottom flange (and landing legs) down on the rocket by 2% of the font-size (0.02em, decreased by 3% from the prior 5%). The rocket stem itself is in the correct position. */
       /* The long descent animation overrides transform via keyframes.
          When the animation is removed at landing, this base transform (reading the var) takes over
@@ -408,15 +408,15 @@
     /* Top flanges (horizontal serifs) implemented as two sibling spans inside .i (always present).
        Absolutely positioned relative to .i. The --top-flange-offset (measured + tweak) positions for
        flush with the visual top of the "I" glyph; an additional --top-flange-shift moves the relative
-       positional height of the top flange down on the rocket, adjusted upwards by 0.3% of the font-size
-       (now 0.107em total / ~10.7%, reduced by 0.003em from prior). This is applied explicitly in the rule
+       positional height of the top flange down on the rocket, adjusted upwards by another 0.2% of the font-size
+       (now 0.105em total / ~10.5%, reduced by additional 0.002em from prior). This is applied explicitly in the rule
        below to ensure the position actually moves relative to the rocket stem (which remains in its correct
        position). Height uses the base --flange-thickness (matches the landing legs). Width (0.19em each)
        matches bottom flanges/legs. Visible in .landing and .landed states (part of the rocket/"I" in both);
        disappear with the rest of the loader. */
     .loading-initials .i-top {
       position: absolute;
-      top: calc(var(--top-flange-offset) + var(--top-flange-shift));  /* the +shift moves the relative positional height of the top flange down on the rocket, adjusted upwards by 0.3% of the font-size (now 0.107em total). This ensures the position is actually changed relative to the rocket stem (which stays at its correct position). */
+      top: calc(var(--top-flange-offset) + var(--top-flange-shift));  /* the +shift moves the relative positional height of the top flange down on the rocket, adjusted upwards by another 0.2% of the font-size (now 0.105em total). This ensures the position is actually changed relative to the rocket stem (which stays at its correct position). */
       height: var(--flange-thickness);
       width: 0.19em;
       background: #111;
