@@ -315,7 +315,12 @@
       --flange-thickness: 0.086em; /* fallback; JS overrides after font load to (on-screen "I" width * 5/12) as em — this is the thickness used by the landing legs and the top flanges */
       --bottom-flange-thickness: calc(var(--flange-thickness) * 7 / 6); /* bottom (horizontal) flange is 1/6 thicker than the legs for visual match when retracted */
       --leg-bottom: calc((11/6) * var(--bottom-flange-thickness)); /* move the bottom flange + landing legs up by 1 5/6 of the (increased) bottom flange thickness; larger value lifts the pseudos higher on the stem (fixed attachment for pure pivot) */
-      --retract-drop: 0.145em; /* approx 0.19em * sin(50deg) — the distance the I body drops on screen during the 0.35s retract (to keep leg free ends/toes planted while legs rotate flat). Used to pre-lift the entire rocket so final post-retract bottom aligns with M/W. */
+      --retract-drop: 0.145em; /* approx 0.19em * sin(50deg) — the distance the I body drops on screen during the 0.35s retract (to keep leg free ends/toes planted while legs rotate flat). Used to pre-lift the entire rocket (via keyframe end pose) so final post-retract bottom aligns with M/W. */
+      --i-settle-y: 0; /* drives the body's extra translateY for the final smooth settlement drop during leg retract. Set at runtime to hold the pre-lifted pose, then .landed drives it to the final value. */
+      /* The long descent animation overrides transform via keyframes.
+         When the animation is removed at landing, this base transform (reading the var) takes over
+         so we can hand off to a smooth 0.35s transition without the rocket jumping to a default pose. */
+      transform: translateY(var(--i-settle-y));
     }
 
     .loading-initials .i::before,
@@ -372,18 +377,22 @@
     }
 
     .loading-initials .i.landed {
-      /* Pre-lift the entire rocket (I stem + top flanges + bottom flange/legs) during descent by ending
-         the i-rocket-land anim at translateY(-var(--retract-drop)). Then during retract the container
-         transitions to translateY(0), dropping the body by exactly the retract-drop amount while the
-         legs rotate (toes stay planted on the final ground). Result: after retract the bottom edge of
-         the (thicker) horizontal bottom flange is flush with the bottom of the M and W (which do not move). */
-      transform: translateY(0);
+      /* The landing animation ends with the whole rocket (I + flanges + legs) pre-lifted
+         (keyframe 100% uses -var(--retract-drop)). At the instant of landing we pin --i-settle-y
+         to that same high value (no visual jump when animation is stripped). Adding 'landed'
+         changes --i-settle-y to 0 while this rule enables the 0.35s transform transition.
+         The body therefore drops smoothly during leg retraction, keeping toes planted.
+         Final value (0) places the bottom of the rendered I flush with M/W bottoms — do not change. */
+      --i-settle-y: 0;
       transition: transform 0.35s ease;
     }
 
     /* Explicit landed (horizontal) targets for the bottom flange. The pseudos transition (transform + height)
-       from the exact angled landing pose. Bottom value is fixed (pure rotation around attachment). The
-       height target makes the final horizontal bar 1/6 thicker than the legs. */
+       from the exact angled landing pose (the reflow hack + animation:none on the container snapshots the
+       state so the 0.35s transitions on the pseudos start from the precise unretracted geometry).
+       Bottom value is fixed (pure rotation around attachment). The height target makes the final
+       horizontal bar 1/6 thicker than the legs. The container body settlement is handled separately via
+       --i-settle-y so the rocket height change during retract is a smooth transition (no jump). */
     .loading-initials .i.landed::before {
       transform: rotate(0deg);
       height: var(--bottom-flange-thickness);
@@ -1436,14 +1445,22 @@
               // exact angled pose they had at end of descent to rotate(0deg), plus height growth to
               // the thicker bottom flange. The attachment (bottom: var(--leg-bottom)) is fixed —
               // the whole pseudo is lifted rigidly by the 1 5/6 bottom-flange-thickness value so the
-              // pivot point on the stem stays put during rotation. The .i container was pre-lifted
-              // (landing anim ends at -var(--retract-drop)); the .landed transition drops it by that
-              // exact amount while legs retract, so final bottom of the (thicker) horizontal flange
-              // ends flush with the M/W bottoms. Top flanges move with the whole rocket. Instant
-              // rocket↔text cross-fade. Hold 1s after retract then fade loader.
+              // pivot point on the stem stays put during rotation.
+              //
+              // Smooth body settlement (no jump at start of retract):
+              // The descent animation ends at the pre-lifted pose. We set --i-settle-y to match that
+              // exact high value, then strip the animation. Because the base .i rule now does
+              // transform: translateY(var(--i-settle-y)), the visual position is held with zero jump.
+              // Adding 'landed' changes the var to 0 (final correct position) while enabling the
+              // 0.35s transition on transform — the rocket body therefore drops *smoothly* during
+              // the leg retract while toes stay planted. Final landed position is unchanged.
+              // Top flanges move with the whole rocket. Instant rocket↔text cross-fade.
+              // Hold 1s after retract then fade loader.
+              iEl.style.setProperty('--i-settle-y', 'calc(-1 * var(--retract-drop))');
               iEl.style.animation = 'none';
-              // Force reflow to ensure we capture the current (post-landing) rendered state as the
-              // start for the .landed pseudo transitions, then add the class that supplies the targets.
+              // Force reflow to ensure we capture the current (post-landing) rendered state (the
+              // pinned high pose) as the start for the .landed transitions (body + pseudos), then
+              // add the class that supplies the targets (var to 0 + leg rotation + height change).
               void iEl.offsetWidth;
               iEl.classList.add('landed');
               // After the legs have fully retracted (0.35s CSS transition), hold the loading screen
