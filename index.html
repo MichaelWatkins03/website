@@ -321,7 +321,7 @@
       --retract-drop: 0.145em; /* approx 0.19em * sin(50deg) — the vertical distance the body must drop during the 0.35s leg retract so the free ends (toes) of the angled legs stay planted on the final ground level while the legs rotate to horizontal. This drop amount is also the final settlement of the I (after the drop the "I" reaches the correct positional height the user confirmed). */
       --i-settle-y: 0; /* controls extra translateY on the rocket body (.i). Default 0 = natural landing pose from the keyframe. During retract we transition it to +var(--retract-drop) for a smooth drop of the whole I (stem + top/bottom flanges + legs) while the legs retract. */
       --top-flange-shift: 0.1055em; /* move the relative positional height of the top flange down on the rocket, but adjusted upwards by another 0.05% of the font-size (reduced from 0.106em to 0.1055em / ~10.55%, decreased by additional 0.0005em from prior). The rocket stem itself is in the correct position. The shift is applied in the .i-top rule to ensure the position actually changes relative to the rocket. */
-      --bottom-flange-shift: 0.02em; /* move the relative positional height of the bottom flange (and landing legs) down on the rocket by 2% of the font-size (0.02em, decreased by 3% from the prior 5%). The rocket stem itself is in the correct position. */
+      --bottom-flange-shift: -0.15em; /* move the relative positional height of the bottom flange (and landing legs) *upwards* on the rocket by 15% of the font-size (0.15em). The rocket stem itself is in the correct position. (Negative value increases the effective bottom: value, moving the element up.) */
       /* The long descent animation overrides transform via keyframes.
          When the animation is removed at landing, this base transform (reading the var) takes over
          so we can hand off to a smooth 0.35s transition without the rocket jumping. */
@@ -332,7 +332,7 @@
     .loading-initials .i::after {
       content: '';
       position: absolute;
-      bottom: calc(var(--leg-bottom) - var(--bottom-flange-shift));  /* the -shift moves the bottom flange and landing legs down (relative positional height) by 2% of font-size on the rocket (decreased by additional 3% from prior). The base --leg-bottom is the measured glyph bottom inset (set in JS) so relative position to stem is screen-size invariant like top. Rocket stem position is correct. */
+      bottom: calc(var(--leg-bottom) - var(--bottom-flange-shift));  /* the -shift (negative here) moves the bottom flange and landing legs *upwards* (relative positional height) by 15% of font-size on the rocket. The base --leg-bottom is the measured glyph bottom inset (set in JS) so relative position to stem is screen-size invariant like top. Rocket stem position is correct. */
       width: 0.19em;  /* length of each leg/flange (identical to top flanges width) */
       height: var(--flange-thickness);  /* thickness (height) of the *landing legs* (angled phase) — matches top flanges via the measured base var */
       background: #111;
@@ -1419,7 +1419,8 @@
         // as the top measurement above, without altering any top flange code). Convert to em and set
         // --leg-bottom (the base for bottom: calc on the pseudos for landing legs and bottom flange).
         // This codes the legs/bottom positions the same way as the top flange: a one-time post-font-load
-        // measured em value (plus the existing small --bottom-flange-shift for the tuned % moves).
+        // measured em value (plus the --bottom-flange-shift for the additional tuned % moves, currently
+        // negative to move upwards by 15%).
         // Result: the relative position of the landing legs and bottom flange to the rocket stem
         // stays the same no matter the screen size / font-size, exactly like the top flange.
         // (Measurement runs only once; no re-calc on resize to avoid jitter.)
@@ -1434,7 +1435,7 @@
       // Using em for (base) thickness means it stays correct on any later size change without re-measure.
       // Additionally, --leg-bottom is now set from a matching one-time bottom glyph measurement (see
       // function) so legs and bottom flange positions are coded the same way and stay relative to stem
-      // across screen sizes.
+      // across screen sizes. The --bottom-flange-shift provides the additional move (negative for upwards).
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(alignTopFlanges);
       } else {
@@ -1472,8 +1473,8 @@
               // the bottom flange (thickness now matches legs). The attachment (bottom: var(--leg-bottom)) is fixed —
               // the value comes from the JS-measured glyph bottom inset (like top flange offset) so the
               // relative position of legs/bottom flange stays constant to the stem across screen sizes;
-              // the small --bottom-flange-shift provides the additional tuned move. The pivot point on the
-              // stem stays put during rotation.
+              // the --bottom-flange-shift (negative) provides the additional tuned move (upwards by 15% of font-size).
+              // The pivot point on the stem stays put during rotation.
               //
               // Smooth body settlement (no jump at start of retract):
               // The descent animation ends at the natural pose (keyframe translateY(0)).
