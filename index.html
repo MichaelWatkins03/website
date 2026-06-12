@@ -295,7 +295,7 @@
     }
 
     .loading-initials .i-rocket {
-      /* the rocket stem "I" that flies and then disappears */
+      /* the rocket stem "I" that flies during descent (absolute at origin of .i) */
       position: absolute;
       top: 0;
       left: 0;
@@ -305,11 +305,14 @@
     }
 
     .loading-initials .i {
-      /* Control leg attachment and angle via vars so retraction transition can explicitly start
-         from the exact unretracted (angled) pose/position the legs have at the end of landing.
-         Legs positioned via em so they scale with font-size (consistent on mobile/tablet). */
-      --leg-bottom: 0.16em;
+      /* Control leg attachment/angle and flange offsets via em-based custom properties.
+         All flange dimensions and positions are em (or em-derived from post-font-load measurement)
+         so top/bottom flanges stay perfectly flush with the "I" glyph and identical in thickness/length
+         at any font-size (clamp on .loading-initials) or viewport size/orientation. */
+      --leg-bottom: 0em;  /* bottom edge of horizontal flange placed exactly at .i bottom (glyph bottom after settlement). Pure rotation around fixed attachment; no bottom value change during 0.35s retract. */
       --leg-angle: 50deg;
+      --top-flange-offset: 0.14em; /* overridden by JS (measured em + small manual em tweak after Urbanist load) so top edge of .i-top spans is flush with visual top of rendered "I" glyph */
+      --flange-thickness: 0.086em; /* fallback; overridden by JS (after font load) to (on-screen "I" width * 5/12) as em so thickness exactly matches stem width proportion and is identical for top flanges + bottom legs/flange */
     }
 
     .loading-initials .i::before,
@@ -317,10 +320,10 @@
       content: '';
       position: absolute;
       bottom: var(--leg-bottom);
-      width: 0.19em;  /* length of each leg/flange, scales with font-size */
-      height: 0.086em;  /* thickness of each leg/flange (same as top), scales with font-size */
+      width: 0.19em;  /* length of each leg/flange (identical to top flanges width) */
+      height: var(--flange-thickness);  /* thickness (height) of leg/bar — exactly matches top flanges via shared var (5/12 of measured I stem width) */
       background: #111;
-      transition: transform 0.35s ease, bottom 0.35s ease;
+      transition: transform 0.35s ease;  /* pure rotation only around fixed attachment point; no bottom/sliding during retract */
       z-index: 3;
       opacity: 0;
     }
@@ -330,6 +333,7 @@
     .loading-initials .i.landed::before,
     .loading-initials .i.landed::after {
       opacity: 1;
+      height: var(--flange-thickness); /* guarantee identical thickness for angled legs (landing) and horizontal bottom flange (landed) */
     }
 
     .loading-initials .i::before {
@@ -358,44 +362,48 @@
 
     .loading-initials .i.landed .i-rocket {
       opacity: 0;
-      /* disappear instantly along with the landed I appearing */
+      /* instantaneous cross-fade (no transition on opacity here) */
     }
 
     .loading-initials .i.landed .i-text {
       opacity: 1;
-      /* appear instantly instead of fading in when the flying rocket disappears */
+      /* normal flow per spec; visible after rocket stem disappears (instant) */
     }
 
     .loading-initials .i.landed {
-      /* The rocket body + legs (the .i container) must not move upwards (or vertically at all)
-         during leg retraction. It remains at the exact position it reached at the end of the
-         i-rocket-land keyframe (translateY(0)). Only the legs pivot to horizontal around their
-         attachment point. The attachment itself has been moved slightly lower on the I stem
-         (see --leg-bottom on .i above). Relative positioning between legs and I body is preserved. */
+      /* Container translates down during 0.35s retract so the I settles while the free ends (toes) of the legs
+         remain fixed at the screen height they reached at end of descent (the final ground level for the MIW).
+         The legs themselves only rotate (transform transition, fixed bottom: var(--leg-bottom), fixed attachment
+         on stem). With --leg-bottom:0 the horizontal bar bottom edge ends exactly flush with .i/.i-text bottom
+         (the rendered "I" glyph bottom) after rotation + settlement, with no mid-transition change to the legs. */
+      transform: translateY(0.145em);  /* approx 0.19em * sin(50deg) to compensate the toe rise relative to pivot on pure rotation from angled to flat (origin at 50% centers the thickness) */
+      transition: transform 0.35s ease;
     }
 
-    /* Explicit final leg state when landed (more specific than the base angled rules).
-       These provide the clear target transform: rotate(0deg) so the transition (declared on the
-       pseudos) smoothly pivots the legs to horizontal from their angled landing pose.
-       The I container itself receives no transform and does not move vertically. */
+    /* Explicit landed (horizontal) leg targets. Higher specificity ensures the transition on the pseudos
+       (0.35s transform only) pivots cleanly from the exact angled pose that existed at end of landing descent.
+       Bottom value is never changed — pure rotation around the attachment point fixed by --leg-bottom. */
     .loading-initials .i.landed::before {
       transform: rotate(0deg);
+      height: var(--flange-thickness);
     }
 
     .loading-initials .i.landed::after {
       transform: rotate(0deg);
+      height: var(--flange-thickness);
     }
 
-    /* Top flanges (horizontal serifs) for the I, same length (0.19em) and thickness (0.086em) as the legs.
-       All dimensions use em so they scale proportionally with the font-size (clamp) for mobile/tablet.
-       Always horizontal. Visible during rocket landing (on the rocket I) and after landing (on the landed I).
-       They live on the .i container so they appear with both .i-rocket and .i-text, and disappear
-       together with M, W and the final I when the loading screen fades. */
+    /* Top flanges (horizontal serifs) implemented as two sibling spans inside .i (always present).
+       Absolutely positioned relative to .i. Top edge flush with visual top of the rendered "I" glyph
+       (via --top-flange-offset em measured from actual glyph rect after Urbanist load + small em tweak).
+       Height (thickness) exactly equals rendered "I" stem width via --flange-thickness (shared with bottom).
+       Width (0.19em each) matches bottom flanges/legs. Visible in .landing and .landed states (part of
+       the rocket/"I" in both); disappear with the rest of the loader. */
     .loading-initials .i-top {
       position: absolute;
-      top: 0.14em;  /* scales with font-size so top flanges align at the top of the "I" glyph on all screen sizes */
-      height: 0.086em;  /* thickness matches legs */
-      width: 0.19em;  /* length matches legs (each way) */
+      top: var(--top-flange-offset);
+      height: var(--flange-thickness);
+      width: 0.19em;
       background: #111;
       z-index: 3;
       opacity: 0;
@@ -707,14 +715,6 @@
 
       .banner__right span {
         display: none;
-      }
-
-      /* Phone-only adjustment: move top and bottom flanges/legs down by 1px (from desktop baseline) */
-      .loading-initials .i-top {
-        top: calc(0.14em + 1px);
-      }
-      .loading-initials .i {
-        --leg-bottom: calc(0.16em - 1px);
       }
 
       .hero {
@@ -1360,6 +1360,49 @@
         requestAnimationFrame(step);
       }
 
+      function alignTopFlanges() {
+        const initials = document.querySelector('.loading-initials');
+        if (!initials) return;
+        const iEl = initials.querySelector('.i');
+        if (!iEl) return;
+
+        // Measure after Urbanist has loaded (see call site). Use the rendered "I" glyph rect
+        // (not .i container or em-box) so --top-flange-offset places the absolute .i-top spans
+        // with their top edge exactly flush with the visual top of the letter.
+        // Result is em-based (plus small manual em tweak) so the relative position to the "I"
+        // is invariant to font-size changes (clamp(36px,9vw,70px)) or any viewport size/orientation.
+        // Thickness is also computed once here as em-derived (I-width * 5/12 converted to em units)
+        // so --flange-thickness produces identical height for top flanges and bottom legs/flange
+        // and scales proportionally without any resize re-measure or jitter.
+        let letter = iEl.querySelector('.i-text');
+        if (!letter || parseFloat(getComputedStyle(letter).opacity) === 0) {
+          letter = iEl.querySelector('.i-rocket');
+        }
+        if (!letter) return;
+
+        const letterRect = letter.getBoundingClientRect();
+        const iRect = iEl.getBoundingClientRect();
+        const offsetTop = letterRect.top - iRect.top;
+
+        const fontSize = parseFloat(getComputedStyle(iEl).fontSize);
+        const emOffset = offsetTop / fontSize + 0.03;  /* small manual em tweak for perfect visual flush */
+        iEl.style.setProperty('--top-flange-offset', emOffset + 'em');
+
+        const stemWidth = letter.getBoundingClientRect().width;
+        const flangeEm = (stemWidth / fontSize) * 5 / 12;
+        iEl.style.setProperty('--flange-thickness', flangeEm + 'em');
+      }
+
+      // The (one-time) measurement for --top-flange-offset (and --flange-thickness as em) must run
+      // after the custom font loads so glyph metrics (top ink edge and stem width) are for Urbanist.
+      // Top offset is deliberately not re-measured on resize (no jitter, stays constant relative to "I").
+      // Using em for thickness means it stays correct on any later size change without re-measure.
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(alignTopFlanges);
+      } else {
+        alignTopFlanges();
+      }
+
       function startLoaderExitAnimation() {
         const loader = document.getElementById('loading-screen');
         const initials = loader ? loader.querySelector('.loading-initials') : null;
@@ -1385,11 +1428,17 @@
             // Exhaust particle velocities increased by 75% (50% + another 25%).
             startExhaustGases(iEl, loader, initials);
             iEl.addEventListener('animationend', () => {
-              // Rocket has landed. The I (rocket body + legs) stays at its final landing position
-              // (no upward movement on retraction). The legs start from the exact angled unretracted
-              // pose (now with attachment 1px higher up the I body per --leg-bottom). Adding
-              // 'landed' applies the explicit horizontal rotate(0deg) targets on the pseudos (higher
-              // specificity) so the transition on the pseudos smoothly pivots the legs only.
+              // Rocket has landed. Add 'landed' (after snapshotting current state via reflow hack)
+              // to drive the 0.35s pure rotation of the legs (::before/::after) from their exact
+              // angled landing pose (set by base rules + --leg-angle) to rotate(0deg) via the
+              // more-specific landed targets. Attachment point is fixed (bottom: var(--leg-bottom)
+              // never changes; only transform transitions). The .i container translates vertically
+              // (see .i.landed) during the same 0.35s so the I settles while the free ends of the
+              // legs stay planted at the final ground height reached at end of descent. With the
+              // em values chosen, after rotation the bottom edge of the horizontal bottom flange
+              // is flush with the bottom edge of the rendered "I" glyph (normal-flow .i-text) with
+              // no further leg adjustment. Top flanges (spans) stay visible and flush throughout.
+              // Opacity switch rocket<->text is instantaneous. Hold 1s after retract then fade loader.
               iEl.style.animation = 'none';
               // Force reflow to ensure we capture the current (post-landing) rendered state as the
               // start for the .landed pseudo transitions, then add the class that supplies the targets.
