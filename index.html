@@ -311,13 +311,14 @@
          (angled rendering of legs can appear slightly thinner). All values em or calc-em so they
          scale with font-size (clamp) and stay consistent across viewports/orientation. */
       --leg-angle: 50deg;
-      --top-flange-offset: 0.14em; /* overridden by JS (measured em + small manual em tweak after Urbanist load) to position .i-top for flush with visual top of "I" glyph (additional vertical shift is applied in the .i-top rule) */
+      --top-flange-offset: 0.14em; /* overridden by JS (measured em + small manual em tweak after Urbanist load) to position .i-top for flush with visual top of "I" glyph (the --top-flange-shift for additional relative down position is applied in the .i-top rule) */
       --flange-thickness: 0.086em; /* fallback; JS overrides after font load to (on-screen "I" width * 5/12) as em — this is the thickness used by the landing legs and the top flanges */
       --bottom-flange-thickness: calc(var(--flange-thickness) * 7 / 6); /* bottom (horizontal) flange is 1/6 thicker than the legs for visual match when retracted */
       --leg-bottom: calc((11/6) * var(--bottom-flange-thickness)); /* move the bottom flange + landing legs up by 1 5/6 of the (increased) bottom flange thickness; larger value lifts the pseudos higher on the stem (fixed attachment for pure pivot) */
       --retract-drop: 0.145em; /* approx 0.19em * sin(50deg) — the vertical distance the body must drop during the 0.35s leg retract so the free ends (toes) of the angled legs stay planted on the final ground level while the legs rotate to horizontal. This drop amount is also the final settlement of the I (after the drop the "I" reaches the correct positional height the user confirmed). */
       --i-settle-y: 0; /* controls extra translateY on the rocket body (.i). Default 0 = natural landing pose from the keyframe. During retract we transition it to +var(--retract-drop) for a smooth drop of the whole I (stem + top/bottom flanges + legs) while the legs retract. */
-      --flange-vertical-shift: 0.05em; /* additional shift to move the top flanges and the bottom flange/landing legs down by 5% of the font-size (relative to the I stem). The rocket stem + overall .i position is correct and is not shifted. */
+      --top-flange-shift: 0.10em; /* move the relative positional height of the top flange down on the rocket by 10% of the font-size (0.10em). The rocket stem itself is in the correct position. */
+      --bottom-flange-shift: 0.05em; /* move the relative positional height of the bottom flange (and landing legs) down on the rocket by 5% of the font-size (0.05em). The rocket stem itself is in the correct position. */
       /* The long descent animation overrides transform via keyframes.
          When the animation is removed at landing, this base transform (reading the var) takes over
          so we can hand off to a smooth 0.35s transition without the rocket jumping. */
@@ -328,7 +329,7 @@
     .loading-initials .i::after {
       content: '';
       position: absolute;
-      bottom: calc(var(--leg-bottom) - var(--flange-vertical-shift));  /* the -shift moves the landing legs and bottom flange down relative to the I (rocket stem position is correct) */
+      bottom: calc(var(--leg-bottom) - var(--bottom-flange-shift));  /* the -shift moves the bottom flange and landing legs down (relative positional height) by 5% of font-size on the rocket. Rocket stem position is correct. */
       width: 0.19em;  /* length of each leg/flange (identical to top flanges width) */
       height: var(--flange-thickness);  /* thickness (height) of the *landing legs* (angled phase) — matches top flanges via the measured base var */
       background: #111;
@@ -406,13 +407,13 @@
 
     /* Top flanges (horizontal serifs) implemented as two sibling spans inside .i (always present).
        Absolutely positioned relative to .i. The --top-flange-offset (measured + tweak) positions for
-       flush with the visual top of the "I" glyph; an additional --flange-vertical-shift moves them
-       down by 5% of font-size. Height uses the base --flange-thickness (matches the landing legs).
-       Width (0.19em each) matches bottom flanges/legs. Visible in .landing and .landed states
-       (part of the rocket/"I" in both); disappear with the rest of the loader. */
+       flush with the visual top of the "I" glyph; an additional --top-flange-shift moves the relative
+       positional height down on the rocket by 10% of the font-size. Height uses the base --flange-thickness
+       (matches the landing legs). Width (0.19em each) matches bottom flanges/legs. Visible in .landing
+       and .landed states (part of the rocket/"I" in both); disappear with the rest of the loader. */
     .loading-initials .i-top {
       position: absolute;
-      top: calc(var(--top-flange-offset) + var(--flange-vertical-shift));  /* the +shift moves the top flanges down by 5% of font-size relative to the I glyph top (rocket stem position is correct) */
+      top: calc(var(--top-flange-offset) + var(--top-flange-shift));  /* the +shift moves the relative positional height of the top flange down on the rocket by 10% of the font-size (0.10em). Rocket stem position is correct. */
       height: var(--flange-thickness);
       width: 0.19em;
       background: #111;
@@ -1382,8 +1383,8 @@
 
         // Measure after Urbanist has loaded (see call site). Use the rendered "I" glyph rect
         // (not .i container or em-box) so --top-flange-offset places the absolute .i-top spans
-        // with their top edge flush with the visual top of the letter (before the additional
-        // --flange-vertical-shift applied in CSS to move the flanges down).
+        // with their top edge flush with the visual top of the letter (the additional
+        // --top-flange-shift is applied in CSS to move the relative positional height down).
         // Result is em-based (plus small manual em tweak) so the relative position to the "I"
         // is invariant to font-size changes (clamp(36px,9vw,70px)) or any viewport size/orientation.
         // The measured value sets --flange-thickness (used for top flanges + the *angled landing legs*).
