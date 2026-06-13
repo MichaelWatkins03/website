@@ -317,11 +317,11 @@
       --top-flange-offset: 0.14em; /* overridden by JS (measured em + small manual em tweak after Urbanist load) to position .i-top for flush with visual top of "I" glyph (the --top-flange-shift for additional relative down position is applied in the .i-top rule) */
       --flange-thickness: 0.086em; /* fallback; JS overrides after font load to (on-screen "I" width * 5/12) as em — this is the thickness used by the landing legs, the top flanges, and now also the landed bottom flange */
       --bottom-flange-thickness: var(--flange-thickness); /* height (thickness) of the bottom flange now matches the thickness (height) of the landing legs exactly */
-      --leg-bottom: 0.14em; /* fallback; overridden by JS (after font load, like --top-flange-offset) to the measured em value of the actual rendered "I" glyph bottom inset relative to .i. This ensures the relative position of the landing legs and bottom flange to the rocket stem stays constant no matter the screen size / font-size (just like the top flange). */
+      --leg-bottom: 0em; /* fallback; overridden by JS (after font load, like --top-flange-offset) to the measured em value of the actual rendered "I" glyph bottom inset relative to .i. This ensures the relative position of the landing legs and bottom flange to the rocket stem stays constant no matter the screen size / font-size (just like the top flange). */
       --retract-drop: 0.145em; /* approx 0.19em * sin(50deg) — the vertical distance the body must drop during the 0.35s leg retract so the free ends (toes) of the angled legs stay planted on the final ground level while the legs rotate to horizontal. This drop amount is also the final settlement of the I (after the drop the "I" reaches the correct positional height the user confirmed). */
       --i-settle-y: 0; /* controls extra translateY on the rocket body (.i). Default 0 = natural landing pose from the keyframe. During retract we transition it to +var(--retract-drop) for a smooth drop of the whole I (stem + top/bottom flanges + legs) while the legs retract. */
-      --top-flange-shift: 0.1055em; /* move the relative positional height of the top flange down on the rocket, but adjusted upwards by another 0.05% of the font-size (reduced from 0.106em to 0.1055em / ~10.55%, decreased by additional 0.0005em from prior). The rocket stem itself is in the correct position. The shift is applied in the .i-top rule to ensure the position actually changes relative to the rocket. */
-      --bottom-flange-shift: -0.15em; /* move the relative positional height of the bottom flange (and landing legs) *upwards* on the rocket by 15% of the font-size (0.15em). The rocket stem itself is in the correct position. (Negative value increases the effective bottom: value, moving the element up.) */
+      --top-flange-shift: 0.105715em; /* move the relative positional height of the top flange down on the rocket, but adjusted upwards by another 0.05% of the font-size (reduced from 0.106em to 0.1055em / ~10.55%, decreased by additional 0.0005em from prior). The rocket stem itself is in the correct position. The shift is applied in the .i-top rule to ensure the position actually changes relative to the rocket. */
+      --bottom-flange-shift: -0.155em; /* move the relative positional height of the bottom flange (and landing legs) *upwards* on the rocket by 15% of the font-size (0.15em). The rocket stem itself is in the correct position. (Negative value increases the effective bottom: value, moving the element up.) */
       /* The long descent animation overrides transform via keyframes.
          When the animation is removed at landing, this base transform (reading the var) takes over
          so we can hand off to a smooth 0.35s transition without the rocket jumping. */
@@ -1415,16 +1415,14 @@
         const flangeEm = (stemWidth / fontSize) * 5 / 12;
         iEl.style.setProperty('--flange-thickness', flangeEm + 'em');
 
-        // Measure the bottom inset of the rendered "I" glyph relative to .i (using same letter/iRect
-        // as the top measurement above, without altering any top flange code). Convert to em and set
-        // --leg-bottom (the base for bottom: calc on the pseudos for landing legs and bottom flange).
-        // This codes the legs/bottom positions the same way as the top flange: a one-time post-font-load
-        // measured em value (plus the --bottom-flange-shift for the additional tuned % moves, currently
-        // negative to move upwards by 15%).
-        // Result: the relative position of the landing legs and bottom flange to the rocket stem
-        // stays the same no matter the screen size / font-size, exactly like the top flange.
-        // (Measurement runs only once; no re-calc on resize to avoid jitter.)
-        const bottomInset = iRect.bottom - letterRect.bottom;
+        // Measure the bottom inset using .i-text (the final landed I) for the glyph bottom,
+        // so the base --leg-bottom positions the bottom flange/legs relative to the actual final stem
+        // bottom. This keeps the relative position consistent on phone/tablet/desktop like the top
+        // flange (measured once after font load). Convert to em.
+        let bottomLetter = iEl.querySelector('.i-text');
+        if (!bottomLetter) bottomLetter = letter;
+        const bottomLetterRect = bottomLetter.getBoundingClientRect();
+        const bottomInset = iRect.bottom - bottomLetterRect.bottom;
         const emBottom = bottomInset / fontSize;
         iEl.style.setProperty('--leg-bottom', emBottom + 'em');
       }
