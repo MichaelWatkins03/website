@@ -9,7 +9,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Urbanist:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     /* ─── Reset & Base ─────────────────────────────────────────── */
@@ -95,7 +95,7 @@
     .banner__name {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 1.125rem;
-      font-weight: 700;
+      font-weight: 400;
       letter-spacing: -0.02em;
     }
 
@@ -115,7 +115,7 @@
       color: var(--text);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 1.125rem;
-      font-weight: 700;
+      font-weight: 400;
       letter-spacing: -0.02em;
       padding: 2px 6px;
       border-radius: 3px;
@@ -145,22 +145,14 @@
       font-size: 2rem;
     }
 
-    /* Banner text turns white when over the dark About section */
-    .banner--light:not(.contact-open) .banner__name,
-    .banner--light:not(.contact-open) .banner__contact {
-      color: white;
+    /* Contact mode: hide Contact + flag, show X */
+    .banner.contact-open .banner__contact,
+    .banner.contact-open .banner__flag {
+      display: none;
     }
-
-    .banner--light:not(.contact-open) .banner__close {
-      color: white;
-    }
-
-    .banner--light:not(.contact-open) .banner__right {
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .banner--light:not(.contact-open) .banner__photo {
-      border-color: white;
+    .banner.contact-open .banner__close {
+      display: inline-block;
+      color: var(--text);
     }
 
     /* Contact overlay - white rest of screen, banner stays on top */
@@ -181,10 +173,6 @@
       display: flex;
     }
 
-    .contact-overlay.visible {
-      display: flex;
-    }
-
     .contact-email {
       position: relative;
       z-index: 2;
@@ -192,7 +180,6 @@
       font-size: 2.5rem;
       font-weight: 400;
       cursor: pointer;
-      /* no outline, only writing */
       border: none;
       background: none;
       padding: 0;
@@ -202,7 +189,7 @@
     }
 
     .contact-email:hover {
-      font-size: 3rem; /* appear bigger on hover */
+      font-size: 3rem;
     }
 
     .contact-car {
@@ -212,7 +199,6 @@
       z-index: 1;
       pointer-events: none;
       opacity: 0.82;
-      /* position, top, left and transform controlled by JS for curved path */
     }
 
     .contact-tire-marks {
@@ -220,404 +206,250 @@
       pointer-events: none;
       z-index: 0;
       overflow: hidden;
-      /* width, left, top set by JS to match the fixed email width and position (snapshot at open to not grow on hover) */
-      /* The image has been rotated so the tracks are horizontal. Tune background-size and height to make the tracks span the full width of the container (email length) and have appropriate visual thickness. */
       background-image: url('Media/tire-tracks.jpg');
       background-repeat: no-repeat;
       background-position: center;
       background-size: 100% auto;
-      height: 8px; /* further reduced thickness for thinner tyre track; tune as needed */
-      /* Progressive reveal from right to left as the car drives left (using CSS var set from JS) */
+      height: 8px;
       clip-path: inset(0 0 0 calc(100% - var(--progress, 0) * 100%));
     }
 
     #transition-circle {
       position: fixed;
       background: white;
-      border: 4px solid black; /* black line outline */
+      border: 4px solid black;
       border-radius: 50%;
       pointer-events: none;
       z-index: 96;
       opacity: 0;
       width: 0;
       height: 0;
-      /* size and position controlled by JS; transition for smooth growth */
       transition: width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease;
     }
 
-    /* ─── Loading screen (white, blank, covers everything until video + graph ready) ─── */
-    #loading-screen {
-      position: fixed;
-      inset: 0;
-      background: #ffffff;
-      z-index: 9999;
-      opacity: 1;
-      transition: opacity 0.75s var(--ease-premium);
-      /* completely blank as requested — no text, no spinner */
-    }
-
-    #loading-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* 
-      "MIW" loading animation with rocket "I" landing.
-      Urbanist font for the letters.
-    */
-
-    .loading-initials {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.12em;
-      font-family: 'Urbanist', sans-serif;
-      font-size: clamp(36px, 9vw, 70px);
-      font-weight: 600;
-      color: #111111;
-      line-height: 1;
-      user-select: none;
-      pointer-events: none;
-    }
-
-    .loading-initials .i {
+    /* ─── Great Products Section ─────────────────────────────────────────── */
+    .great-products {
       position: relative;
-      display: inline-block;
-    }
-
-    .loading-initials .i-text {
-      /* the final I text in "MIW", hidden until the rocket disappears */
-      opacity: 0;
-    }
-
-    .loading-initials .i-rocket {
-      /* the rocket stem "I" that flies during descent (absolute at origin of .i) */
-      position: absolute;
-      top: 0;
-      left: 0;
-      font: inherit;
-      color: inherit;
-      opacity: 0;
-    }
-
-    .loading-initials .i {
-      /* Control leg attachment/angle and flange offsets via em-based custom properties.
-         Base thickness for legs (angled) + top flanges comes from JS measurement (I stem width * 5/12).
-         Bottom flange (horizontal, landed) thickness now exactly matches the landing legs (base --flange-thickness).
-         The --leg-bottom (for bottom position of legs and bottom flange) is set in JS to a measured em value
-         of the glyph bottom inset (exactly like --top-flange-offset for the top flange). This makes the relative
-         position of landing legs and bottom flange to the rocket stem stay the same no matter the screen size.
-         (Small additional --xxx-flange-shift values are the tuned proportional moves.) All em/calc-em scale with
-         font-size (clamp) and stay consistent across viewports/orientation. Do not touch top flange code. */
-      --leg-angle: 50deg;
-      --top-flange-offset: 0.14em; /* overridden by JS (measured em + small manual em tweak after Urbanist load) to position .i-top for flush with visual top of "I" glyph (the --top-flange-shift for additional relative down position is applied in the .i-top rule) */
-      --flange-thickness: 0.05em; /* fallback; JS overrides after font load to (on-screen "I" width * 5/12) as em — this is the thickness used by the landing legs, the top flanges, and now also the landed bottom flange */
-      --bottom-flange-thickness: var(--flange-thickness); /* height (thickness) of the bottom flange now matches the thickness (height) of the landing legs exactly */
-      --leg-bottom: 0.8em; /* fallback; overridden by JS (after font load, like --top-flange-offset) to the measured em value of the actual rendered "I" glyph bottom inset relative to .i. This ensures the relative position of the landing legs and bottom flange to the rocket stem stays constant no matter the screen size / font-size (just like the top flange). */
-      --retract-drop: 0em; /* approx 0.19em * sin(50deg) — the vertical distance the body must drop during the 0.35s leg retract so the free ends (toes) of the angled legs stay planted on the final ground level while the legs rotate to horizontal. This drop amount is also the final settlement of the I (after the drop the "I" reaches the correct positional height the user confirmed). */
-      --i-settle-y: 0em; /* controls extra translateY on the rocket body (.i). Default 0 = natural landing pose from the keyframe. During retract we transition it to +var(--retract-drop) for a smooth drop of the whole I (stem + top/bottom flanges + legs) while the legs retract. */
-      --rocket-landing-y: 0em; /* Set this to a negative em value (e.g. -0.15em) to move the *whole rocket* (the .i container with stem, top flanges, bottom legs/flange) upwards. This shifts the end of the descent animation and the pre-retract pose. The retract settlement will still drop by --retract-drop relative to this new higher landing pose. The rocket stem itself remains in its "correct" relative position within the shifted rocket. */
-      --top-flange-shift: 0.105715em; /* move the relative positional height of the top flange down on the rocket, but adjusted upwards by another 0.05% of the font-size (reduced from 0.106em to 0.1055em / ~10.55%, decreased by additional 0.0005em from prior). The rocket stem itself is in the correct position. The shift is applied in the .i-top rule to ensure the position actually changes relative to the rocket. */
-      --bottom-flange-shift: -0.255em; /* move the relative positional height of the bottom flange (and landing legs) *upwards* on the rocket by 15% of the font-size (0.15em). The rocket stem itself is in the correct position. (Negative value increases the effective bottom: value, moving the element up.) */
-      /* The long descent animation overrides transform via keyframes.
-         When the animation is removed at landing, this base transform (reading the var) takes over
-         so we can hand off to a smooth 0.35s transition without the rocket jumping. */
-      transform: translateY(var(--i-settle-y));
-    }
-
-    .loading-initials .i::before,
-    .loading-initials .i::after {
-      content: '';
-      position: absolute;
-      bottom: calc(var(--leg-bottom) - var(--bottom-flange-shift));  /* the -shift (negative here) moves the bottom flange and landing legs *upwards* (relative positional height) by 15% of font-size on the rocket. The base --leg-bottom is the measured glyph bottom inset (set in JS) so relative position to stem is screen-size invariant like top. Rocket stem position is correct. */
-      width: 0.19em;  /* length of each leg/flange (identical to top flanges width) */
-      height: var(--flange-thickness);  /* thickness (height) of the *landing legs* (angled phase) — matches top flanges via the measured base var */
-      background: #111;
-      transition: transform 0.35s ease, height 0.35s ease;  /* pure rotation of the leg around its fixed attachment (bottom value and thus pivot Y never change). Height transition (if any) aligns the bar to match the landing legs thickness as it reaches horizontal. */
-      z-index: 3;
-      opacity: 0;
-    }
-
-    .loading-initials .i.landing::before,
-    .loading-initials .i.landing::after {
-      opacity: 1;
-      /* angled legs keep the base (measured) thickness */
-    }
-
-    .loading-initials .i::before {
-      left: calc(50% - 0.19em);
-      transform-origin: 100% 50%;
-      transform: rotate(calc(-1 * var(--leg-angle)));
-    }
-
-    .loading-initials .i::after {
-      left: 50%;
-      transform-origin: 0% 50%;
-      transform: rotate(var(--leg-angle));
-    }
-
-    .loading-initials .i.landing .i-rocket {
-      opacity: 1;
-    }
-
-    .loading-initials .i.landing .i-text {
-      opacity: 0;
-    }
-
-    .loading-initials .i.landing {
-      animation: i-rocket-land 2.67s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-      will-change: transform;           /* helps with smooth end */
-      transform: translateY(var(--rocket-landing-y));
-    }
-
-    .loading-initials .i.landed .i-rocket {
-      opacity: 0;
-      /* instantaneous cross-fade (no transition on opacity here) */
-    }
-
-    .loading-initials .i.landed .i-text {
-      opacity: 1;
-      /* normal flow; visible after rocket stem disappears (instant) */
-    }
-
-    .loading-initials .i.landed {
-      /* The descent animation ends at the natural pose (translateY(0) from keyframe).
-         Right after animation:none we pin --i-settle-y to 0 (holds the just-landed height with no jump).
-         This rule sets --i-settle-y to +var(--retract-drop) and enables the 0.35s transform transition.
-         The rocket body (I + top/bottom flanges + legs) therefore drops smoothly while the legs retract.
-         The final height *after* this drop is the correct positional height of the "I" (the one
-         before the pre-lift change in the prior prompt). */
-    /*--i-settle-y: calc(var(--rocket-landing-y) + var(--retract-drop));
-      transition: transform 0.35s ease;*/
-    }
-
-    /* Explicit landed (horizontal) targets for the bottom flange. The pseudos transition (transform + height)
-       from the exact angled landing pose (the reflow hack + animation:none on the container snapshots the
-       state so the 0.35s transitions on the pseudos start from the precise unretracted geometry).
-       Bottom value is fixed (pure rotation around attachment). The height (thickness) of the final horizontal
-       bar now exactly matches the landing legs (--flange-thickness). The base bottom position comes from the
-       JS-measured glyph bottom inset (like top flange) so relative position to stem is invariant to screen size.
-       The container body settlement is handled separately via --i-settle-y so the rocket height change during
-       retract is a smooth transition (no jump). */
-    .loading-initials .i.landed::before {
-      transform: rotate(0deg);
-      height: var(--flange-thickness);
-    }
-
-    .loading-initials .i.landed::after {
-      transform: rotate(0deg);
-      height: var(--flange-thickness);
-    }
-
-    /* Top flanges (horizontal serifs) implemented as two sibling spans inside .i (always present).
-       Absolutely positioned relative to .i. The --top-flange-offset (measured + tweak) positions for
-       flush with the visual top of the "I" glyph; an additional --top-flange-shift moves the relative
-       positional height of the top flange down on the rocket, adjusted upwards by another 0.05% of the font-size
-       (now 0.1055em total / ~10.55%, decreased by additional 0.0005em from prior). This is applied explicitly in the rule
-       below to ensure the position actually moves relative to the rocket stem (which remains in its correct
-       position). Height uses the base --flange-thickness (matches the landing legs). Width (0.19em each)
-       matches bottom flanges/legs. Visible in .landing and .landed states (part of the rocket/"I" in both);
-       disappear with the rest of the loader. */
-    .loading-initials .i-top {
-      position: absolute;
-      top: calc(var(--top-flange-offset) + var(--top-flange-shift));  /* the +shift moves the relative positional height of the top flange down on the rocket, adjusted upwards by another 0.05% of the font-size (now 0.1055em total). This ensures the position is actually changed relative to the rocket stem (which stays at its correct position). */
-      height: var(--flange-thickness);
-      width: 0.19em;
-      background: #111;
-      z-index: 3;
-      opacity: 0;
-    }
-
-    .loading-initials .i.landing .i-top,
-    .loading-initials .i.landed .i-top {
-      opacity: 1;
-    }
-
-    .loading-initials .i-top-left {
-      left: calc(50% - 0.19em);
-    }
-
-    .loading-initials .i-top-right {
-      left: 50%;
-    }
-
-    @keyframes i-rocket-land {
-      0% {
-        transform: translate3d(0, -120vh, 0);
-      }
-      100% {
-        /* Natural landing pose (aligned with M/W during descent). Change --rocket-landing-y (above)
-           to a negative em to move the whole rocket upwards. The body will then drop smoothly by
-           var(--retract-drop) during the leg retract phase relative to the new higher pose. */
-        transform: translate3d(0, var(--rocket-landing-y), 0);
-      }
-    }
-
-    .exhaust-particle {
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 1;
-      box-shadow: 0 0 1px rgba(0,0,0,0.3);
-    }
-
-    /* Two 180° clockwise flips (smooth with a brief hold between them) before fade */
-    .loading-initials.flipping {
-      animation: mw-flip 2.4s cubic-bezier(0.22, 1, 0.36, 1) 1s forwards;
-    }
-
-    @keyframes mw-flip {
-      0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-      }
-      42% {
-        transform: translate(-50%, -50%) rotate(180deg);
-      }
-      50% {
-        transform: translate(-50%, -50%) rotate(180deg); /* brief hold / smooth step */
-      }
-      92% {
-        transform: translate(-50%, -50%) rotate(360deg);
-      }
-      100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-      }
-    }
-
-    /* When contact open: hide contact+flag, show X on banner */
-    .banner.contact-open .banner__contact,
-    .banner.contact-open .banner__flag {
-      display: none;
-    }
-
-    .banner.contact-open .banner__close {
-      display: inline-block;
-    }
-
-    /* CUSTOMIZE: Replace src with NZ flag image URL */
-    .banner__flag {
-      width: 28px;
-      height: auto;
-      border-radius: 2px;
-    }
-
-    /* ─── Hero Section ─────────────────────────────────────────── */
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      min-height: 100dvh;
+      /*min-height: 100vh;
+      min-height: 100dvh;*/
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      padding: 20vh 48px 10vh;
+      justify-content: center;
+      padding: 0vh 20vh 30vh;
       overflow: hidden;
     }
 
-    /* Quote */
-    .hero__quote {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: clamp(1.5rem, 3.5vw, 2.25rem);
-      font-weight: 400;
-      font-style: italic;
-      letter-spacing: -0.01em;
-      text-align: center;
-      color: var(--text);
-      max-width: 640px;
-      margin-bottom: 24px;
+    .great-products__reveal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
       opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.6s var(--ease-premium),
-                  transform 0.6s var(--ease-premium);
+      transform: translateY(56px);
+      transition: opacity 1.2s var(--ease-premium),
+                  transform 1.2s var(--ease-premium);
+      will-change: opacity, transform;
     }
 
-    .hero__quote.visible {
+    .great-products.is-visible .great-products__reveal {
       opacity: 1;
       transform: translateY(0);
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      .great-products__reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    /* ─── Hero Section ─────────────────────────────────────────── */
+    .hero {
+      /*min-height: 100dvh;*/
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20vh 30vh 25vh;
+      background: var(--white);
+    }
+
+    .hero__inner {
+      display: flex;
+      align-items: center;
+      gap: 80px;
+      max-width: 1400px;
+      width: 100%;
+    }
+
+    .hero__text {
+      flex: 1;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      align-items: right;
+      text-align: left;
+      padding: 0vh 5vh 0vh;
+    }
+
+    .hero__name {
+      font-size: clamp(3.5rem/1.8, 6vw/1.8, 5.5rem/1.8);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .hero__name-prefix {
+      display: block;
+      font-size: 0.5em;
+      margin-bottom: 0.2em;
+    }
+
+    .hero__title {
+      font-size: clamp(0.625rem*2, 1.1vw*2, 0.875rem*2);
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .hero__image {
+      flex: 1;
+      max-width: 620px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero__image img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: var(--shadow-deep);
+      object-fit: cover;
+    }
+
+    /* Quote */
+    .great-products__quote {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: clamp(3.5rem/2, 6vw/2, 5.5rem/2);
+      font-weight: 500;
+      /*font-style: italic;*/
+      letter-spacing: -0.04em;
+      text-align: center;
+      color: var(--text);
+      max-width: 900px;
+      margin-bottom: 24px;
+    }
+
+    .great-products__quote-continuation {
+      font-size: clamp(0.9375rem, 2vw, 1.0625rem);
+      font-weight: 300;
+      font-style: normal;
+      color: var(--text-muted);
+      display: block;
+      margin-top: 0.4em;
+      letter-spacing: 0.01em;
+      line-height: 1.5;
+    }
+
     /* Media container */
-    .hero__media {
+    .great-products__media {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0;
       width: 100%;
-      max-width: 1200px;
-      margin: 0 auto; /* ensures the media block (and its centered trio) stays perfectly centered on all screen sizes */
+      max-width: 1800px;
+      margin: 0 auto;
       transition: gap 1.6s var(--ease-out-expo);
     }
 
-    .hero__media.split {
+    .great-products__media.split {
       gap: 36px;
-      /* justify-content: center from the base .hero__media rule keeps the video+graph+photo trio
-         as a compact centered group. The whole block stays centered on resize (the container itself
-         is centered via .hero align-items + max-width). Previously space-between spread items to
-         the edges of the 1200px box, making the layout feel uncentered on size changes. */
     }
 
-    /* When we start in split state, avoid any entrance transition flash on the media columns */
-    .hero__media.split .hero__video-wrap,
-    .hero__media.split .hero__image-wrap,
-    .hero__media.split .hero__photo-wrap {
+    /* When we start in split state, avoid any entrance transition flash */
+    .great-products__media.split .great-products__video-wrap,
+    .great-products__media.split .great-products__image-wrap,
+    .great-products__media.split .great-products__photo-wrap {
       transition: none;
     }
 
     /* Video wrapper */
-    .hero__video-wrap {
+    .great-products__video-wrap {
+      position: relative;
       flex-shrink: 0;
-      width: min(72vw, 680px);
+      width: min(75vw, 816px);
       aspect-ratio: 1198 / 1080;
       overflow: hidden;
       background-color: var(--white);
-      opacity: 0;
       transition: width 1.6s var(--ease-out-expo),
-                  transform 1.6s var(--ease-out-expo),
-                  opacity 1.2s var(--ease-premium);
+                  transform 1.6s var(--ease-out-expo);
     }
 
-    .hero__media.split .hero__video-wrap {
-      width: min(20vw, 260px);
+    .great-products__media.split .great-products__video-wrap {
+      width: min(22vw, 312px);
       transform: translateX(-20px);
     }
 
-    .hero__video-wrap video {
+    .great-products__video-placeholder {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
+      object-fit: cover;
       background-color: var(--white);
+      z-index: 1;
+      transition: opacity 0.3s var(--ease-premium);
     }
 
-    /* Photo wrapper - right side, symmetrical to video on left */
-    .hero__photo-wrap {
+    .great-products__video-wrap.is-ready .great-products__video-placeholder {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .great-products__video-wrap video {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background-color: var(--white);
+      opacity: 0;
+      transition: opacity 0.3s var(--ease-premium);
+    }
+
+    .great-products__video-wrap.is-ready video {
+      opacity: 1;
+    }
+
+    /* Photo wrapper */
+    .great-products__photo-wrap {
       flex-shrink: 0;
-      width: min(32vw, 360px);
+      width: min(35vw, 432px);
       aspect-ratio: 1198 / 1080;
       overflow: hidden;
       background-color: var(--white);
-      opacity: 0;
       transition: width 1.6s var(--ease-out-expo),
-                  transform 1.6s var(--ease-out-expo),
-                  opacity 1.2s var(--ease-premium);
+                  transform 1.6s var(--ease-out-expo);
     }
 
-    .hero__media.split .hero__photo-wrap {
-      width: min(20vw, 260px);
+    .great-products__media.split .great-products__photo-wrap {
+      width: min(22vw, 312px);
       transform: translateX(20px);
     }
 
-    .hero__photo-wrap img {
+    .great-products__photo-wrap img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       background-color: var(--white);
     }
 
-    /* Project image */
-    .hero__image-wrap {
+    /* Project image / graph */
+    .great-products__image-wrap {
       flex-shrink: 0;
       width: 0;
       opacity: 0;
@@ -630,20 +462,14 @@
       transform: translateX(40px);
     }
 
-    .hero__media.split .hero__image-wrap {
-      width: min(34vw, 420px);
+    .great-products__media.split .great-products__image-wrap {
+      width: min(38vw, 504px);
       opacity: 1;
       transform: translateX(0);
     }
 
-    .hero__image-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background-color: var(--white);
-    }
-
-    .hero__image-wrap canvas {
+    .great-products__image-wrap img,
+    .great-products__image-wrap canvas {
       width: 100%;
       height: 100%;
       display: block;
@@ -651,8 +477,8 @@
     }
 
     /* Closing statement */
-    .hero__statement {
-      max-width: 1000px;
+    .great-products__statement {
+      max-width: 1400px;
       margin-top: 12px;
       font-size: clamp(0.9375rem, 2vw, 1.0625rem);
       font-weight: 300;
@@ -660,15 +486,33 @@
       letter-spacing: 0.01em;
       text-align: center;
       color: var(--text-muted);
-      opacity: 0;
-      transform: translateY(12px);
-      transition: opacity 0.6s var(--ease-premium),
-                  transform 0.6s var(--ease-premium);
     }
 
-    .hero__statement.visible {
-      opacity: 1;
-      transform: translateY(0);
+    /* ─── Portfolio Collage ────────────────────────────────────── */
+    .portfolio-collage {
+      padding: 0 clamp(24px, 6vw, 80px) 10vh;
+      background: var(--white);
+    }
+
+    .portfolio-collage__grid {
+      column-count: 4;
+      column-gap: 10px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .portfolio-collage__item {
+      break-inside: avoid;
+      margin-bottom: 10px;
+      overflow: hidden;
+      border-radius: 6px;
+      background: #f4f4f4;
+    }
+
+    .portfolio-collage__item img {
+      width: 100%;
+      height: auto;
+      display: block;
     }
 
     /* ─── Footer ───────────────────────────────────────────────── */
@@ -701,27 +545,36 @@
 
     /* ─── Responsive ───────────────────────────────────────────── */
     @media (max-width: 900px) {
-      .hero__media.split {
+      .great-products__media.split {
         flex-direction: column;
         gap: 32px;
         justify-content: center;
       }
 
-      .hero__media.split .hero__video-wrap {
+      .great-products__media.split .great-products__video-wrap,
+      .great-products__image-wrap,
+      .great-products__media.split .great-products__photo-wrap {
         width: 100%;
-        max-width: 520px;
+        max-width: 624px;
         transform: none;
       }
 
-      .hero__media.split .hero__image-wrap {
-        width: 100%;
-        max-width: 520px;
+      .hero__inner {
+        flex-direction: column;
+        gap: 48px;
+        text-align: center;
       }
 
-      .hero__media.split .hero__photo-wrap {
-        width: 100%;
-        max-width: 520px;
-        transform: none;
+      .hero__text {
+        max-width: 100%;
+      }
+
+      .hero__location {
+        margin-bottom: 32px;
+      }
+
+      .portfolio-collage__grid {
+        column-count: 3;
       }
     }
 
@@ -743,28 +596,37 @@
         display: none;
       }
 
-      .hero {
-        padding: 15vh 24px 8vh;
+      .great-products {
+        padding: 8vh 24px 8vh;
       }
 
-      .hero__quote {
+      .great-products__quote {
         margin-bottom: 24px;
       }
 
-      .hero__video-wrap {
+      .great-products__video-wrap,
+      .great-products__photo-wrap {
         width: 100%;
-        max-width: 520px;
+        max-width: 624px;
       }
 
-      .hero__photo-wrap {
-        width: 100%;
-        max-width: 520px;
-      }
-
-      .hero__statement {
+      .great-products__statement {
         margin-top: 16px;
         max-width: 100vw;
         padding: 0 8px;
+      }
+
+      .portfolio-collage {
+        padding: 0 24px 8vh;
+      }
+
+      .portfolio-collage__grid {
+        column-count: 2;
+        column-gap: 8px;
+      }
+
+      .portfolio-collage__item {
+        margin-bottom: 8px;
       }
 
       .footer {
@@ -779,191 +641,11 @@
         font-size: 1.3rem;
       }
     }
-
-    /* ─── About Section ──────────────────────────────────────────── */
-    .about-section {
-      background-color: #111111;
-      background-image: url('Media/blackboard.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      position: relative;
-    }
-
-    .about-section::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: 
-        radial-gradient(ellipse 45% 30% at 22% 25%, rgba(0, 150, 255, 0.22) 0%, transparent 65%),
-        radial-gradient(ellipse 35% 25% at 68% 42%, rgba(30, 144, 255, 0.18) 0%, transparent 60%),
-        radial-gradient(ellipse 30% 22% at 35% 68%, rgba(0, 180, 255, 0.2) 0%, transparent 55%),
-        radial-gradient(ellipse 40% 28% at 78% 78%, rgba(0, 140, 255, 0.16) 0%, transparent 65%);
-      mix-blend-mode: screen;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .about-content {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 72px 48px;
-      display: flex;
-      gap: 72px;
-      align-items: center;
-      position: relative;
-      z-index: 2;
-    }
-
-    .about-text {
-      flex: 1 1 52%;
-      font-size: 1.0625rem;
-      line-height: 1.65;
-      color: #f5f5f5;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-    }
-
-    .about-lead {
-      font-size: 1.45rem;
-      font-weight: 600;
-      line-height: 1.35;
-      letter-spacing: -0.015em;
-      margin-bottom: 1.15em;
-    }
-
-    .about-text p {
-      margin-bottom: 0.85em;
-    }
-
-    .about-text p:last-of-type {
-      margin-bottom: 0;
-    }
-
-    .about-image {
-      flex: 1 1 42%;
-      max-width: 460px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .about-image img {
-      width: 100%;
-      height: auto;
-      display: block;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    }
-
-    @media (max-width: 900px) {
-      .about-content {
-        flex-direction: column;
-        padding: 56px 24px;
-        gap: 40px;
-      }
-
-      .about-image {
-        max-width: 100%;
-      }
-
-      .about-lead {
-        font-size: 1.28rem;
-      }
-    }
-
-    /* ─── Teams Section ──────────────────────────────────────────── */
-    .teams-section {
-      background: white;
-      padding: 60px 48px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .teams-header {
-      color: black;
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 40px;
-      text-align: center;
-      letter-spacing: -0.02em;
-    }
-
-    .teams-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-    }
-
-    .team-item {
-      text-align: center;
-    }
-
-    .team-photo {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-      border-radius: 12px;
-      display: block;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .team-caption {
-      font-size: 1rem;
-      color: #333;
-      margin: 0;
-      font-weight: 500;
-      line-height: 1.4;
-    }
-
-    @media (max-width: 700px) {
-      .teams-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-      }
-
-      .teams-header {
-        font-size: 1.75rem;
-        margin-bottom: 32px;
-      }
-
-      .team-caption {
-        font-size: 0.875rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .teams-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-    }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
   </style>
 </head>
 <body>
 
-  <!-- Full white loading screen shown until video + graph assets are ready -->
-  <div id="loading-screen">
-    <div class="loading-initials">
-      <span class="m">M</span>
-      <span class="i">
-        <span class="i-top i-top-left"></span>
-        <span class="i-top i-top-right"></span>
-        <span class="i-text">I</span>
-        <span class="i-rocket">I</span>
-      </span>
-      <span class="w">W</span>
-    </div>
-  </div>
-
-  <!-- ═══ Sticky Banner (appears at 7500ms) ═══ -->
+  <!-- ═══ Sticky Banner (appears at ~1.5s) ═══ -->
   <header class="banner" id="banner" role="banner">
     <div class="banner__left">
       <img
@@ -977,7 +659,6 @@
     </div>
     <div class="banner__right">
       <button class="banner__contact" id="contactBtn">Contact</button>
-      <!-- New Zealand flag to the right of the Contact button -->
       <img
         class="banner__flag"
         src="https://flagcdn.com/w40/nz.png"
@@ -989,85 +670,76 @@
     </div>
   </header>
 
-  <!-- Contact overlay: white screen below banner -->
+  <!-- Contact overlay -->
   <div id="contact-overlay" class="contact-overlay">
     <img class="contact-car" src="Media/race-car.jpg" alt="Race car">
     <div class="contact-tire-marks"></div>
     <div id="contact-email" class="contact-email">mwatkins1470@gmail.com</div>
   </div>
 
-  <!-- Transition circle: black outline, white inside, grows from button on contact toggle -->
+  <!-- Transition circle -->
   <div id="transition-circle"></div>
 
-  <!-- ═══ Hero ═══ -->
-  <section class="hero" id="hero" aria-label="Introduction">
-    <blockquote class="hero__quote" id="heroQuote">
-      "To finish first you must first finish."
-    </blockquote>
+  <!-- ═══ Hero / Introduction ═══ -->
+  <section class="hero" id="hero">
+    <div class="hero__inner">
+      <div class="hero__text">
+        <h1 class="hero__name">
+          <span class="hero__name-prefix">Mechanical</span>
+          Engineer &amp; Designer
+        </h1>
+        <p class="hero__title"><br>I aim to design real, reliable, and performing systems from first principles.</p>
 
-    <div class="hero__media split" id="heroMedia">
-      <div class="hero__video-wrap">
-        <video
-          id="heroVideo"
-          muted
-          loop
-          playsinline
-        >
-          <source src="Media/hero-video.mp4" type="video/mp4">
-        </video>
       </div>
-
-      <div class="hero__image-wrap" id="heroImage">
-        <!-- Dynamic graph: blue line (model) + orange dots (recorded) animate in sync with video time.
-             Full graph background (grid, labels, title, legend) appears at ~27s. -->
-        <canvas id="forceGraph" width="1264" height="816" aria-label="Toe link force over time. The data traces from the original graph are revealed via a left-to-right sweep in sync with the video time. The full graph background appears at the end of the 27-second lap."></canvas>
-      </div>
-
-      <div class="hero__photo-wrap">
-        <img src="Media/strain-gauge.jpg" alt="Strain gauge" />
-      </div>
-    </div>
-
-    <p class="hero__statement" id="heroStatement">
-      Great products work from understanding the real service conditions and applying appropriate factors of safety to components.
-    </p>
-  </section>
-
-  <!-- ═══ About Section ═══ -->
-  <section class="about-section">
-    <div class="about-content">
-      <div class="about-text">
-        <p class="about-lead">Mechanical engineer building practical systems understanding from first principles.</p>
-        <p>Previously led a technical subsystem on an internationally winning FSAE team.</p>
-        <p>Currently rotating through engineering, manufacturing, and operations in a graduate program.</p>
-      </div>
-      <div class="about-image">
-        <img src="Media/about-photo.jpg" alt="Michael Watkins" />
+      <div class="hero__image">
+        <img src="Media/UCM25_Launch.jpg" alt="UCM25 Launch">
       </div>
     </div>
   </section>
 
-  <!-- ═══ Teams Section ═══ -->
-  <section class="teams-section">
-    <h2 class="teams-header">Teams</h2>
-    <div class="teams-grid">
-      <div class="team-item">
-        <img src="Media/516863505_24798187366437419_8997355559184687490_n.jpg" alt="Cricket: 2018 New Zealand Junior Secondary School Boys' Champions" class="team-photo">
-        <p class="team-caption">Cricket: 2018 New Zealand Junior Secondary School Boys' Champions</p>
-      </div>
-      <div class="team-item">
-        <img src="Media/131225377_3856008241078822_3005329660061055385_n.jpg" alt="Cricket: 2020 Central Districts Regional Champions. This team was coached by Palmerston North's Fire Chief." class="team-photo">
-        <p class="team-caption">Cricket: 2020 Central Districts Regional Champions. This team was coached by Palmerston North's Fire Chief.</p>
-      </div>
-      <div class="team-item">
-        <img src="Media/ucm25.jpg" alt="Engineering: 2025 FSAE-A International Champions" class="team-photo">
-        <p class="team-caption">Engineering: UCM25 FSAE-A International Champions</p>
-      </div>
-      <div class="team-item">
-        <img src="Media/ucm24.jpg" alt="Engineering: 2024 6th Place at FSAE-A" class="team-photo">
-        <p class="team-caption">Engineering: 2024 6th Place at FSAE-A</p>
-      </div>
+  <!-- ═══ Great Products ═══ -->
+ <section class="great-products" id="great-products" aria-label="Great products">
+  <div class="great-products__reveal" id="greatProductsReveal">
+  <blockquote class="great-products__quote" id="greatProductsQuote">
+    Great products work<br>
+    <span class="great-products__quote-continuation">by understanding the real service conditions and applying appropriate factors of safety to components.</span>
+  </blockquote>
+
+
+  <div class="great-products__media split" id="greatProductsMedia">
+    <div class="great-products__video-wrap">
+      <img
+        class="great-products__video-placeholder"
+        src="Media/Force_Model_Static.png"
+        alt="Force model preview"
+      >
+      <video
+        id="greatProductsVideo"
+        muted
+        loop
+        playsinline
+      >
+        <source src="Media/hero-video.mp4" type="video/mp4">
+      </video>
     </div>
+
+    <div class="great-products__image-wrap" id="greatProductsImage">
+      <canvas id="forceGraph" width="1264" height="816" aria-label="Toe link force over time"></canvas>
+    </div>
+
+    <div class="great-products__photo-wrap">
+      <img src="Media/strain-gauge.jpg" alt="Strain gauge" />
+    </div>
+  </div>
+  <p class="great-products__statement" id="greatProductsStatement">
+    I created the first validated suspension force model for the University of Canterbury Motorsport Team.
+  </p>
+  </div>
+</section>
+
+  <!-- ═══ Portfolio Collage ═══ -->
+  <section class="portfolio-collage" id="portfolio-collage" aria-label="Photo collage">
+    <div class="portfolio-collage__grid" id="portfolioCollageGrid"></div>
   </section>
 
   <!-- ═══ Footer ═══ -->
@@ -1083,74 +755,32 @@
 
       /* ─── Element references ─────────────────────────────────── */
       const banner        = document.getElementById('banner');
-      const heroQuote     = document.getElementById('heroQuote');
-      const heroMedia     = document.getElementById('heroMedia');
-      const heroVideo     = document.getElementById('heroVideo');
-      const heroStatement = document.getElementById('heroStatement');
+      const greatProductsQuote     = document.getElementById('greatProductsQuote');
+      const greatProductsMedia     = document.getElementById('greatProductsMedia');
+      const greatProductsVideo     = document.getElementById('greatProductsVideo');
+      const greatProductsStatement = document.getElementById('greatProductsStatement');
       const contactBtn    = document.getElementById('contactBtn');
       const closeContactBtn = document.getElementById('closeContactBtn');
       const contactOverlay = document.getElementById('contact-overlay');
       const contactEmailEl = document.getElementById('contact-email');
       const transitionCircle = document.getElementById('transition-circle');
-      const aboutSection = document.querySelector('.about-section');
 
-      /* ─── Loading gate: wait for video + graph images before starting sequence ─── */
-      let videoReady = false;
-      function markVideoReady() {
-        if (!videoReady) {
-          videoReady = true;
-          tryStartSequence();
-        }
-      }
-      if (heroVideo) {
-        heroVideo.addEventListener('canplaythrough', markVideoReady, { once: true });
-        heroVideo.addEventListener('loadeddata', () => {
-          if (heroVideo.readyState >= 3) markVideoReady();
-        }, { once: true });
-        heroVideo.addEventListener('error', markVideoReady, { once: true });
-        // If already ready (cached / fast load)
-        if (heroVideo.readyState >= 3) {
-          videoReady = true;
-        }
-      }
-
-      /* ─── Graph layers for image sweep (using original image) ────── */
+      /* ─── Graph layers ───────────────────────────────────────── */
       const graphCanvas = document.getElementById('forceGraph');
       let graphCtx = null;
       let graphComplete = false;
       let bgFadeStart = 0;
       let finalCrossfadeStart = 0;
 
-      const dataImg = new Image(); // data traces only (blue + orange) from processed original
-      const bgImg   = new Image(); // background (grid + labels + legend) from processed original
-      const fullImg = new Image(); // full original graph for the final static image
-      dataImg.src = 'Media/toe-link-data.jpg';
+      const dataImg = new Image();
+      const bgImg   = new Image();
+      const fullImg = new Image();
+      dataImg.src = 'Media/toe-link-data.png';
       bgImg.src   = 'Media/toe-link-bg.jpg';
-      fullImg.src = 'Media/toe-link-force-comparison.jpg';
 
-      let graphImagesReady = 0;
-      function onGraphLayerReady() {
-        graphImagesReady++;
-        if (graphImagesReady >= 2) {
-          // Safety: if images loaded after video already passed the lap end,
-          // immediately mark complete so the background can appear.
-          if (heroVideo && heroVideo.currentTime >= 26.5 && !graphComplete) {
-            graphComplete = true;
-            if (!bgFadeStart) bgFadeStart = Date.now();
-          }
-          drawForceGraph();
-        }
-        tryStartSequence();
-      }
-      dataImg.onload = onGraphLayerReady;
-      bgImg.onload = onGraphLayerReady;
+      let graphImagesReady = 1;
 
-      // When the full original loads, force a redraw if we're in the final static state
-      fullImg.onload = () => {
-        if (graphComplete) drawForceGraph();
-      };
-
-      /* ─── Image sweep draw — data reveals left-to-right with video time */
+      /* ─── Image sweep draw ───────────────────────────────────── */
       function drawForceGraph() {
         if (!graphCanvas || !graphCtx) return;
         const w = graphCanvas.width;
@@ -1161,7 +791,7 @@
         if (!dataImg.complete || !bgImg.complete) return;
 
         let t = 0;
-        if (heroVideo && typeof heroVideo.currentTime === 'number') t = heroVideo.currentTime;
+        if (greatProductsVideo && typeof greatProductsVideo.currentTime === 'number') t = greatProductsVideo.currentTime;
 
         let progress = 0;
         if (!graphComplete) {
@@ -1176,55 +806,27 @@
 
         const revealW = progress * w;
 
-        // Slowly fade in the graph background once the sweep completes (one time only)
-        let bgAlpha = 0;
-        if (graphComplete && bgFadeStart > 0) {
-          const fadeDuration = 2500; // ms — make background fade slower / smoother
-          const elapsed = Date.now() - bgFadeStart;
-          bgAlpha = Math.min(elapsed / fadeDuration, 1);
-        }
+        let bgAlpha = 1;
+        // Draw background immediately (as soon as hero appears) and keep it behind the graph line
+        graphCtx.drawImage(bgImg, 0, 0, w, h);
 
-        // Draw the background layer with fade (this is what was appearing too suddenly)
-        if (bgAlpha > 0) {
-          graphCtx.globalAlpha = bgAlpha;
-          graphCtx.drawImage(bgImg, 0, 0, w, h);
-          graphCtx.globalAlpha = 1;
-        }
-
-        // Cross-fade: once background is fully in, fade out the separate "graph lines only" photo
-        // while fading in the full original static image.
         let dataAlpha = 1;
         let fullAlpha = 0;
 
-        if (graphComplete && bgAlpha >= 1) {
-          if (!finalCrossfadeStart) finalCrossfadeStart = Date.now();
-
-          const crossDuration = 1200; // ms — smooth disappearance of the lines photo
-          const crossElapsed = Date.now() - finalCrossfadeStart;
-          const cross = Math.min(crossElapsed / crossDuration, 1);
-          dataAlpha = 1 - cross;
-          fullAlpha = cross;
-        }
-
         if (graphComplete) {
-          // Data / lines photo (fading out during crossfade)
           if (dataAlpha > 0) {
             graphCtx.globalAlpha = dataAlpha;
             graphCtx.drawImage(dataImg, 0, 0, w, h);
             graphCtx.globalAlpha = 1;
           }
-
-          // Full original image (fading in)
           if (fullAlpha > 0 && fullImg.complete) {
             graphCtx.globalAlpha = fullAlpha;
             graphCtx.drawImage(fullImg, 0, 0, w, h);
             graphCtx.globalAlpha = 1;
           } else if (dataAlpha <= 0) {
-            // Fallback if full not ready yet
             graphCtx.drawImage(dataImg, 0, 0, w, h);
           }
         } else {
-          // During the sweep: only the data layer (clipped)
           graphCtx.save();
           graphCtx.beginPath();
           graphCtx.rect(0, 0, revealW, h);
@@ -1242,31 +844,25 @@
 
         function frame() {
           drawForceGraph();
-
-          // Stop the animation loop once the graph has played once, background has faded in,
-          // and the crossfade to the full static image is complete.
           const crossDone = finalCrossfadeStart > 0 && (Date.now() - finalCrossfadeStart > 1200);
           const fullyDone = graphComplete && crossDone;
-          if (heroVideo && !heroVideo.paused && !heroVideo.ended && !fullyDone) {
+          if (greatProductsVideo && !greatProductsVideo.paused && !greatProductsVideo.ended && !fullyDone) {
             requestAnimationFrame(frame);
           }
         }
         requestAnimationFrame(frame);
 
-        if (heroVideo) {
-          heroVideo.addEventListener('timeupdate', () => {
-            if (heroVideo && !heroVideo.paused) {
-              // Ensure we mark completion the first time video reaches the end of the lap,
-              // even if images loaded late or RAF is throttled.
-              if (!graphComplete && heroVideo.currentTime >= 26.5) {
+        if (greatProductsVideo) {
+          greatProductsVideo.addEventListener('timeupdate', () => {
+            if (greatProductsVideo && !greatProductsVideo.paused) {
+              if (!graphComplete && greatProductsVideo.currentTime >= 26.5) {
                 graphComplete = true;
                 if (!bgFadeStart) bgFadeStart = Date.now();
               }
               drawForceGraph();
             }
           });
-          heroVideo.addEventListener('play', () => {
-            // Only restart the loop if we haven't finished the one-time graph animation + crossfade yet
+          greatProductsVideo.addEventListener('play', () => {
             const crossDone = finalCrossfadeStart > 0 && (Date.now() - finalCrossfadeStart > 1200);
             if (!graphComplete || !crossDone) {
               requestAnimationFrame(frame);
@@ -1275,345 +871,92 @@
         }
       }
 
-      /* ─── Loading gate helpers ─────────────────────────────────── */
-      let loaderExitStarted = false;
+      function revealForceModelVideo() {
+        const videoWrap = document.querySelector('.great-products__video-wrap');
+        if (videoWrap) videoWrap.classList.add('is-ready');
+      }
 
-      function tryStartSequence() {
-        const graphOk = (typeof graphImagesReady !== 'undefined' && graphImagesReady >= 2);
-        if (graphOk && videoReady && !loaderExitStarted) {
-          loaderExitStarted = true;
-          startLoaderExitAnimation();
+      if (greatProductsVideo) {
+        if (greatProductsVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+          revealForceModelVideo();
+        } else {
+          greatProductsVideo.addEventListener('canplay', revealForceModelVideo, { once: true });
         }
       }
 
-      function startExhaustGases(iEl, loader, initials) {
-        if (!iEl || !loader || !initials) return;
-        // Delay exhaust ejection by 0.5 seconds into the rocket landing animation.
-        // Particles will originate from the rocket's *current* position (via getBoundingClientRect)
-        // at the exact moment each one is created, not from the start of the descent.
-        setTimeout(() => {
-          if (!iEl.parentNode || !loader.parentNode) return;
-          const emitDuration = 2170;
-          const emitInterval = 46;
-          let emitted = 0;
-          const maxParticles = 50;
-          // Fire a burst of particles 0.5s after the rocket I starts its landing animation,
-          // so they eject from the current (later) position of the rocket.
-          // Ejection stops exactly when the rocket landing animation ends (at 2.67s),
-          // so particles stop at the same time the rocket is fully landed.
-          // Particle speeds increased by 75% (50% + another 25%).
-          for (let i = 0; i < 3; i++) {
-            createExhaustParticle(iEl, loader, initials);
-            emitted++;
-          }
-          const intervalId = setInterval(() => {
-            if (emitted >= maxParticles || !iEl.parentNode || !loader.parentNode) {
-              clearInterval(intervalId);
-              return;
-            }
-            createExhaustParticle(iEl, loader, initials);
-            emitted++;
-          }, emitInterval);
-          setTimeout(() => {
-            clearInterval(intervalId);
-          }, emitDuration);
-        }, 500);
-      }
-
-      function createExhaustParticle(iEl, loader, initials) {
-        const particle = document.createElement('div');
-        particle.className = 'exhaust-particle';
-        const iRect = iEl.getBoundingClientRect();
-        const loaderRect = loader.getBoundingClientRect();
-        const baseX = iRect.left + iRect.width / 2 + (Math.random() - 0.5) * 5;
-        const baseY = iRect.bottom + (Math.random() - 0.5) * 2;
-        particle.style.left = (baseX - loaderRect.left) + 'px';
-        particle.style.top = (baseY - loaderRect.top) + 'px';
-        const size = 2.5 + Math.random() * 2.5;
-        particle.style.width = size + 'px';
-        particle.style.height = size + 'px';
-        particle.style.background = '#111';
-        particle.style.position = 'absolute';
-        particle.style.borderRadius = '50%';
-        particle.style.opacity = Math.min(1, (0.55 + Math.random() * 0.35) * 2).toString();
-        particle.style.zIndex = '1';
-        loader.appendChild(particle);
-
-        let x = parseFloat(particle.style.left);
-        let y = parseFloat(particle.style.top);
-        let vx = (Math.random() - 0.5) * 1.125;
-        let vy = 16.875 + Math.random() * 7.5;  // speed of the exhaust particles increased by 75% (50% + another 25%)
-        // Ground set to the actual bottom of the MIW text + small offset so particles form an underline right under the letters without going below the writing
-        const mRect = initials.querySelector('.m').getBoundingClientRect();
-        const wRect = initials.querySelector('.w').getBoundingClientRect();
-        const miwBottom = Math.max(mRect.bottom, wRect.bottom);
-        const groundY = miwBottom - loaderRect.top + 2;  // 2px below text bottom for underline effect
-        let hasHit = false;
-        const maxLife = 2100;
-        let life = 0;
-
-        function step() {
-          life += 16;
-          if (life > maxLife) {
-            particle.remove();
-            return;
-          }
-          x += vx;
-          y += vy;
-          if (!hasHit && y >= groundY) {
-            hasHit = true;
-            y = groundY;
-            vy = -0.1875 - Math.random() * 0.46875;
-            vx = (Math.random() > 0.5 ? 1 : -1) * (3.515625 + Math.random() * 4.5);  // wider splay on ground hit
-            particle.style.opacity = '0.9';
-          } else if (hasHit) {
-            y = groundY;  // never go below the writing
-            vx *= 0.95;
-            vy *= 0.93;
-          } else {
-            vy += 0.140625;
-          }
-          particle.style.left = x + 'px';
-          particle.style.top = y + 'px';
-          const fadeFactor = hasHit ? 0.88 : 0.7;
-          particle.style.opacity = Math.max(0.03, parseFloat(particle.style.opacity) * fadeFactor - 0.003).toString();
-          if (hasHit && Math.abs(vx) < 0.375 && Math.abs(vy) < 0.28125) {
-            particle.remove();
-            return;
-          }
-          requestAnimationFrame(step);
-        }
-        requestAnimationFrame(step);
-      }
-
-      function alignTopFlanges() {
-        const initials = document.querySelector('.loading-initials');
-        if (!initials) return;
-        const iEl = initials.querySelector('.i');
-        if (!iEl) return;
-
-        // Measure after Urbanist has loaded (see call site). Use the rendered "I" glyph rect
-        // (not .i container or em-box) so --top-flange-offset places the absolute .i-top spans
-        // with their top edge flush with the visual top of the letter (the additional
-        // --top-flange-shift is applied in CSS to move the relative positional height down on the rocket).
-        // Result is em-based (plus small manual em tweak) so the relative position to the "I"
-        // is invariant to font-size changes (clamp(36px,9vw,70px)) or any viewport size/orientation.
-        // The measured value sets --flange-thickness (used for top flanges, landing legs, and the landed bottom flange to ensure they match).
-        // Scales proportionally; no resize re-measure or jitter.
-        let letter = iEl.querySelector('.i-text');
-        if (!letter || parseFloat(getComputedStyle(letter).opacity) === 0) {
-          letter = iEl.querySelector('.i-rocket');
-        }
-        if (!letter) return;
-
-        const letterRect = letter.getBoundingClientRect();
-        const iRect = iEl.getBoundingClientRect();
-        const offsetTop = letterRect.top - iRect.top;
-
-        const fontSize = parseFloat(getComputedStyle(iEl).fontSize);
-        const emOffset = offsetTop / fontSize + 0.03;  /* small manual em tweak for perfect visual flush */
-        iEl.style.setProperty('--top-flange-offset', emOffset + 'em');
-
-        const stemWidth = letter.getBoundingClientRect().width;
-        const flangeEm = (stemWidth / fontSize) * 5 / 12;
-        iEl.style.setProperty('--flange-thickness', flangeEm + 'em');
-
-        // Measure the bottom inset using .i-text (the final landed I) for the glyph bottom,
-        // so the base --leg-bottom positions the bottom flange/legs relative to the actual final stem
-        // bottom. This keeps the relative position consistent on phone/tablet/desktop like the top
-        // flange (measured once after font load). Convert to em.
-        let bottomLetter = iEl.querySelector('.i-text');
-        if (!bottomLetter) bottomLetter = letter;
-        const bottomLetterRect = bottomLetter.getBoundingClientRect();
-        const bottomInset = iRect.bottom - bottomLetterRect.bottom;
-        const emBottom = bottomInset / fontSize;
-        iEl.style.setProperty('--leg-bottom', emBottom + 'em');
-      }
-
-      // The (one-time) measurement for --top-flange-offset (and --flange-thickness as em) must run
-      // after the custom font loads so glyph metrics (top ink edge and stem width) are for Urbanist.
-      // Top offset is deliberately not re-measured on resize (no jitter, stays constant relative to "I").
-      // Using em for (base) thickness means it stays correct on any later size change without re-measure.
-      // Additionally, --leg-bottom is now set from a matching one-time bottom glyph measurement (see
-      // function) so legs and bottom flange positions are coded the same way and stay relative to stem
-      // across screen sizes. The --bottom-flange-shift provides the additional move (negative for upwards).
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(alignTopFlanges);
-      } else {
-        alignTopFlanges();
-      }
-
-      function startLoaderExitAnimation() {
-        const loader = document.getElementById('loading-screen');
-        const initials = loader ? loader.querySelector('.loading-initials') : null;
-
-        if (!loader || !initials) {
-          initSequence();
-          return;
-        }
-
-        // Start the two 180° clockwise flips (the animation itself holds the screen visible longer)
-        initials.classList.add('flipping');
-
-        // After the flip animation finishes, trigger the "I" to fly straight down like a rocket
-        // landing between M and W. Once the I has landed (forming "MIW"), then fade the loader
-        // and start the hero sequence.
-        initials.addEventListener('animationend', () => {
-          const iEl = initials.querySelector('.i');
-          if (iEl) {
-            iEl.classList.add('landing');
-            // Start exhaust gases shooting out the bottom during the landing (delayed by 0.5s
-            // so particles originate from the rocket's current position at the time of ejection).
-            // Ejection duration set so particles stop exactly when the rocket landing animation ends.
-            // Exhaust particle velocities increased by 75% (50% + another 25%).
-            startExhaustGases(iEl, loader, initials);
-            iEl.addEventListener('animationend', () => {
-              // Rocket has landed. Add 'landed' (after snapshotting current state via reflow hack)
-              // to drive the 0.35s transition on the legs (::before/::after): pure rotation from the
-              // exact angled pose they had at end of descent to rotate(0deg), plus height growth to
-              // the bottom flange (thickness now matches legs). The attachment (bottom: var(--leg-bottom)) is fixed —
-              // the value comes from the JS-measured glyph bottom inset (like top flange offset) so the
-              // relative position of legs/bottom flange stays constant to the stem across screen sizes;
-              // the --bottom-flange-shift (negative) provides the additional tuned move (upwards by 15% of font-size).
-              // The pivot point on the stem stays put during rotation.
-              //
-              // Smooth body settlement (no jump at start of retract):
-              // The descent animation ends at the natural pose (keyframe translateY(0)).
-              // We set --i-settle-y to 0 (matching the just-landed height), then strip the animation.
-              // The base transform: translateY(var(--i-settle-y)) holds the position with zero jump.
-              // Adding 'landed' changes the var to +var(--retract-drop) while enabling the 0.35s
-              // transition on transform — the rocket body (I + flanges + legs) drops *smoothly*
-              // during the leg retract while toes stay planted. The final height *after* the drop
-              // is the correct positional height of the "I" (the one before the pre-lift change).
-              // Top flanges move with the whole rocket. Instant rocket↔text cross-fade.
-              // Hold 1s after retract then fade loader.
-              //iEl.style.setProperty('--i-settle-y', '0');
-              iEl.style.animation = 'none';
-              // Force reflow to ensure we capture the current (post-landing) rendered state as the
-              // start for the .landed transitions (body + pseudos), then add the class that supplies
-              // the targets (var to +retract-drop + leg rotation + height change).
-              void iEl.offsetWidth;
-              iEl.classList.add('landed');
-              // After the legs have fully retracted (0.35s CSS transition), hold the loading screen
-              // for an additional 1 second before fading (increases total loading screen length by 1s
-              // after retraction completes).
-              setTimeout(() => {
-                setTimeout(() => {
-                  loader.style.transition = 'opacity 0.75s var(--ease-premium)';
-                  loader.style.opacity = '0';
-
-                  setTimeout(() => {
-                    if (loader.parentNode) loader.parentNode.removeChild(loader);
-                    initSequence();
-                  }, 800);
-                }, 1000);
-              }, 350);
-            }, { once: true });
-          } else {
-            // fallback
-            loader.style.transition = 'opacity 0.75s var(--ease-premium)';
-            loader.style.opacity = '0';
-            setTimeout(() => {
-              if (loader.parentNode) loader.parentNode.removeChild(loader);
-              initSequence();
-            }, 800);
-          }
-        }, { once: true });
-      }
-
-      // Safety: if something is slow or blocked, don't leave the user on a blank white screen forever.
-      // Increased to give the MW flip animation time to play even on slow loads.
-      setTimeout(() => {
-        if (!videoReady) videoReady = true;
-        if (typeof graphImagesReady !== 'undefined' && graphImagesReady < 2) graphImagesReady = 2;
-        tryStartSequence();
-      }, 6000);
-
-      // Ensure we draw the initial state of the graph sweep as soon as images are ready
-      // (the canvas container reserves space via CSS aspect-ratio even before content)
-
-      /* ─── Ensure video plays (autoplay policies) ───────────────── */
+      /* ─── NEW: Missing helper functions (this was the bug) ───── */
       function startVideo() {
-        if (!heroVideo) return;
-        heroVideo.currentTime = 0;
-        heroVideo.muted = true;
-        const play = heroVideo.play();
-        if (play && play.catch) {
-          play.catch(function () {
-            document.addEventListener('click', function retry() {
-              heroVideo.play();
-              document.removeEventListener('click', retry);
-            }, { once: true });
+        if (!greatProductsVideo) return;
+        greatProductsVideo.muted = true;
+        const playPromise = greatProductsVideo.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            console.warn('Hero video autoplay prevented (common on some browsers):', err);
           });
         }
       }
 
-      /* ─── Orchestrate hero sequence ──────────────────────────── */
+      let sequenceStarted = false;
+
+      function tryStartSequence() {
+        if (sequenceStarted) return;
+        if (!dataImg.complete || !bgImg.complete) {
+          setTimeout(tryStartSequence, 80);
+          return;
+        }
+        sequenceStarted = true;
+        initSequence();
+      }
+
+      function updateBannerTheme() {
+        // No dynamic banner theme in current implementation (transparent over white hero)
+      }
+
+      /* ─── Orchestrate great products sequence ──────────────────────────── */
       function initSequence() {
         startVideo();
-        startGraph();   // graph starts drawing immediately, synced to video time
-
-        /* Fade in the video (left) and picture (right) on load instead of instant appear.
-           Short delay ensures layout is settled; the split state snaps widths/transforms instantly
-           (via the transition:none rule), while we control opacity separately for fade. */
-        setTimeout(function () {
-          const videoWrap = document.querySelector('.hero__video-wrap');
-          const photoWrap = document.querySelector('.hero__photo-wrap');
-          if (videoWrap) {
-            videoWrap.style.transition = 'opacity 1.2s var(--ease-premium)';
-            videoWrap.style.opacity = '1';
-          }
-          if (photoWrap) {
-            photoWrap.style.transition = 'opacity 1.2s var(--ease-premium)';
-            photoWrap.style.opacity = '1';
-          }
-        }, 150);
-
-        /* Quote fades in at 1s */
-        setTimeout(function () {
-          heroQuote.classList.add('visible');
-        }, 1000);
-
-        /* Sticky banner at 1.5s */
-        setTimeout(function () {
-          banner.classList.add('visible');
-        }, 1500);
-
-        /* Closing statement at 2s */
-        setTimeout(function () {
-          heroStatement.classList.add('visible');
-        }, 2000);
+        startGraph();
       }
 
-      /* ─── Boot (now gated behind the loading screen) ───────────── */
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-          // The video listener and image onloads are already wired.
-          // Kick a check in case the critical assets finished before or during DOM ready.
-          setTimeout(tryStartSequence, 30);
-        });
-      } else {
-        setTimeout(tryStartSequence, 30);
+      /* ─── Sticky banner (independent of great products reveal) ─ */
+      setTimeout(function () {
+        if (banner) banner.classList.add('visible');
+      }, 1500);
+
+      /* ─── Scroll reveal (Ferrari Luce-style fade + rise) ─────── */
+      const greatProductsSection = document.getElementById('great-products');
+      let greatProductsRevealed = false;
+
+      function revealGreatProductsSection() {
+        if (greatProductsRevealed || !greatProductsSection) return;
+        greatProductsRevealed = true;
+        greatProductsSection.classList.add('is-visible');
+        tryStartSequence();
       }
 
-      /* ─── Banner text color change when over dark About section ── */
-      function updateBannerTheme() {
-        if (!banner || !aboutSection) return;
-        const aboutRect = aboutSection.getBoundingClientRect();
-        const bannerHeight = banner.offsetHeight || 70;
-        // Banner overlaps the about section only while the about section straddles the top of the viewport (under the banner)
-        if (aboutRect.top < bannerHeight && aboutRect.bottom > 0) {
-          banner.classList.add('banner--light');
+      if (greatProductsSection) {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (prefersReducedMotion) {
+          revealGreatProductsSection();
         } else {
-          banner.classList.remove('banner--light');
+          const greatProductsObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                revealGreatProductsSection();
+                greatProductsObserver.disconnect();
+              }
+            });
+          }, {
+            threshold: 0.12,
+            rootMargin: '0px 0px -10% 0px',
+          });
+
+          greatProductsObserver.observe(greatProductsSection);
         }
       }
-      window.addEventListener('scroll', updateBannerTheme, { passive: true });
-      window.addEventListener('resize', updateBannerTheme);
-      // Initial check (after banner may be visible)
-      setTimeout(updateBannerTheme, 1600);
 
-      /* ─── Contact mode with black circle transition (outline black, inside white) ── */
+      /* ─── Contact mode with circle transition ────────────────── */
       if (contactBtn && closeContactBtn && contactOverlay && contactEmailEl && transitionCircle) {
         let carAnimFrame = null;
         let currentTrackDrawn = 0;
@@ -1625,30 +968,22 @@
           const marks = document.querySelector('.contact-tire-marks');
           if (!marks) return;
 
-          // Container always full fixed email width and position (from snapshot at open)
-          // so the tyre marks image spans exactly the email length and stays the same size on hover.
           const leftPx = fixedUnderlineCenter - fixedUnderlineWidth / 2;
           const w = fixedUnderlineWidth;
 
           marks.style.left = leftPx + 'px';
           marks.style.top = fixedBaseTop + 'px';
           marks.style.width = w + 'px';
-          // height, background-size, clip-path etc. are in CSS (tuned to the edited horizontal tracks image)
-
-          // Set progress for clip-path reveal (0 = hidden from left, 1 = full visible)
           marks.style.setProperty('--progress', currentTrackDrawn);
         }
 
-        // Keep tracks positioned correctly under the email on any window resize (re-snapshot fixed size/position from current email rect)
         window.addEventListener('resize', () => {
-          if (contactOverlay.classList.contains('visible')) {
-            if (contactEmailEl) {
-              const emailRect = contactEmailEl.getBoundingClientRect();
-              const overlayRect = contactOverlay.getBoundingClientRect();
-              fixedUnderlineWidth = emailRect.width;
-              fixedUnderlineCenter = emailRect.left + emailRect.width / 2;
-              fixedBaseTop = emailRect.bottom - overlayRect.top - 2;
-            }
+          if (contactOverlay.classList.contains('visible') && contactEmailEl) {
+            const emailRect = contactEmailEl.getBoundingClientRect();
+            const overlayRect = contactOverlay.getBoundingClientRect();
+            fixedUnderlineWidth = emailRect.width;
+            fixedUnderlineCenter = emailRect.left + emailRect.width / 2;
+            fixedBaseTop = emailRect.bottom - overlayRect.top - 2;
             updateTracks();
           }
         });
@@ -1658,14 +993,11 @@
           const overlay = contactOverlay;
           if (!car || !overlay) return;
 
-          // Cancel any running animation
           if (carAnimFrame) {
             cancelAnimationFrame(carAnimFrame);
             carAnimFrame = null;
           }
 
-          // Snapshot the email size and position at the moment the contact screen opens (non-hovered state)
-          // so the tire tracks/underline stay fixed size and position even when hovering the email
           if (contactEmailEl) {
             const emailRect = contactEmailEl.getBoundingClientRect();
             const overlayRect = contactOverlay.getBoundingClientRect();
@@ -1674,41 +1006,19 @@
             fixedBaseTop = emailRect.bottom - overlayRect.top - 2;
           }
 
-          // Path with a few bends (wavy turns) above the email, extending further right,
-          // then curves down on the far right side to a turnaround point under the email,
-          // turns around, and drives straight left in a horizontal line (parallel to the
-          // email text) very close to the email (almost underlining it from below).
-          // This keeps the car from interfering with the email writing.
-          // Catmull-Rom spline makes all direction changes smooth.
-          // Values are percentages of the full-screen contact overlay.
           const path = [
-            { x: -15, y: 25 },  // start left, high above the email
-            { x: 8,  y: 18 },   // bend 1 above
-            { x: 22, y: 32 },   // bend 2 above
-            { x: 35, y: 20 },   // bend 3 above
-            { x: 52, y: 28 },   // last bend above
-            { x: 72, y: 26 },   // further right, still above
-            { x: 78, y: 28 },
-            { x: 85, y: 32 },
-            { x: 91, y: 38 },
-            { x: 95, y: 47 },
-            { x: 97, y: 52 },
-            { x: 94, y: 52 },
-            { x: 85, y: 52 },  // end of semicircle turn on the right
-            { x: 65, y: 52 },   // straight left under the email (horizontal, parallel to text, even closer to bottom of email - almost underlining)
-            { x: 30, y: 52 },
-            { x: 0,  y: 52 },
-            { x: -15, y: 52 },
-            { x: -25, y: 52 }   // exit off left
+            { x: -15, y: 25 }, { x: 8, y: 18 }, { x: 22, y: 32 }, { x: 35, y: 20 },
+            { x: 52, y: 28 }, { x: 72, y: 26 }, { x: 78, y: 28 }, { x: 85, y: 32 },
+            { x: 91, y: 38 }, { x: 95, y: 47 }, { x: 97, y: 52 }, { x: 94, y: 52 },
+            { x: 85, y: 52 }, { x: 65, y: 52 }, { x: 30, y: 52 }, { x: 0, y: 52 },
+            { x: -15, y: 52 }, { x: -25, y: 52 }
           ];
 
-          const duration = 13500; // slow ~13.5s drive
-
+          const duration = 13500;
           let startTime = null;
           let virtualElapsed = 0;
           let lastTime = null;
 
-          // Catmull-Rom spline for smooth position
           function catmullRomPoint(t) {
             const n = path.length;
             if (t <= 0) return { ...path[0] };
@@ -1726,33 +1036,16 @@
             const u2 = u * u;
             const u3 = u2 * u;
 
-            const x = 0.5 * (
-              (2 * p1.x) +
-              (-p0.x + p2.x) * u +
-              (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * u2 +
-              (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * u3
-            );
-
-            const y = 0.5 * (
-              (2 * p1.y) +
-              (-p0.y + p2.y) * u +
-              (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * u2 +
-              (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * u3
-            );
-
+            const x = 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * u + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * u2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * u3);
+            const y = 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * u + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * u2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * u3);
             return { x, y };
           }
 
-          // Smooth angle by sampling the spline derivative (tangent)
           function getSmoothAngle(t) {
             const eps = 0.008;
-            const t1 = Math.max(0, t - eps);
-            const t2 = Math.min(1, t + eps);
-            const p1 = catmullRomPoint(t1);
-            const p2 = catmullRomPoint(t2);
-            const dx = p2.x - p1.x;
-            const dy = p2.y - p1.y;
-            return Math.atan2(dy, dx) * (180 / Math.PI);
+            const p1 = catmullRomPoint(Math.max(0, t - eps));
+            const p2 = catmullRomPoint(Math.min(1, t + eps));
+            return Math.atan2(p2.y - p1.y, p2.x - p1.x) * (180 / Math.PI);
           }
 
           function animate(timestamp) {
@@ -1761,7 +1054,6 @@
             const delta = timestamp - lastTime;
             lastTime = timestamp;
 
-            // Variable speed with smooth transitions (extended ramps for C1 smooth accel/decel)
             let speed = 1.0;
             const currentP = virtualElapsed / duration;
             const turnStartP = 5 / (path.length - 1);
@@ -1769,68 +1061,52 @@
             const turnRange = turnEndP - turnStartP;
             const rampStart = turnStartP - turnRange * 0.5;
             const rampEnd = turnEndP + turnRange * 0.5;
+
             if (currentP > rampStart && currentP < rampEnd) {
               let t = (currentP - rampStart) / (rampEnd - rampStart);
               t = Math.max(0, Math.min(1, t));
-              // smoothstep for smooth speed ramp up and down
               t = t * t * (3 - 2 * t);
-              speed = 1.0 + 1.5 * t; // smoothly up to 2.5 during turn
+              speed = 1.0 + 1.5 * t;
             }
             if (currentP > turnEndP) {
               let sprog = (currentP - turnEndP) / (1 - turnEndP);
               let decelT = Math.min(1, sprog / 0.25);
               decelT = decelT * decelT * (3 - 2 * decelT);
-              speed = 1.0 - 0.35 * decelT; // smoothly down to ~0.65 for slower straight travel under email
+              speed = 1.0 - 0.35 * decelT;
             }
             virtualElapsed += delta * speed;
 
             let prog = Math.min(virtualElapsed / duration, 1);
 
-            // Milder acceleration during the straight-line portion (after turnaround)
-            // Polynomial with f'(0)=1 for smooth velocity transition from the (ramped) turn
             const straightStart = 10 / (path.length - 1);
             if (prog > straightStart) {
               let t = (prog - straightStart) / (1 - straightStart);
-              // f(t) = t + 0.25*t*t - 0.25*t*t*t  => f'(0)=1, mild accel, f(1)=1
               t = t + 0.25 * t * t - 0.25 * t * t * t;
               prog = straightStart + (1 - straightStart) * t;
             }
 
             const pos = catmullRomPoint(prog);
-            pos.x = Math.min(98, Math.max(-25, pos.x)); // prevent off right of screen
+            pos.x = Math.min(98, Math.max(-25, pos.x));
             car.style.left = pos.x + '%';
             car.style.top = pos.y + '%';
 
-            // Move the car down by another half the tyre track thickness (now total 8px / full thickness)
-            // only during the straight drive underneath the email, so the tyres line up with the track lines
             if (prog > straightStart) {
               const overlayRect = overlay.getBoundingClientRect();
               const overlayHeight = overlayRect.height || window.innerHeight;
-              const trackThickness = 8; // from .contact-tire-marks height in CSS
-              const offsetPx = trackThickness;  // another half (was /2 before)
-              const offsetPercent = (offsetPx / overlayHeight) * 100;
-              let currentTop = parseFloat(car.style.top);
+              const trackThickness = 8;
+              const offsetPercent = (trackThickness / overlayHeight) * 100;
+              let currentTop = parseFloat(car.style.top) || 0;
               car.style.top = (currentTop + offsetPercent) + '%';
             }
 
             const ang = getSmoothAngle(prog);
             car.style.transform = `rotate(${ang}deg)`;
 
-            // Paint the tyre marks progressively as the car drives straight underneath the email.
-            // The reveal starts precisely when the *front tyre* (not the front wing/nose of the image) reaches the right edge of the email area.
-            // This makes the marks appear to be laid down by the tyres at the correct geometric position.
-            // Reveal speed matches car speed exactly (linear with car position after the geometric offset).
             if (prog > straightStart) {
               const carLeftPercent = parseFloat(car.style.left) || 100;
-              // car % is relative to overlay width; use current rect for accuracy on resize
               const currentOverlayWidth = overlay.getBoundingClientRect().width;
               const carXPx = (carLeftPercent / 100) * currentOverlayWidth;
-
-              // Offset so reveal starts when front *tyre* (not front wing) reaches the target.
-              // Tune this value based on the race-car.jpg image: pixels from the left edge of the car image
-              // (when rotated for leftward travel) to the center/leading edge of the front tyre.
-              // Positive because tyre is to the right of the image's leading edge.
-              const frontTyreOffsetPx = 32; // adjust to align start with front tyre
+              const frontTyreOffsetPx = 32;
               const effectiveCarXPx = carXPx + frontTyreOffsetPx;
 
               const targetRight = fixedUnderlineCenter + fixedUnderlineWidth / 2;
@@ -1853,14 +1129,12 @@
               carAnimFrame = null;
               if (prog >= 1) {
                 car.style.left = '110%';
-                // ensure tyre marks are fully visible at the end
                 currentTrackDrawn = 1;
                 updateTracks();
               }
             }
           }
 
-          // Initialize at start of path
           const initPos = path[0];
           car.style.left = initPos.x + '%';
           car.style.top = initPos.y + '%';
@@ -1878,16 +1152,12 @@
           const rect = originBtn.getBoundingClientRect();
           const centerX = rect.left + rect.width / 2;
           const centerY = rect.top + rect.height / 2;
-
           const size = Math.max(window.innerWidth, window.innerHeight) * 2.5;
 
           if (entering) {
-            // Entering: hide the contact button + NZ flag straight away (X appears immediately)
-            // Circle grows from the original button position to reveal the white overlay
             banner.classList.add('contact-open');
             banner.classList.remove('banner--light');
 
-            // Entering: start small at Contact button, grow large (white inside reveals contact state, black outline is the expanding line)
             transitionCircle.style.transition = 'none';
             transitionCircle.style.left = centerX + 'px';
             transitionCircle.style.top = centerY + 'px';
@@ -1902,25 +1172,19 @@
             transitionCircle.style.left = (centerX - size / 2) + 'px';
             transitionCircle.style.top = (centerY - size / 2) + 'px';
 
-            // Switch to contact mode (overlay + car) near the end of the growth
             setTimeout(() => {
               contactOverlay.classList.add('visible');
-
-              // Start the race car: drives slowly along a path with a few bends, then underneath the email
               startCarDrive();
 
-              // Hide the circle after switch (white blends with overlay)
               transitionCircle.style.transition = 'opacity 0.15s ease';
               transitionCircle.style.opacity = '0';
               setTimeout(() => {
                 transitionCircle.style.transition = 'none';
                 transitionCircle.style.width = '0px';
                 transitionCircle.style.height = '0px';
-                // leave opacity at 0 so the circle is invisible when not transitioning
               }, 200);
             }, 550);
           } else {
-            // Exiting (reverse): start large at X (covering current contact white), shrink to small at X (revealing normal content as white area contracts, black outline contracts)
             transitionCircle.style.transition = 'none';
             transitionCircle.style.left = (centerX - size / 2) + 'px';
             transitionCircle.style.top = (centerY - size / 2) + 'px';
@@ -1929,7 +1193,6 @@
             transitionCircle.style.opacity = '1';
             transitionCircle.offsetWidth;
 
-            // Immediately switch out of contact mode (overlay and banner restore) -- visual stays the same because large circle still covers with white
             contactOverlay.classList.remove('visible');
             banner.classList.remove('contact-open');
             updateBannerTheme();
@@ -1938,7 +1201,6 @@
               cancelAnimationFrame(carAnimFrame);
               carAnimFrame = null;
             }
-            // Reset car to starting position off left for next open
             const resetCar = document.querySelector('.contact-car');
             if (resetCar) {
               resetCar.style.left = '-12%';
@@ -1948,14 +1210,12 @@
             currentTrackDrawn = 0;
             updateTracks();
 
-            // Now start the shrink
             transitionCircle.style.transition = 'width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease';
             transitionCircle.style.width = '0px';
             transitionCircle.style.height = '0px';
             transitionCircle.style.left = centerX + 'px';
             transitionCircle.style.top = centerY + 'px';
 
-            // After shrink, fade out the circle
             setTimeout(() => {
               transitionCircle.style.transition = 'opacity 0.15s ease';
               transitionCircle.style.opacity = '0';
@@ -1963,39 +1223,133 @@
                 transitionCircle.style.transition = 'none';
                 transitionCircle.style.width = '0px';
                 transitionCircle.style.height = '0px';
-                // leave opacity at 0 so the circle is invisible when not transitioning
               }, 200);
             }, 550);
           }
         }
 
-        // Open: grow circle from Contact button
         contactBtn.addEventListener('click', () => {
           if (!contactOverlay.classList.contains('visible')) {
             startCircleTransition(contactBtn, true);
           }
         });
 
-        // Close: grow circle from the X button
+
+
         closeContactBtn.addEventListener('click', () => {
           if (contactOverlay.classList.contains('visible')) {
             startCircleTransition(closeContactBtn, false);
           }
         });
 
-        // Email as plain text button (no outline)
         contactEmailEl.style.cursor = 'pointer';
         contactEmailEl.addEventListener('click', function() {
           window.location.href = 'mailto:mwatkins1470@gmail.com';
         });
 
-        // Close on ESC: use X as origin
         document.addEventListener('keydown', function(e) {
           if (e.key === 'Escape' && contactOverlay.classList.contains('visible')) {
             startCircleTransition(closeContactBtn, false);
           }
         });
       }
+
+      /* ─── Portfolio collage (remove any line to drop a photo) ─── */
+      const portfolioPhotos = [
+        'auxiliary port.JPEG',
+        'auxiliary_port_2.JPEG',
+        'brackets_tie _tods _sandblasted.JPEG',
+        'control_arm_wleding_jig.JPEG',
+        'Force_Model_Static.png',
+        'front_suspension_assembly.JPEG',
+        'glider.JPEG',
+        'graduation_photo_ucm25.JPEG',
+        'inside_monocoque.JPEG',
+        'machined_anti_intrusion_plate_spacers.JPG',
+        'machined_bung_ends.JPEG',
+        'machined_carbon_tube_inserts.JPEG',
+        'machined_gearbox_spacers.JPEG',
+        'machining_control_arm.JPEG',
+        'machining_pushrod.JPEG',
+        'machining_rear_bracket.JPEG',
+        'machining_ti_bracket.JPEG',
+        'painted_lift_bar.JPEG',
+        'plantar_box.JPEG',
+        'rear_supension_2.JPEG',
+        'rear_suspension.JPEG',
+        'rear_suspension_strain gauge.JPEG',
+        'sand_blast_roll_hoop.JPEG',
+        'splined_shaft.JPEG',
+        'steering_machined_part.JPEG',
+        'steering_shaft.PNG',
+        'strain-gauge.jpg',
+        'suspension_render.png',
+        't_hat_spacers.JPEG',
+        'thrust_washers.JPEG',
+        'ti_64_build_plate.JPG',
+        'ti64_bracket_bearing.JPEG',
+        'ti64_bracket_jig.JPEG',
+        'ti64_rear_bracket.JPEG',
+        'ti64_sandblast.JPEG',
+        'ti64_waterblast.PNG',
+        'ti64_wire_cut.JPG',
+        'ti64_workbench.JPEG',
+        'ucm_auxiliary_port_2.JPEG',
+        'ucm24.JPEG',
+        'ucm24.jpg',
+        'ucm24_auxiliary_port.JPEG',
+        'ucm24_auxiliary_port_3.JPEG',
+        'ucm24_design_event.JPEG',
+        'ucm25.jpg',
+        'ucm25_autocross.JPEG',
+        'ucm25_first_drive.JPEG',
+        'UCM25_Launch.jpg',
+        'ucm25_prizegiving.jpg',
+        'ucm25_suspension_components_poster.png',
+        'ucm25_torsional_rigidity_analysis.png',
+        'ucm25_track_day.JPEG',
+        'ucm25_trophies.jpg',
+        'ucm25-car.jpg',
+      ];
+/*
+        'ucm25 team.jpg',
+                'ucm25_team_photo.jpg',
+                        'fsae_new_zealand.jpg',
+                                'ucm25_suspension_forces_poster.png',
+        'ucm25_suspension_vd_poster.png',
+*/
+      function portfolioPhotoLabel(filename) {
+        return filename
+          .replace(/\.[^.]+$/, '')
+          .replace(/[_-]+/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function buildPortfolioCollage() {
+        const grid = document.getElementById('portfolioCollageGrid');
+        if (!grid) return;
+
+        const fragment = document.createDocumentFragment();
+
+        portfolioPhotos.forEach((filename) => {
+          const figure = document.createElement('figure');
+          figure.className = 'portfolio-collage__item';
+
+          const img = document.createElement('img');
+          img.src = 'Media/' + encodeURI(filename);
+          img.alt = portfolioPhotoLabel(filename);
+          img.loading = 'lazy';
+          img.decoding = 'async';
+
+          figure.appendChild(img);
+          fragment.appendChild(figure);
+        });
+
+        grid.replaceChildren(fragment);
+      }
+
+      buildPortfolioCollage();
 
     })();
   </script>
