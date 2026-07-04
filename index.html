@@ -25,14 +25,31 @@
       --text-muted: #666666;
       --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
       --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-      --shadow-deep: 0 32px 64px -12px rgba(0, 0, 0, 0.12),
-                     0 16px 32px -8px rgba(0, 0, 0, 0.08);
+      /* 16px @ 1920px wide — all rem values scale proportionally with viewport */
+      --fluid-root: calc(100vw / 120);
+      --side-padding: 25vh;
+      --font-section-title: clamp(calc(3.5rem / 2), calc(6vw / 2), calc(5.5rem / 2));
+      --font-body: clamp(0.9375rem, 2vw, 1.0625rem);
+      --font-hero-name: clamp(calc(3.5rem / 1.8), calc(6vw / 1.8), calc(5.5rem / 1.8));
+      --font-hero-subtitle: clamp(1.25rem, 2.2vw, 1.75rem);
+      --font-collage-heading: clamp(1.5rem, 3vw, 2.25rem);
+      --font-footer-role: clamp(1.125rem, 2vw, 1.5rem);
+      --image-content-max: 38.75rem;
+      --shadow-deep: 0 2rem 4rem -0.75rem rgba(0, 0, 0, 0.12),
+                     0 1rem 2rem -0.5rem rgba(0, 0, 0, 0.08);
     }
 
     html {
       scroll-behavior: smooth;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      font-size: var(--fluid-root);
+    }
+
+    @media (min-width: 901px) {
+      html {
+        font-size: var(--fluid-root);
+      }
     }
 
     body {
@@ -63,12 +80,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 48px;
+      padding: 0.875rem 3rem;
       background: transparent;
       opacity: 0;
       transform: translateY(-100%);
-      transition: opacity 0.4s var(--ease-premium),
-                  transform 0.4s var(--ease-premium);
+      transition: opacity 1.2s var(--ease-premium),
+                  transform 1.2s var(--ease-premium),
+                  background-color 0.2s var(--ease-premium);
       pointer-events: none;
     }
 
@@ -81,15 +99,15 @@
     .banner__left {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 1rem;
     }
 
     .banner__photo {
-      width: 52px;
-      height: 52px;
+      width: 3.25rem;
+      height: 3.25rem;
       border-radius: 50%;
       object-fit: cover;
-      border: 1px solid var(--text);
+      border: 0.0625rem solid var(--text);
     }
 
     .banner__name {
@@ -102,7 +120,7 @@
     .banner__right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 0.625rem;
       font-size: 0.875rem;
       font-weight: 400;
       color: var(--text-muted);
@@ -111,14 +129,14 @@
 
     .banner__contact {
       background: none;
-      border: 1px solid transparent;
+      border: 0.0625rem solid transparent;
       color: var(--text);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 1.125rem;
       font-weight: 400;
       letter-spacing: -0.02em;
-      padding: 2px 6px;
-      border-radius: 3px;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.1875rem;
       cursor: pointer;
       transition: all 0.15s var(--ease-premium);
     }
@@ -135,7 +153,7 @@
       font-size: 1.5rem;
       line-height: 1;
       cursor: pointer;
-      padding: 0 4px;
+      padding: 0 0.25rem;
       font-weight: 400;
       transition: font-size 0.15s var(--ease-premium);
     }
@@ -194,7 +212,7 @@
 
     .contact-car {
       position: absolute;
-      width: clamp(85px, 15vw, 150px);
+      width: clamp(5.3125rem, 15vw, 9.375rem);
       height: auto;
       z-index: 1;
       pointer-events: none;
@@ -210,14 +228,14 @@
       background-repeat: no-repeat;
       background-position: center;
       background-size: 100% auto;
-      height: 8px;
+      height: 0.5rem;
       clip-path: inset(0 0 0 calc(100% - var(--progress, 0) * 100%));
     }
 
     #transition-circle {
       position: fixed;
       background: white;
-      border: 4px solid black;
+      border: 0.25rem solid black;
       border-radius: 50%;
       pointer-events: none;
       z-index: 96;
@@ -236,7 +254,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 0vh 20vh 30vh;
+      padding: 0vh 25vh 30vh;
       overflow: hidden;
     }
 
@@ -246,7 +264,7 @@
       align-items: center;
       width: 100%;
       opacity: 0;
-      transform: translateY(56px);
+      transform: translateY(3.5rem);
       transition: opacity 1.2s var(--ease-premium),
                   transform 1.2s var(--ease-premium);
       will-change: opacity, transform;
@@ -265,27 +283,424 @@
       }
     }
 
-    /* ─── Hero Section ─────────────────────────────────────────── */
-    .hero {
-      /*min-height: 100dvh;*/
+    /* ─── FSAE Champions Section ─────────────────────────────── */
+    .fsae-champions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0vh 25vh 5vh;
+      overflow: hidden;
+      background: var(--white);
+    }
+
+    .fsae-champions__reveal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 112.5rem;
+      opacity: 0;
+      transform: translateY(3.5rem);
+      transition: opacity 1.2s var(--ease-premium),
+                  transform 1.2s var(--ease-premium);
+      will-change: opacity, transform;
+    }
+
+    .fsae-champions.is-visible .fsae-champions__reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fsae-champions__title {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: var(--font-section-title);
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      text-align: center;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .fsae-champions__subtitle {
+      font-size: var(--font-body);
+      font-weight: 300;
+      color: var(--text-muted);
+      text-align: center;
+      letter-spacing: 0.01em;
+      line-height: 1.5;
+      margin-bottom: 2.5rem;
+    }
+
+    .fsae-champions__photos {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20vh 30vh 25vh;
+      gap: 2.5rem;
+      width: 100%;
+    }
+
+    .fsae-champions__photo {
+      flex: 1;
+      max-width: var(--image-content-max);
+    }
+
+    .fsae-champions__photo img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-deep);
+      object-fit: cover;
+    }
+
+    .fsae-champions__statement {
+      max-width: 87.5rem;
+      margin-top: 1.5rem;
+      font-size: var(--font-body);
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .fsae-champions__cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 2rem;
+      padding: 0.875rem 2rem 0.875rem 2.25rem;
       background: var(--white);
+      color: var(--text);
+      border: 0.125rem solid var(--text);
+      border-radius: 9999px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: var(--font-body);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      line-height: 1.4;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s var(--ease-premium),
+                  box-shadow 0.2s var(--ease-premium);
+    }
+
+    .fsae-champions__cta:hover {
+      transform: translateY(-0.125rem);
+      box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.08);
+    }
+
+    .fsae-champions__cta-arrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.1em;
+      line-height: 1;
+      transform: rotate(0deg);
+      transition: transform 0.35s var(--ease-premium);
+    }
+
+    .fsae-champions__cta.is-open .fsae-champions__cta-arrow {
+      transform: rotate(90deg);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fsae-champions__reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    @media (max-width: 900px), (min-width: 901px) and (max-aspect-ratio: 3/2) {
+      .fsae-champions {
+        padding: 8vh clamp(1.5rem, 5vw, var(--side-padding)) 12vh;
+      }
+
+      .fsae-champions__photos {
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .fsae-champions__photo {
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+
+    /* ─── About Section ────────────────────────────────────────── */
+    .about {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15vh 30vh 0vh;
+      background: var(--white);
+    }
+
+    .about__reveal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 87.5rem;
+      opacity: 0;
+      transform: translateY(3.5rem);
+      transition: opacity 1.2s var(--ease-premium),
+                  transform 1.2s var(--ease-premium);
+      will-change: opacity, transform;
+    }
+
+    .about.is-visible .about__reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .about__title {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: var(--font-section-title);
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      text-align: center;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+
+    .about__text {
+      font-size: var(--font-body);
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .about__teams {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 87.5rem;
+      margin-top: 2.5rem;
+    }
+
+    .about__team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+    }
+
+    .about__team img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-deep);
+      object-fit: cover;
+      aspect-ratio: 4 / 3;
+    }
+
+    .about__team figcaption {
+      margin-top: 0.75rem;
+      font-size: var(--font-body);
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .about__reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    @media (max-width: 900px), (min-width: 901px) and (max-aspect-ratio: 3/2) {
+      .about {
+        padding: 8vh clamp(1.5rem, 5vw, var(--side-padding)) 12vh;
+      }
+
+      .about__teams {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .about__teams {
+        grid-template-columns: 1fr;
+        max-width: min(24rem, 100%);
+      }
+    }
+
+    /* ─── Personal Projects + FSAE-A 2024 Sections ─────────── */
+    .personal-projects,
+    .fsae-2024 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30vh 25vh 0vh;
+      overflow: hidden;
+      background: var(--white);
+    }
+
+    .personal-projects__reveal,
+    .fsae-2024__reveal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 112.5rem;
+      opacity: 0;
+      transform: translateY(3.5rem);
+      transition: opacity 1.2s var(--ease-premium),
+                  transform 1.2s var(--ease-premium);
+      will-change: opacity, transform;
+    }
+
+    .personal-projects.is-visible .personal-projects__reveal,
+    .fsae-2024.is-visible .fsae-2024__reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .personal-projects__title,
+    .fsae-2024__title {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: var(--font-section-title);
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      text-align: center;
+      color: var(--text);
+      margin-bottom: 2.5rem;
+    }
+
+    .personal-projects__photos,
+    .fsae-2024__photos {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 2.5rem;
+      width: 100%;
+    }
+
+    .personal-projects__photo,
+    .fsae-2024__photo {
+      flex: 1;
+      max-width: var(--image-content-max);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .personal-projects__photo img,
+    .fsae-2024__photo img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-deep);
+      object-fit: cover;
+    }
+
+    .personal-projects__photo figcaption,
+    .fsae-2024__photo figcaption {
+      margin-top: 0.75rem;
+      font-size: var(--font-body);
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .personal-projects__reveal,
+      .fsae-2024__reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    @media (max-width: 900px), (min-width: 901px) and (max-aspect-ratio: 3/2) {
+      .personal-projects,
+      .fsae-2024 {
+        padding: 8vh clamp(1.5rem, 5vw, var(--side-padding)) 12vh;
+      }
+
+      .personal-projects__photos,
+      .fsae-2024__photos {
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .personal-projects__photo,
+      .fsae-2024__photo {
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+
+    /* ─── Hero Section ─────────────────────────────────────────── */
+    .hero {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20vh 25vh 25vh;
+      background: var(--white);
+    }
+
+    .hero__reveal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      opacity: 0;
+      transition: opacity 2s var(--ease-premium);
+      will-change: opacity;
+    }
+
+    .hero.is-visible .hero__reveal {
+      opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero__reveal,
+      .banner {
+        opacity: 1;
+        transition: none;
+      }
+
+      .banner {
+        transform: none;
+        pointer-events: auto;
+      }
     }
 
     .hero__inner {
       display: flex;
       align-items: center;
-      gap: 80px;
-      max-width: 1400px;
+      gap: 5rem;
+      max-width: 87.5rem;
       width: 100%;
     }
 
     .hero__text {
       flex: 1;
-      max-width: 560px;
+      max-width: 35rem;
       display: flex;
       flex-direction: column;
       align-items: right;
@@ -294,11 +709,11 @@
     }
 
     .hero__name {
-      font-size: clamp(3.5rem/1.8, 6vw/1.8, 5.5rem/1.8);
+      font-size: var(--font-hero-name);
       font-weight: 600;
       letter-spacing: -0.04em;
       line-height: 1.05;
-      margin-bottom: 16px;
+      margin-bottom: 1rem;
     }
 
     .hero__name-prefix {
@@ -308,15 +723,15 @@
     }
 
     .hero__title {
-      font-size: clamp(0.625rem*2, 1.1vw*2, 0.875rem*2);
+      font-size: var(--font-hero-subtitle);
       font-weight: 400;
       color: var(--text-muted);
-      margin-bottom: 12px;
+      margin-bottom: 0.75rem;
     }
 
     .hero__image {
       flex: 1;
-      max-width: 620px;
+      max-width: var(--image-content-max);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -325,7 +740,7 @@
     .hero__image img {
       width: 100%;
       height: auto;
-      border-radius: 12px;
+      border-radius: 0.75rem;
       box-shadow: var(--shadow-deep);
       object-fit: cover;
     }
@@ -333,18 +748,18 @@
     /* Quote */
     .great-products__quote {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: clamp(3.5rem/2, 6vw/2, 5.5rem/2);
+      font-size: var(--font-section-title);
       font-weight: 500;
       /*font-style: italic;*/
       letter-spacing: -0.04em;
       text-align: center;
       color: var(--text);
-      max-width: 900px;
-      margin-bottom: 24px;
+      max-width: 56.25rem;
+      margin-bottom: 1.5rem;
     }
 
     .great-products__quote-continuation {
-      font-size: clamp(0.9375rem, 2vw, 1.0625rem);
+      font-size: var(--font-body);
       font-weight: 300;
       font-style: normal;
       color: var(--text-muted);
@@ -361,13 +776,13 @@
       justify-content: center;
       gap: 0;
       width: 100%;
-      max-width: 1800px;
+      max-width: 112.5rem;
       margin: 0 auto;
       transition: gap 1.6s var(--ease-out-expo);
     }
 
     .great-products__media.split {
-      gap: 36px;
+      gap: 2.25rem;
     }
 
     /* When we start in split state, avoid any entrance transition flash */
@@ -381,7 +796,7 @@
     .great-products__video-wrap {
       position: relative;
       flex-shrink: 0;
-      width: min(75vw, 816px);
+      width: min(75vw, 51rem);
       aspect-ratio: 1198 / 1080;
       overflow: hidden;
       background-color: var(--white);
@@ -390,8 +805,8 @@
     }
 
     .great-products__media.split .great-products__video-wrap {
-      width: min(22vw, 312px);
-      transform: translateX(-20px);
+      width: min(22vw, 19.5rem);
+      transform: translateX(-1.25rem);
     }
 
     .great-products__video-placeholder {
@@ -428,7 +843,7 @@
     /* Photo wrapper */
     .great-products__photo-wrap {
       flex-shrink: 0;
-      width: min(35vw, 432px);
+      width: min(35vw, 27rem);
       aspect-ratio: 1198 / 1080;
       overflow: hidden;
       background-color: var(--white);
@@ -437,8 +852,8 @@
     }
 
     .great-products__media.split .great-products__photo-wrap {
-      width: min(22vw, 312px);
-      transform: translateX(20px);
+      width: min(22vw, 19.5rem);
+      transform: translateX(1.25rem);
     }
 
     .great-products__photo-wrap img {
@@ -459,11 +874,11 @@
       transition: width 1.6s var(--ease-out-expo),
                   opacity 1.4s var(--ease-premium) 0.15s,
                   transform 1.6s var(--ease-out-expo) 0.15s;
-      transform: translateX(40px);
+      transform: translateX(2.5rem);
     }
 
     .great-products__media.split .great-products__image-wrap {
-      width: min(38vw, 504px);
+      width: min(38vw, 31.5rem);
       opacity: 1;
       transform: translateX(0);
     }
@@ -478,9 +893,9 @@
 
     /* Closing statement */
     .great-products__statement {
-      max-width: 1400px;
-      margin-top: 12px;
-      font-size: clamp(0.9375rem, 2vw, 1.0625rem);
+      max-width: 87.5rem;
+      margin-top: 0.75rem;
+      font-size: var(--font-body);
       font-weight: 300;
       line-height: 1.5;
       letter-spacing: 0.01em;
@@ -488,99 +903,398 @@
       color: var(--text-muted);
     }
 
-    /* ─── Portfolio Collage ────────────────────────────────────── */
-    .portfolio-collage {
-      padding: 0 clamp(24px, 6vw, 80px) 10vh;
+    /* ─── Photo Collages ──────────────────────────────────────── */
+    .portfolio-collage,
+    .personal-collage,
+    .ucm24-collage {
+      display: none;
+      padding: 0 25vh 10vh;
       background: var(--white);
     }
 
-    .portfolio-collage__grid {
-      column-count: 4;
-      column-gap: 10px;
-      max-width: 1400px;
-      margin: 0 auto;
+    .portfolio-collage.is-visible,
+    .personal-collage.is-visible,
+    .ucm24-collage.is-visible {
+      display: block;
     }
 
-    .portfolio-collage__item {
+    .portfolio-collage__reveal,
+    .personal-collage__reveal,
+    .ucm24-collage__reveal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(3.5rem);
+      transition: opacity 1.2s var(--ease-premium),
+                  transform 1.2s var(--ease-premium);
+      will-change: opacity, transform;
+    }
+
+    .portfolio-collage.is-revealed .portfolio-collage__reveal,
+    .personal-collage.is-revealed .personal-collage__reveal,
+    .ucm24-collage.is-revealed .ucm24-collage__reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .portfolio-collage__reveal,
+      .personal-collage__reveal,
+      .ucm24-collage__reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    .portfolio-collage__grid,
+    .portfolio-collage__masonry,
+    .personal-collage__grid,
+    .ucm24-collage__grid {
+      column-count: 4;
+      column-gap: 0.625rem;
+      max-width: 87.5rem;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .portfolio-collage__masonry .portfolio-collage__item {
+      background: var(--white);
+      border-radius: 0.75rem;
+    }
+
+    .portfolio-collage__masonry-caption {
       break-inside: avoid;
-      margin-bottom: 10px;
+      margin-bottom: 0.625rem;
+      padding: 1.25rem 1rem;
+      background: var(--white);
+      border-radius: 0.75rem;
+      font-size: var(--font-body);
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      text-align: center;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .portfolio-collage__actions {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      max-width: 87.5rem;
+      margin-top: 2rem;
+    }
+
+    .portfolio-collage__minimise {
+      margin-top: 0;
+    }
+
+    .portfolio-collage__minimise .fsae-champions__cta-arrow {
+      transform: rotate(-90deg);
+    }
+
+    .portfolio-collage__item,
+    .personal-collage__item,
+    .ucm24-collage__item {
+      break-inside: avoid;
+      margin-bottom: 0.625rem;
       overflow: hidden;
-      border-radius: 6px;
+      border-radius: 0.375rem;
       background: #f4f4f4;
     }
 
-    .portfolio-collage__item img {
+    .portfolio-collage__item img,
+    .personal-collage__item img,
+    .ucm24-collage__item img {
       width: 100%;
       height: auto;
       display: block;
     }
 
+    .portfolio-collage__feature {
+      max-width: 87.5rem;
+      margin: 0 auto 2rem;
+      width: 100%;
+    }
+
+    .portfolio-collage__heading {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: var(--font-collage-heading);
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: -0.02em;
+      text-align: center;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .portfolio-collage__intro {
+      font-size: var(--font-body);
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .portfolio-collage__feature > .portfolio-collage__item {
+      margin-bottom: 0.625rem;
+    }
+
+    .portfolio-collage__row {
+      display: grid;
+      gap: 0.625rem;
+      margin-bottom: 0.625rem;
+      align-items: stretch;
+    }
+
+    .portfolio-collage__row .portfolio-collage__item {
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+    }
+
+    .portfolio-collage__row .portfolio-collage__item img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .portfolio-collage__row--3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .portfolio-collage__row--2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .portfolio-collage__row--4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .portfolio-collage__caption {
+      font-size: var(--font-body);
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      text-align: center;
+      color: var(--text-muted);
+      margin: 1rem 0 1.5rem;
+    }
+
+    .portfolio-collage__heading--spaced {
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 900px), (min-width: 901px) and (max-aspect-ratio: 3/2) {
+      .portfolio-collage__row--4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .portfolio-collage__row--3,
+      .portfolio-collage__row--2,
+      .portfolio-collage__row--4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* ─── Footer ───────────────────────────────────────────────── */
     .footer {
-      padding: 80px 48px 48px;
-      text-align: center;
+      padding: 5rem 0 3rem;
       border-top: none;
     }
 
-    .footer__name {
-      font-size: 0.875rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      margin-bottom: 4px;
+    .footer__inner {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 2rem;
+      width: 100%;
+      padding: 0 5vh;
     }
 
-    .footer__title {
-      font-size: 0.8125rem;
-      font-weight: 300;
-      color: var(--text-muted);
-      margin-bottom: 4px;
+    .footer__role {
+      justify-self: start;
+      font-size: var(--font-footer-role);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      text-align: left;
+    }
+
+    .footer__role-prefix {
+      display: block;
+      font-size: 0.5em;
+      font-weight: 600;
+      margin-bottom: 0.2em;
     }
 
     .footer__location {
-      font-size: 0.75rem;
+      justify-self: center;
+      font-size: var(--font-body);
       font-weight: 300;
       color: var(--text-muted);
       letter-spacing: 0.02em;
+      text-align: center;
+      white-space: nowrap;
     }
 
-    /* ─── Responsive ───────────────────────────────────────────── */
-    @media (max-width: 900px) {
+    .footer__linkedin {
+      justify-self: end;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: none;
+      border: 0.0625rem solid transparent;
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 1.125rem;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.1875rem;
+      cursor: pointer;
+      transition: all 0.15s var(--ease-premium);
+    }
+
+    .footer__linkedin:hover {
+      font-size: 1.25rem;
+    }
+
+    .footer__linkedin-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      flex-shrink: 0;
+      transition: width 0.15s var(--ease-premium),
+                  height 0.15s var(--ease-premium);
+    }
+
+    .footer__linkedin:hover .footer__linkedin-icon {
+      width: 1.375rem;
+      height: 1.375rem;
+    }
+
+    /* ─── Responsive (narrow + wide nearly-square) ─────────────── */
+    @media (max-width: 900px), (min-width: 901px) and (max-aspect-ratio: 3/2) {
+      .banner {
+        background: var(--white);
+      }
+
+      :root {
+        --side-padding: clamp(1.5rem, 5vw, 25vh);
+        --font-section-title: clamp(1.5rem, 5.5vw, 2.75rem);
+        --font-body: clamp(0.9375rem, 2.8vw, 1.0625rem);
+        --font-hero-name: clamp(1.75rem, 7vw, 3.0625rem);
+        --font-hero-subtitle: clamp(1.0625rem, 3.5vw, 1.75rem);
+        --font-collage-heading: clamp(1.25rem, 4.5vw, 2.25rem);
+        --font-footer-role: clamp(1.0625rem, 3.5vw, 1.5rem);
+        --image-content-max: 100%;
+      }
+
+      html {
+        font-size: 16px;
+      }
+
+      .hero {
+        padding: 12vh var(--side-padding) 12vh;
+      }
+
+      .great-products {
+        padding: 8vh var(--side-padding) 12vh;
+      }
+
+      .portfolio-collage,
+      .personal-collage,
+      .ucm24-collage {
+        padding-left: var(--side-padding);
+        padding-right: var(--side-padding);
+      }
+
+      .footer__inner {
+        padding-left: var(--side-padding);
+        padding-right: var(--side-padding);
+      }
+
+      .hero__text {
+        max-width: 100%;
+        padding: 0;
+        text-align: center;
+        align-items: center;
+      }
+
+      .hero__image {
+        width: 100%;
+        max-width: 100%;
+      }
+
       .great-products__media.split {
         flex-direction: column;
-        gap: 32px;
+        gap: 2rem;
         justify-content: center;
       }
 
+      .great-products__video-wrap,
+      .great-products__photo-wrap,
       .great-products__media.split .great-products__video-wrap,
       .great-products__image-wrap,
-      .great-products__media.split .great-products__photo-wrap {
+      .great-products__media.split .great-products__photo-wrap,
+      .great-products__media.split .great-products__image-wrap {
         width: 100%;
-        max-width: 624px;
+        max-width: 100%;
         transform: none;
       }
 
       .hero__inner {
         flex-direction: column;
-        gap: 48px;
+        gap: 3rem;
         text-align: center;
       }
 
-      .hero__text {
+      .hero__location {
+        margin-bottom: 2rem;
+      }
+
+      .great-products__quote,
+      .great-products__statement {
         max-width: 100%;
       }
 
-      .hero__location {
-        margin-bottom: 32px;
+      .contact-email {
+        font-size: clamp(1.25rem, 5vw, 2.5rem);
       }
 
-      .portfolio-collage__grid {
+      .contact-email:hover {
+        font-size: clamp(1.5rem, 6vw, 3rem);
+      }
+
+      .portfolio-collage__grid,
+      .portfolio-collage__masonry,
+      .personal-collage__grid,
+      .ucm24-collage__grid {
         column-count: 3;
       }
     }
 
     @media (max-width: 640px) {
+      :root {
+        --font-section-title: clamp(1.375rem, 6vw, 2.75rem);
+        --font-body: clamp(0.875rem, 3.2vw, 1.0625rem);
+        --font-hero-name: clamp(1.625rem, 8vw, 3.0625rem);
+        --font-hero-subtitle: clamp(1rem, 4vw, 1.75rem);
+        --font-collage-heading: clamp(1.125rem, 5vw, 2.25rem);
+      }
+
       .banner {
-        padding: 12px 24px;
+        padding: 0.75rem 1.5rem;
       }
 
       .banner__name {
@@ -597,55 +1311,67 @@
       }
 
       .great-products {
-        padding: 8vh 24px 8vh;
+        padding-bottom: 8vh;
       }
 
       .great-products__quote {
-        margin-bottom: 24px;
-      }
-
-      .great-products__video-wrap,
-      .great-products__photo-wrap {
-        width: 100%;
-        max-width: 624px;
+        margin-bottom: 1.5rem;
       }
 
       .great-products__statement {
-        margin-top: 16px;
-        max-width: 100vw;
-        padding: 0 8px;
+        margin-top: 1rem;
+        padding: 0;
       }
 
-      .portfolio-collage {
-        padding: 0 24px 8vh;
-      }
-
-      .portfolio-collage__grid {
+      .portfolio-collage__grid,
+      .portfolio-collage__masonry,
+      .personal-collage__grid,
+      .ucm24-collage__grid {
         column-count: 2;
-        column-gap: 8px;
+        column-gap: 0.5rem;
       }
 
-      .portfolio-collage__item {
-        margin-bottom: 8px;
+      .portfolio-collage__item,
+      .personal-collage__item,
+      .ucm24-collage__item {
+        margin-bottom: 0.5rem;
+      }
+
+      .portfolio-collage__masonry-caption {
+        margin-bottom: 0.5rem;
+        padding: 1rem 0.75rem;
       }
 
       .footer {
-        padding: 64px 24px 40px;
+        padding: 4rem 0 2.5rem;
       }
 
-      .contact-email {
-        font-size: 1.1rem;
+      .footer__inner {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 1.5rem;
+        text-align: center;
       }
 
-      .contact-email:hover {
-        font-size: 1.3rem;
+      .footer__role {
+        justify-self: center;
+        text-align: center;
       }
+
+      .footer__location {
+        white-space: normal;
+      }
+
+      .footer__linkedin {
+        justify-self: center;
+      }
+
     }
   </style>
 </head>
 <body>
 
-  <!-- ═══ Sticky Banner (appears at ~1.5s) ═══ -->
+  <!-- ═══ Sticky Banner ═══ -->
   <header class="banner" id="banner" role="banner">
     <div class="banner__left">
       <img
@@ -682,6 +1408,7 @@
 
   <!-- ═══ Hero / Introduction ═══ -->
   <section class="hero" id="hero">
+    <div class="hero__reveal">
     <div class="hero__inner">
       <div class="hero__text">
         <h1 class="hero__name">
@@ -694,6 +1421,7 @@
       <div class="hero__image">
         <img src="Media/UCM25_Launch.jpg" alt="UCM25 Launch">
       </div>
+    </div>
     </div>
   </section>
 
@@ -737,16 +1465,346 @@
   </div>
 </section>
 
-  <!-- ═══ Portfolio Collage ═══ -->
-  <section class="portfolio-collage" id="portfolio-collage" aria-label="Photo collage">
-    <div class="portfolio-collage__grid" id="portfolioCollageGrid"></div>
+  <!-- ═══ FSAE-A 2025 Champions ═══ -->
+  <section class="fsae-champions" id="fsae-champions" aria-label="FSAE-A 2025 Champions">
+    <div class="fsae-champions__reveal">
+      <h2 class="fsae-champions__title">FSAE-A 2025 Champions</h2>
+      <p class="fsae-champions__subtitle">21 teams, 7 countries</p>
+      <div class="fsae-champions__photos">
+        <figure class="fsae-champions__photo">
+          <img src="Media/ucm25.jpg" alt="UCM25">
+        </figure>
+        <figure class="fsae-champions__photo">
+          <img src="Media/ucm25_trophies.jpg" alt="UCM25 trophies">
+        </figure>
+      </div>
+      <p class="fsae-champions__statement">I led the design of the suspension subsystem for the UCM25 team.</p>
+      <button
+        type="button"
+        class="fsae-champions__cta"
+        id="fsaeChampionsCta"
+        aria-expanded="false"
+        aria-controls="portfolio-collage"
+      >
+        <span class="fsae-champions__cta-label">See more of my work for the UCM25 team here</span>
+        <span class="fsae-champions__cta-arrow" aria-hidden="true">&gt;</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══ UCM25 Collage ═══ -->
+  <section class="portfolio-collage" id="portfolio-collage" aria-label="UCM25 Collage" hidden>
+    <div class="portfolio-collage__reveal">
+      <div class="portfolio-collage__feature">
+        <h3 class="portfolio-collage__heading">Design</h3>
+        <p class="portfolio-collage__intro">The UCM25 vehicle aimed to maximise simplicity and reliablity to maximise the probability of winning FSAE-A 25.</p>
+        <div class="portfolio-collage__row portfolio-collage__row--3">
+          <figure class="portfolio-collage__item">
+            <img src="Media/Force_Model_Static.png" alt="Force model static" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/ucm25_vehicle_dynamics_model.png" alt="UCM25 vehicle dynamics model" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/ucm25_roll_centre.png" alt="UCM25 roll centre" loading="lazy" decoding="async">
+          </figure>
+        </div>
+        <p class="portfolio-collage__caption">I created the first predictive suspension tuning tool for the University of Canterbury Motorsport Team by validating these forces against real measured forces to be used on future designs</p>
+        <figure class="portfolio-collage__item">
+          <img src="Media/ucm25_suspension_components_poster.png" alt="UCM25 suspension components poster" loading="lazy" decoding="async">
+        </figure>
+        <figure class="portfolio-collage__item">
+          <img src="Media/ucm25_suspension_forces_poster.png" alt="UCM25 suspension forces poster" loading="lazy" decoding="async">
+        </figure>
+        <figure class="portfolio-collage__item">
+          <img src="Media/ucm25_suspension_vd_poster.png" alt="UCM25 suspension vehicle dynamics poster" loading="lazy" decoding="async">
+        </figure>
+        <div class="portfolio-collage__row portfolio-collage__row--2">
+          <figure class="portfolio-collage__item">
+            <img src="Media/ucm25_structural_suspension_design_book.png" alt="UCM25 structural suspension design booklet" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/ucm25_suspension_vd_design_book.png" alt="UCM25 suspension vehicle dynamics design booklet" loading="lazy" decoding="async">
+          </figure>
+        </div>
+        <p class="portfolio-collage__caption">My full documented design work can be found in the two design event booklets I made</p>
+        <div class="portfolio-collage__row portfolio-collage__row--3">
+          <figure class="portfolio-collage__item">
+            <img src="Media/rear_suspension_strain%20gauge.JPEG" alt="Rear suspension strain gauge" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/rear_suspension_strain%20gauge.JPEG" alt="Rear suspension strain gauge" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/rear_suspension_strain%20gauge.JPEG" alt="Rear suspension strain gauge" loading="lazy" decoding="async">
+          </figure>
+        </div>
+        <h3 class="portfolio-collage__heading portfolio-collage__heading--spaced">Manufacture</h3>
+        <div class="portfolio-collage__masonry">
+          <figure class="portfolio-collage__item">
+            <img src="Media/ti64_wire_cut.JPG" alt="Ti64 wire cut" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/ti64_sandblast.JPEG" alt="Ti64 sandblast" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/ti64_waterblast.PNG" alt="Ti64 waterblast" loading="lazy" decoding="async">
+          </figure>
+          <p class="portfolio-collage__masonry-caption">Titanium bracket printing, sand blasting, and vapour blasting.</p>
+          <figure class="portfolio-collage__item">
+            <img src="Media/machining_rear_bracket.JPEG" alt="Machining rear bracket" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/machining_ti_bracket.JPEG" alt="Machining titanium bracket" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/machining_pushrod.JPEG" alt="Machining pushrod" loading="lazy" decoding="async">
+          </figure>
+          <p class="portfolio-collage__masonry-caption">Machining of titanium suspension brackets.</p>
+          <figure class="portfolio-collage__item">
+            <img src="Media/ti64_workbench.JPEG" alt="Ti64 workbench" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/brackets_tie%20_tods%20_sandblasted.JPEG" alt="Brackets tie rods sandblasted" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/machined_bung_ends.JPEG" alt="Machined bung ends" loading="lazy" decoding="async">
+          </figure>
+          <p class="portfolio-collage__masonry-caption">Tie rod manufacture.</p>
+          <figure class="portfolio-collage__item">
+            <img src="Media/machining_control_arm.JPEG" alt="Machining control arm" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/control_arm_wleding_jig.JPEG" alt="Control arm welding jig" loading="lazy" decoding="async">
+          </figure>
+          <p class="portfolio-collage__masonry-caption">Control arm and welding jig.</p>
+          <figure class="portfolio-collage__item">
+            <img src="Media/machined_anti_intrusion_plate_spacers.JPG" alt="Machined anti intrusion plate spacers" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/machined_carbon_tube_inserts.JPEG" alt="Machined carbon tube inserts" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/thrust_washers.JPEG" alt="Thrust washers" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/t_hat_spacers.JPEG" alt="T hat spacers" loading="lazy" decoding="async">
+          </figure>
+          <p class="portfolio-collage__masonry-caption">Various machined components.</p>
+          <figure class="portfolio-collage__item">
+            <img src="Media/painted_lift_bar.JPEG" alt="Painted lift bar" loading="lazy" decoding="async">
+          </figure>
+          <p class="portfolio-collage__masonry-caption">Design and manufacture of lift bar.</p>
+          <figure class="portfolio-collage__item">
+            <img src="Media/splined_shaft.JPEG" alt="Splined shaft" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/steering_machined_part.JPEG" alt="Steering machined part" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/steering_shaft.PNG" alt="Steering shaft" loading="lazy" decoding="async">
+          </figure>
+          <p class="portfolio-collage__masonry-caption">Steering components.</p>
+          <figure class="portfolio-collage__item">
+            <img src="Media/auxiliary%20port.JPEG" alt="Auxiliary port" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/auxiliary_port_2.JPEG" alt="Auxiliary port 2" loading="lazy" decoding="async">
+          </figure>
+          <p class="portfolio-collage__masonry-caption">Design and manufacture of telemetry port.</p>
+          <figure class="portfolio-collage__item">
+            <img src="Media/inside_monocoque.JPEG" alt="Inside monocoque" loading="lazy" decoding="async">
+          </figure>
+        </div>
+        <h3 class="portfolio-collage__heading portfolio-collage__heading--spaced">Assembly</h3>
+        <div class="portfolio-collage__row portfolio-collage__row--4">
+          <figure class="portfolio-collage__item">
+            <img src="Media/ucm25_monocoque.JPEG" alt="UCM25 monocoque" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/front_suspension_assembly_wheel.JPEG" alt="Front suspension assembly wheel" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/rear_suspension.JPEG" alt="Rear suspension" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/rear_supension_2.JPEG" alt="Rear suspension 2" loading="lazy" decoding="async">
+          </figure>
+        </div>
+        <figure class="portfolio-collage__item">
+          <img src="Media/ucm25_first_drive.JPEG" alt="UCM25 first drive" loading="lazy" decoding="async">
+        </figure>
+        <h3 class="portfolio-collage__heading portfolio-collage__heading--spaced">Competition</h3>
+        <div class="portfolio-collage__row portfolio-collage__row--4">
+          <figure class="portfolio-collage__item">
+            <img src="Media/ucm25_track_day.JPEG" alt="UCM25 track day" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/ucm25_autocross.JPEG" alt="UCM25 autocross" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/ucm25_team.jpg" alt="UCM25 team" loading="lazy" decoding="async">
+          </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/ucm25_prizegiving.jpg" alt="UCM25 prizegiving" loading="lazy" decoding="async">
+          </figure>
+        </div>
+        <figure class="portfolio-collage__item">
+          <img src="Media/graduation_photo_ucm25.JPEG" alt="Graduation photo UCM25" loading="lazy" decoding="async">
+        </figure>
+      </div>
+      <div class="portfolio-collage__actions">
+        <button
+          type="button"
+          class="fsae-champions__cta portfolio-collage__minimise"
+          id="portfolioCollageMinimise"
+          aria-controls="portfolio-collage"
+        >
+          <span class="fsae-champions__cta-label">Minimise UCM25 collage</span>
+          <span class="fsae-champions__cta-arrow" aria-hidden="true">&gt;</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ About ═══ -->
+  <section class="about" id="about" aria-label="About">
+    <div class="about__reveal">
+      <h2 class="about__title">About</h2>
+      <p class="about__text">I am currently rotating through engineering, manufacturing, sales, and operations at an industry-leading, tailored product design company in post-harvest vegetable processing solutions.</p>
+      <p class="about__text">I strive to become part of great teams that make great products. Here are some of the teams I have been part of:</p>
+      <div class="about__teams">
+        <figure class="about__team">
+          <img src="Media/pnbhs_cricket_team.jpg" alt="PNBHS cricket team">
+          <figcaption>Cricket: 2018 New Zealand Junior Secondary School Boys' National Champions</figcaption>
+        </figure>
+        <figure class="about__team">
+          <img src="Media/manawatu_cricket_team.jpg" alt="Manawatu cricket team">
+          <figcaption>Cricket: 2020 Under 17 Central Districts Regional Champions. This team was coached by Palmerston North's Fire Chief.</figcaption>
+        </figure>
+        <figure class="about__team">
+          <img src="Media/ucm25.jpg" alt="UCM25 team">
+          <figcaption>Engineering: 2025 UCM25 FSAE-A International Champions</figcaption>
+        </figure>
+        <figure class="about__team">
+          <img src="Media/ucm24.jpg" alt="UCM24 team">
+          <figcaption>Engineering: 2024 UCM24 team 6th Place at FSAE-A</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Personal Projects ═══ -->
+  <section class="personal-projects" id="personal-projects" aria-label="Personal Projects">
+    <div class="personal-projects__reveal">
+      <h2 class="personal-projects__title">Personal Projects</h2>
+      <div class="personal-projects__photos">
+        <figure class="personal-projects__photo">
+          <img src="Media/plantar_box.JPEG" alt="Plantar box">
+          <figcaption>Plantar Box</figcaption>
+        </figure>
+        <figure class="personal-projects__photo">
+          <img src="Media/glider.JPEG" alt="Glider">
+          <figcaption>Glider</figcaption>
+        </figure>
+      </div>
+      <button
+        type="button"
+        class="fsae-champions__cta"
+        id="personalProjectsCta"
+        aria-expanded="false"
+        aria-controls="personal-collage"
+      >
+        <span class="fsae-champions__cta-label">See more of my personal design projects here</span>
+        <span class="fsae-champions__cta-arrow" aria-hidden="true">&gt;</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══ Personal Collage ═══ -->
+  <section class="personal-collage" id="personal-collage" aria-label="Personal Collage" hidden>
+    <div class="personal-collage__reveal">
+      <div class="personal-collage__grid" id="personalCollageGrid"></div>
+      <div class="portfolio-collage__actions">
+        <button
+          type="button"
+          class="fsae-champions__cta portfolio-collage__minimise"
+          id="personalCollageMinimise"
+          aria-controls="personal-collage"
+        >
+          <span class="fsae-champions__cta-label">Minimise Personal collage</span>
+          <span class="fsae-champions__cta-arrow" aria-hidden="true">&gt;</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FSAE-A 2024 ═══ -->
+  <section class="fsae-2024" id="fsae-2024" aria-label="FSAE-A 2024">
+    <div class="fsae-2024__reveal">
+      <h2 class="fsae-2024__title">FSAE-A 2024</h2>
+      <div class="fsae-2024__photos">
+        <figure class="fsae-2024__photo">
+          <img src="Media/ucm24_design_event.JPEG" alt="UCM24 design event">
+          <figcaption>Design Event</figcaption>
+        </figure>
+        <figure class="fsae-2024__photo">
+          <img src="Media/ucm24_auxiliary_port.JPEG" alt="UCM24 auxiliary port">
+          <figcaption>Auxiliary Port</figcaption>
+        </figure>
+      </div>
+      <button
+        type="button"
+        class="fsae-champions__cta"
+        id="fsae2024Cta"
+        aria-expanded="false"
+        aria-controls="ucm24-collage"
+      >
+        <span class="fsae-champions__cta-label">See more of my work for the UCM24 team here</span>
+        <span class="fsae-champions__cta-arrow" aria-hidden="true">&gt;</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══ UCM24 Collage ═══ -->
+  <section class="ucm24-collage" id="ucm24-collage" aria-label="UCM24 Collage" hidden>
+    <div class="ucm24-collage__reveal">
+      <div class="ucm24-collage__grid" id="ucm24CollageGrid"></div>
+      <div class="portfolio-collage__actions">
+        <button
+          type="button"
+          class="fsae-champions__cta portfolio-collage__minimise"
+          id="ucm24CollageMinimise"
+          aria-controls="ucm24-collage"
+        >
+          <span class="fsae-champions__cta-label">Minimise UCM24 collage</span>
+          <span class="fsae-champions__cta-arrow" aria-hidden="true">&gt;</span>
+        </button>
+      </div>
+    </div>
   </section>
 
   <!-- ═══ Footer ═══ -->
   <footer class="footer">
-    <p class="footer__name">Michael Watkins</p>
-    <p class="footer__title">Mechanical Engineer &amp; Designer</p>
-    <p class="footer__location">Christchurch, New Zealand</p>
+    <div class="footer__inner">
+      <p class="footer__role">
+        <span class="footer__role-prefix">Mechanical</span>
+        Engineer &amp; Designer
+      </p>
+      <p class="footer__location">Christchurch, New Zealand</p>
+      <a
+        class="footer__linkedin"
+        href="https://www.linkedin.com/in/michael-watkins-382016277/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Michael Watkins on LinkedIn"
+      >
+        <span class="footer__linkedin-label">linkedIn</span>
+        <svg class="footer__linkedin-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+      </a>
+    </div>
   </footer>
 
   <script>
@@ -755,6 +1813,7 @@
 
       /* ─── Element references ─────────────────────────────────── */
       const banner        = document.getElementById('banner');
+      const heroSection   = document.getElementById('hero');
       const greatProductsQuote     = document.getElementById('greatProductsQuote');
       const greatProductsMedia     = document.getElementById('greatProductsMedia');
       const greatProductsVideo     = document.getElementById('greatProductsVideo');
@@ -795,7 +1854,7 @@
 
         let progress = 0;
         if (!graphComplete) {
-          progress = Math.min(t / 26.5, 1);
+          progress = Math.min((t + 3) / 26.5, 1);
           if (progress >= 1) {
             graphComplete = true;
             if (!bgFadeStart) bgFadeStart = Date.now();
@@ -918,10 +1977,21 @@
         startGraph();
       }
 
-      /* ─── Sticky banner (independent of great products reveal) ─ */
-      setTimeout(function () {
+      /* ─── Hero + banner reveal on load (fade + rise) ─────────── */
+      function revealHeroSection() {
+        if (heroSection) heroSection.classList.add('is-visible');
         if (banner) banner.classList.add('visible');
-      }, 1500);
+      }
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (prefersReducedMotion) {
+        revealHeroSection();
+      } else {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(revealHeroSection);
+        });
+      }
 
       /* ─── Scroll reveal (Ferrari Luce-style fade + rise) ─────── */
       const greatProductsSection = document.getElementById('great-products');
@@ -935,8 +2005,6 @@
       }
 
       if (greatProductsSection) {
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
         if (prefersReducedMotion) {
           revealGreatProductsSection();
         } else {
@@ -953,6 +2021,36 @@
           });
 
           greatProductsObserver.observe(greatProductsSection);
+        }
+      }
+
+      /* ─── FSAE champions scroll reveal ───────────────────────── */
+      const fsaeChampionsSection = document.getElementById('fsae-champions');
+      let fsaeChampionsRevealed = false;
+
+      function revealFsaeChampionsSection() {
+        if (fsaeChampionsRevealed || !fsaeChampionsSection) return;
+        fsaeChampionsRevealed = true;
+        fsaeChampionsSection.classList.add('is-visible');
+      }
+
+      if (fsaeChampionsSection) {
+        if (prefersReducedMotion) {
+          revealFsaeChampionsSection();
+        } else {
+          const fsaeChampionsObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                revealFsaeChampionsSection();
+                fsaeChampionsObserver.disconnect();
+              }
+            });
+          }, {
+            threshold: 0.12,
+            rootMargin: '0px 0px -10% 0px',
+          });
+
+          fsaeChampionsObserver.observe(fsaeChampionsSection);
         }
       }
 
@@ -1254,70 +2352,6 @@
         });
       }
 
-      /* ─── Portfolio collage (remove any line to drop a photo) ─── */
-      const portfolioPhotos = [
-        'auxiliary port.JPEG',
-        'auxiliary_port_2.JPEG',
-        'brackets_tie _tods _sandblasted.JPEG',
-        'control_arm_wleding_jig.JPEG',
-        'Force_Model_Static.png',
-        'front_suspension_assembly.JPEG',
-        'glider.JPEG',
-        'graduation_photo_ucm25.JPEG',
-        'inside_monocoque.JPEG',
-        'machined_anti_intrusion_plate_spacers.JPG',
-        'machined_bung_ends.JPEG',
-        'machined_carbon_tube_inserts.JPEG',
-        'machined_gearbox_spacers.JPEG',
-        'machining_control_arm.JPEG',
-        'machining_pushrod.JPEG',
-        'machining_rear_bracket.JPEG',
-        'machining_ti_bracket.JPEG',
-        'painted_lift_bar.JPEG',
-        'plantar_box.JPEG',
-        'rear_supension_2.JPEG',
-        'rear_suspension.JPEG',
-        'rear_suspension_strain gauge.JPEG',
-        'sand_blast_roll_hoop.JPEG',
-        'splined_shaft.JPEG',
-        'steering_machined_part.JPEG',
-        'steering_shaft.PNG',
-        'strain-gauge.jpg',
-        'suspension_render.png',
-        't_hat_spacers.JPEG',
-        'thrust_washers.JPEG',
-        'ti_64_build_plate.JPG',
-        'ti64_bracket_bearing.JPEG',
-        'ti64_bracket_jig.JPEG',
-        'ti64_rear_bracket.JPEG',
-        'ti64_sandblast.JPEG',
-        'ti64_waterblast.PNG',
-        'ti64_wire_cut.JPG',
-        'ti64_workbench.JPEG',
-        'ucm_auxiliary_port_2.JPEG',
-        'ucm24.JPEG',
-        'ucm24.jpg',
-        'ucm24_auxiliary_port.JPEG',
-        'ucm24_auxiliary_port_3.JPEG',
-        'ucm24_design_event.JPEG',
-        'ucm25.jpg',
-        'ucm25_autocross.JPEG',
-        'ucm25_first_drive.JPEG',
-        'UCM25_Launch.jpg',
-        'ucm25_prizegiving.jpg',
-        'ucm25_suspension_components_poster.png',
-        'ucm25_torsional_rigidity_analysis.png',
-        'ucm25_track_day.JPEG',
-        'ucm25_trophies.jpg',
-        'ucm25-car.jpg',
-      ];
-/*
-        'ucm25 team.jpg',
-                'ucm25_team_photo.jpg',
-                        'fsae_new_zealand.jpg',
-                                'ucm25_suspension_forces_poster.png',
-        'ucm25_suspension_vd_poster.png',
-*/
       function portfolioPhotoLabel(filename) {
         return filename
           .replace(/\.[^.]+$/, '')
@@ -1326,15 +2360,37 @@
           .trim();
       }
 
-      function buildPortfolioCollage() {
-        const grid = document.getElementById('portfolioCollageGrid');
+      /* ─── Personal collage (remove any line to drop a photo) ─── */
+      const personalCollagePhotos = [
+        'IMG_5346 (1).jpg',
+        'IMG_8332 (1).jpg',
+        'IMG_4226.jpg',
+        'IMG_8126-Photoroom.png',
+        'IMG_1809-Photoroom.png',
+        'IMG_1809.jpg',
+        'Gemini_Generated_Image_7wtrjy7wtrjy7wtr.png',
+        'grok-image-32cb0ee5-87f9-4289-8c72-c24d3e891584.jpg',
+        'toe-link-force-comparison.jpg',
+        'ChatGPT Image Jun 29, 2026, 09_03_15 PM.png',
+        'Screenshot 2026-06-01 130811.png',
+        'Screenshot 2026-06-01 121653.png',
+        'Screenshot 2026-06-01 115438.png',
+        'Screenshot 2026-06-01 115408.png',
+        'blackboard.jpg',
+        'tyre tracks.png',
+        'tire-tracks.jpg',
+        'race-car.jpg',
+      ];
+
+      function buildPersonalCollage() {
+        const grid = document.getElementById('personalCollageGrid');
         if (!grid) return;
 
         const fragment = document.createDocumentFragment();
 
-        portfolioPhotos.forEach((filename) => {
+        personalCollagePhotos.forEach((filename) => {
           const figure = document.createElement('figure');
-          figure.className = 'portfolio-collage__item';
+          figure.className = 'personal-collage__item';
 
           const img = document.createElement('img');
           img.src = 'Media/' + encodeURI(filename);
@@ -1349,7 +2405,352 @@
         grid.replaceChildren(fragment);
       }
 
-      buildPortfolioCollage();
+      buildPersonalCollage();
+
+      /* ─── UCM24 collage (remove any line to drop a photo) ────── */
+      const ucm24CollagePhotos = [
+        'ucm24.JPEG',
+        'ucm24.jpg',
+        'ucm24_auxiliary_port.JPEG',
+        'ucm24_auxiliary_port_3.JPEG',
+        'ucm24_design_event.JPEG',
+        'ucm_auxiliary_port_2.JPEG',
+      ];
+
+      function buildUcm24Collage() {
+        const grid = document.getElementById('ucm24CollageGrid');
+        if (!grid) return;
+
+        const fragment = document.createDocumentFragment();
+
+        ucm24CollagePhotos.forEach((filename) => {
+          const figure = document.createElement('figure');
+          figure.className = 'ucm24-collage__item';
+
+          const img = document.createElement('img');
+          img.src = 'Media/' + encodeURI(filename);
+          img.alt = portfolioPhotoLabel(filename);
+          img.loading = 'lazy';
+          img.decoding = 'async';
+
+          figure.appendChild(img);
+          fragment.appendChild(figure);
+        });
+
+        grid.replaceChildren(fragment);
+      }
+
+      buildUcm24Collage();
+
+      /* ─── FSAE champions → portfolio collage reveal ──────────── */
+      const fsaeChampionsCta = document.getElementById('fsaeChampionsCta');
+      const portfolioCollageMinimise = document.getElementById('portfolioCollageMinimise');
+      const portfolioCollageSection = document.getElementById('portfolio-collage');
+
+      const portfolioRevealDurationMs = 1200;
+
+      const aboutSection = document.getElementById('about');
+      const personalProjectsSection = document.getElementById('personal-projects');
+      const personalProjectsCta = document.getElementById('personalProjectsCta');
+      const personalCollageMinimise = document.getElementById('personalCollageMinimise');
+      const personalCollageSection = document.getElementById('personal-collage');
+      const fsae2024Section = document.getElementById('fsae-2024');
+      const fsae2024Cta = document.getElementById('fsae2024Cta');
+      const ucm24CollageMinimise = document.getElementById('ucm24CollageMinimise');
+      const ucm24CollageSection = document.getElementById('ucm24-collage');
+      const footerSection = document.querySelector('.footer');
+
+      function positionPageSections() {
+        let anchor = null;
+
+        if (aboutSection) {
+          const portfolioOpen = fsaeChampionsCta && fsaeChampionsCta.classList.contains('is-open');
+          const aboutAnchor = portfolioOpen ? portfolioCollageSection : fsaeChampionsSection;
+
+          if (aboutAnchor && aboutSection.previousElementSibling !== aboutAnchor) {
+            aboutAnchor.insertAdjacentElement('afterend', aboutSection);
+          }
+
+          anchor = aboutSection;
+        }
+
+        if (personalProjectsSection && anchor) {
+          if (anchor.nextElementSibling !== personalProjectsSection) {
+            anchor.insertAdjacentElement('afterend', personalProjectsSection);
+          }
+          anchor = personalProjectsSection;
+        }
+
+        const personalOpen = personalProjectsCta && personalProjectsCta.classList.contains('is-open');
+        if (personalOpen && personalCollageSection && anchor) {
+          if (anchor.nextElementSibling !== personalCollageSection) {
+            anchor.insertAdjacentElement('afterend', personalCollageSection);
+          }
+          anchor = personalCollageSection;
+        }
+
+        if (fsae2024Section && anchor) {
+          if (anchor.nextElementSibling !== fsae2024Section) {
+            anchor.insertAdjacentElement('afterend', fsae2024Section);
+          }
+          anchor = fsae2024Section;
+        }
+
+        const ucm24Open = fsae2024Cta && fsae2024Cta.classList.contains('is-open');
+        if (ucm24Open && ucm24CollageSection && anchor) {
+          if (anchor.nextElementSibling !== ucm24CollageSection) {
+            anchor.insertAdjacentElement('afterend', ucm24CollageSection);
+          }
+          anchor = ucm24CollageSection;
+        }
+
+        if (footerSection && anchor && anchor.nextElementSibling !== footerSection) {
+          anchor.insertAdjacentElement('afterend', footerSection);
+        }
+      }
+
+      function openPortfolioCollage() {
+        portfolioCollageSection.hidden = false;
+        portfolioCollageSection.classList.add('is-visible');
+        fsaeChampionsCta.classList.add('is-open');
+        fsaeChampionsCta.setAttribute('aria-expanded', 'true');
+        positionPageSections();
+
+        if (prefersReducedMotion) {
+          portfolioCollageSection.classList.add('is-revealed');
+        } else {
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              portfolioCollageSection.classList.add('is-revealed');
+            });
+          });
+        }
+
+      }
+
+      function closePortfolioCollage() {
+        portfolioCollageSection.classList.remove('is-revealed');
+        fsaeChampionsCta.classList.remove('is-open');
+        fsaeChampionsCta.setAttribute('aria-expanded', 'false');
+        positionPageSections();
+
+        const hideDelay = prefersReducedMotion ? 0 : portfolioRevealDurationMs;
+        window.setTimeout(function () {
+          if (!fsaeChampionsCta.classList.contains('is-open')) {
+            portfolioCollageSection.classList.remove('is-visible');
+            portfolioCollageSection.hidden = true;
+          }
+        }, hideDelay);
+      }
+
+      function togglePortfolioCollage() {
+        if (!portfolioCollageSection || !fsaeChampionsCta) return;
+
+        if (fsaeChampionsCta.classList.contains('is-open')) {
+          closePortfolioCollage();
+        } else {
+          openPortfolioCollage();
+        }
+      }
+
+      if (fsaeChampionsCta && portfolioCollageSection) {
+        fsaeChampionsCta.addEventListener('click', togglePortfolioCollage);
+      }
+
+      if (portfolioCollageMinimise && portfolioCollageSection) {
+        portfolioCollageMinimise.addEventListener('click', closePortfolioCollage);
+      }
+
+      function openPersonalCollage() {
+        personalCollageSection.hidden = false;
+        personalCollageSection.classList.add('is-visible');
+        personalProjectsCta.classList.add('is-open');
+        personalProjectsCta.setAttribute('aria-expanded', 'true');
+        positionPageSections();
+
+        if (prefersReducedMotion) {
+          personalCollageSection.classList.add('is-revealed');
+        } else {
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              personalCollageSection.classList.add('is-revealed');
+            });
+          });
+        }
+      }
+
+      function closePersonalCollage() {
+        personalCollageSection.classList.remove('is-revealed');
+        personalProjectsCta.classList.remove('is-open');
+        personalProjectsCta.setAttribute('aria-expanded', 'false');
+        positionPageSections();
+
+        const hideDelay = prefersReducedMotion ? 0 : portfolioRevealDurationMs;
+        window.setTimeout(function () {
+          if (!personalProjectsCta.classList.contains('is-open')) {
+            personalCollageSection.classList.remove('is-visible');
+            personalCollageSection.hidden = true;
+          }
+        }, hideDelay);
+      }
+
+      function togglePersonalCollage() {
+        if (!personalCollageSection || !personalProjectsCta) return;
+
+        if (personalProjectsCta.classList.contains('is-open')) {
+          closePersonalCollage();
+        } else {
+          openPersonalCollage();
+        }
+      }
+
+      if (personalProjectsCta && personalCollageSection) {
+        personalProjectsCta.addEventListener('click', togglePersonalCollage);
+      }
+
+      if (personalCollageMinimise && personalCollageSection) {
+        personalCollageMinimise.addEventListener('click', closePersonalCollage);
+      }
+
+      function openUcm24Collage() {
+        ucm24CollageSection.hidden = false;
+        ucm24CollageSection.classList.add('is-visible');
+        fsae2024Cta.classList.add('is-open');
+        fsae2024Cta.setAttribute('aria-expanded', 'true');
+        positionPageSections();
+
+        if (prefersReducedMotion) {
+          ucm24CollageSection.classList.add('is-revealed');
+        } else {
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              ucm24CollageSection.classList.add('is-revealed');
+            });
+          });
+        }
+      }
+
+      function closeUcm24Collage() {
+        ucm24CollageSection.classList.remove('is-revealed');
+        fsae2024Cta.classList.remove('is-open');
+        fsae2024Cta.setAttribute('aria-expanded', 'false');
+        positionPageSections();
+
+        const hideDelay = prefersReducedMotion ? 0 : portfolioRevealDurationMs;
+        window.setTimeout(function () {
+          if (!fsae2024Cta.classList.contains('is-open')) {
+            ucm24CollageSection.classList.remove('is-visible');
+            ucm24CollageSection.hidden = true;
+          }
+        }, hideDelay);
+      }
+
+      function toggleUcm24Collage() {
+        if (!ucm24CollageSection || !fsae2024Cta) return;
+
+        if (fsae2024Cta.classList.contains('is-open')) {
+          closeUcm24Collage();
+        } else {
+          openUcm24Collage();
+        }
+      }
+
+      if (fsae2024Cta && ucm24CollageSection) {
+        fsae2024Cta.addEventListener('click', toggleUcm24Collage);
+      }
+
+      if (ucm24CollageMinimise && ucm24CollageSection) {
+        ucm24CollageMinimise.addEventListener('click', closeUcm24Collage);
+      }
+
+      positionPageSections();
+
+      /* ─── About scroll reveal ────────────────────────────────── */
+      let aboutRevealed = false;
+
+      function revealAboutSection() {
+        if (aboutRevealed || !aboutSection) return;
+        aboutRevealed = true;
+        aboutSection.classList.add('is-visible');
+      }
+
+      if (aboutSection) {
+        if (prefersReducedMotion) {
+          revealAboutSection();
+        } else {
+          const aboutObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                revealAboutSection();
+                aboutObserver.disconnect();
+              }
+            });
+          }, {
+            threshold: 0.12,
+            rootMargin: '0px 0px -10% 0px',
+          });
+
+          aboutObserver.observe(aboutSection);
+        }
+      }
+
+      /* ─── Personal projects scroll reveal ───────────────────── */
+      let personalProjectsRevealed = false;
+
+      function revealPersonalProjectsSection() {
+        if (personalProjectsRevealed || !personalProjectsSection) return;
+        personalProjectsRevealed = true;
+        personalProjectsSection.classList.add('is-visible');
+      }
+
+      if (personalProjectsSection) {
+        if (prefersReducedMotion) {
+          revealPersonalProjectsSection();
+        } else {
+          const personalProjectsObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                revealPersonalProjectsSection();
+                personalProjectsObserver.disconnect();
+              }
+            });
+          }, {
+            threshold: 0.12,
+            rootMargin: '0px 0px -10% 0px',
+          });
+
+          personalProjectsObserver.observe(personalProjectsSection);
+        }
+      }
+
+      /* ─── FSAE-A 2024 scroll reveal ─────────────────────────── */
+      let fsae2024Revealed = false;
+
+      function revealFsae2024Section() {
+        if (fsae2024Revealed || !fsae2024Section) return;
+        fsae2024Revealed = true;
+        fsae2024Section.classList.add('is-visible');
+      }
+
+      if (fsae2024Section) {
+        if (prefersReducedMotion) {
+          revealFsae2024Section();
+        } else {
+          const fsae2024Observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                revealFsae2024Section();
+                fsae2024Observer.disconnect();
+              }
+            });
+          }, {
+            threshold: 0.12,
+            rootMargin: '0px 0px -10% 0px',
+          });
+
+          fsae2024Observer.observe(fsae2024Section);
+        }
+      }
 
     })();
   </script>
