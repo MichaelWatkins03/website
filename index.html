@@ -82,7 +82,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.875rem 3rem;
+      padding: 0.875rem calc(var(--side-padding) / 4);
       background: transparent;
       opacity: 0;
       transform: translateY(-100%);
@@ -170,7 +170,8 @@
 
     @media (min-width: 1150px) {
       .banner {
-        padding: 14px 48px;
+        padding-top: 14px;
+        padding-bottom: 14px;
       }
 
       .banner__left {
@@ -1484,7 +1485,8 @@
       }
 
       .banner {
-        padding: 0.75rem 1.5rem;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
       }
 
       .banner__right span {
