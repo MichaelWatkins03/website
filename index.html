@@ -988,6 +988,33 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+
+    .portfolio-collage__block {
+      width: 100%;
+      opacity: 0;
+      transform: translateY(-3.5rem);
+      transition: opacity 1.2s var(--ease-premium),
+                  transform 1.2s var(--ease-premium);
+      will-change: opacity, transform;
+    }
+
+    .portfolio-collage__block.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .portfolio-collage.is-closing .portfolio-collage__block.is-visible {
+      opacity: 0;
+      transform: translateY(-3.5rem);
+    }
+
+    .portfolio-collage__block + .portfolio-collage__block {
+      margin-top: 2rem;
+    }
+
+    .personal-collage__reveal,
+    .ucm24-collage__reveal {
       opacity: 0;
       transform: translateY(3.5rem);
       transition: opacity 1.2s var(--ease-premium),
@@ -995,7 +1022,6 @@
       will-change: opacity, transform;
     }
 
-    .portfolio-collage.is-revealed .portfolio-collage__reveal,
     .personal-collage.is-revealed .personal-collage__reveal,
     .ucm24-collage.is-revealed .ucm24-collage__reveal {
       opacity: 1;
@@ -1003,7 +1029,12 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .portfolio-collage__reveal,
+      .portfolio-collage__block {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+
       .personal-collage__reveal,
       .ucm24-collage__reveal {
         opacity: 1;
@@ -1726,6 +1757,7 @@
   <section class="portfolio-collage" id="portfolio-collage" aria-label="UCM25 Collage" hidden>
     <div class="portfolio-collage__reveal">
       <div class="portfolio-collage__feature">
+        <div class="portfolio-collage__block" data-portfolio-block="design">
         <h3 class="portfolio-collage__heading">Design</h3>
         <p class="portfolio-collage__intro">The UCM25 vehicle aimed to <span class="portfolio-collage__emphasis">maximise simplicity and reliablity</span> to maximise the <span class="portfolio-collage__emphasis">probability of winning</span> FSAE-A 25.</p>
         <div class="portfolio-collage__row portfolio-collage__row--3">
@@ -1759,18 +1791,9 @@
           </figure>
         </div>
         <p class="portfolio-collage__caption">My <span class="portfolio-collage__emphasis">full documented design work</span> can be found in the two design event booklets I made.</p>
-        <div class="portfolio-collage__row portfolio-collage__row--3">
-          <figure class="portfolio-collage__item">
-            <img src="Media/rear_suspension_strain%20gauge.JPEG" alt="Rear suspension strain gauge" loading="lazy" decoding="async">
-          </figure>
-          <figure class="portfolio-collage__item">
-            <img src="Media/rear_suspension_strain%20gauge.JPEG" alt="Rear suspension strain gauge" loading="lazy" decoding="async">
-          </figure>
-          <figure class="portfolio-collage__item">
-            <img src="Media/rear_suspension_strain%20gauge.JPEG" alt="Rear suspension strain gauge" loading="lazy" decoding="async">
-          </figure>
         </div>
-        <h3 class="portfolio-collage__heading portfolio-collage__heading--spaced">Manufacture</h3>
+        <div class="portfolio-collage__block" data-portfolio-block="manufacture">
+        <h3 class="portfolio-collage__heading">Manufacture</h3>
         <div class="portfolio-collage__masonry">
           <figure class="portfolio-collage__item">
             <img src="Media/ti64_wire_cut.JPG" alt="Ti64 wire cut" loading="lazy" decoding="async">
@@ -1847,7 +1870,9 @@
             <img src="Media/inside_monocoque.JPEG" alt="Inside monocoque" loading="lazy" decoding="async">
           </figure>
         </div>
-        <h3 class="portfolio-collage__heading portfolio-collage__heading--spaced" id="portfolio-assembly">Assembly</h3>
+        </div>
+        <div class="portfolio-collage__block" data-portfolio-block="assembly">
+        <h3 class="portfolio-collage__heading" id="portfolio-assembly">Assembly</h3>
         <div class="portfolio-collage__row portfolio-collage__row--3">
           <figure class="portfolio-collage__item">
             <img src="Media/rear_suspension.JPEG" alt="Rear suspension" loading="lazy" decoding="async">
@@ -1864,7 +1889,9 @@
             <img src="Media/rear_supension_2.JPEG" alt="Rear suspension 2" loading="lazy" decoding="async">
           </figure>
         </div>
-        <h3 class="portfolio-collage__heading portfolio-collage__heading--spaced" id="portfolio-competition">Competition</h3>
+        </div>
+        <div class="portfolio-collage__block" data-portfolio-block="competition">
+        <h3 class="portfolio-collage__heading" id="portfolio-competition">Competition</h3>
         <div class="portfolio-collage__row portfolio-collage__row--3">
           <figure class="portfolio-collage__item">
             <img src="Media/ucm25_track_day.JPEG" alt="UCM25 track day" loading="lazy" decoding="async">
@@ -1892,17 +1919,18 @@
           <p class="portfolio-collage__caption">4th Engineering Design</p>
           <p class="portfolio-collage__caption">At the end of 2025, the team moved to 1st in Australasian Formula Student rankings.</p>
         </div>
-      </div>
-      <div class="portfolio-collage__actions">
-        <button
-          type="button"
-          class="fsae-champions__cta portfolio-collage__minimise"
-          id="portfolioCollageMinimise"
-          aria-controls="portfolio-collage"
-        >
-          <span class="fsae-champions__cta-label">Minimise section</span>
-          <span class="fsae-champions__cta-arrow" aria-hidden="true">&gt;</span>
-        </button>
+        <div class="portfolio-collage__actions">
+          <button
+            type="button"
+            class="fsae-champions__cta portfolio-collage__minimise"
+            id="portfolioCollageMinimise"
+            aria-controls="portfolio-collage"
+          >
+            <span class="fsae-champions__cta-label">Minimise section</span>
+            <span class="fsae-champions__cta-arrow" aria-hidden="true">&gt;</span>
+          </button>
+        </div>
+        </div>
       </div>
     </div>
   </section>
@@ -2720,6 +2748,106 @@
 
       const portfolioRevealDurationMs = 1200;
 
+      let portfolioCollageBlockObserver = null;
+
+      function getPortfolioCollageBlocks() {
+        return Array.from(portfolioCollageSection.querySelectorAll('.portfolio-collage__block'));
+      }
+
+      function resetPortfolioCollageBlocks() {
+        getPortfolioCollageBlocks().forEach(function (block) {
+          block.classList.remove('is-visible');
+        });
+
+        portfolioCollageSection.classList.remove('is-closing');
+
+        if (portfolioCollageBlockObserver) {
+          portfolioCollageBlockObserver.disconnect();
+          portfolioCollageBlockObserver = null;
+        }
+      }
+
+      function startPortfolioCollageClose() {
+        if (portfolioCollageBlockObserver) {
+          portfolioCollageBlockObserver.disconnect();
+          portfolioCollageBlockObserver = null;
+        }
+
+        portfolioCollageSection.classList.add('is-closing');
+      }
+
+      function animateAboutReturn() {
+        if (!aboutSection) return;
+
+        aboutSection.classList.remove('is-visible');
+
+        if (prefersReducedMotion) {
+          aboutSection.classList.add('is-visible');
+          revealPendingImages(aboutSection);
+          return;
+        }
+
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            aboutSection.classList.add('is-visible');
+            revealPendingImages(aboutSection);
+          });
+        });
+      }
+
+      function finishPortfolioCollageClose() {
+        resetPortfolioCollageBlocks();
+        portfolioCollageSection.classList.remove('is-visible');
+        portfolioCollageSection.hidden = true;
+        positionPageSections();
+        animateAboutReturn();
+      }
+
+      function revealPortfolioCollageBlock(block) {
+        block.classList.add('is-visible');
+        revealPendingImages(block);
+      }
+
+      function setupPortfolioCollageBlockReveal() {
+        resetPortfolioCollageBlocks();
+        const blocks = getPortfolioCollageBlocks();
+        const designBlock = portfolioCollageSection.querySelector('[data-portfolio-block="design"]');
+        const scrollBlocks = blocks.filter(function (block) {
+          return block !== designBlock;
+        });
+
+        if (prefersReducedMotion) {
+          blocks.forEach(revealPortfolioCollageBlock);
+          return;
+        }
+
+        if (designBlock) {
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              revealPortfolioCollageBlock(designBlock);
+            });
+          });
+        }
+
+        if (!scrollBlocks.length) return;
+
+        portfolioCollageBlockObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              revealPortfolioCollageBlock(entry.target);
+              portfolioCollageBlockObserver.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.12,
+          rootMargin: '0px 0px -8% 0px',
+        });
+
+        scrollBlocks.forEach(function (block) {
+          portfolioCollageBlockObserver.observe(block);
+        });
+      }
+
       const aboutSection = document.getElementById('about');
       const personalProjectsSection = document.getElementById('personal-projects');
       const personalProjectsCta = document.getElementById('personalProjectsCta');
@@ -2786,34 +2914,46 @@
         fsaeChampionsCta.classList.add('is-open');
         fsaeChampionsCta.setAttribute('aria-expanded', 'true');
         positionPageSections();
-
-        if (prefersReducedMotion) {
-          portfolioCollageSection.classList.add('is-revealed');
-          revealPendingImages(portfolioCollageSection);
-        } else {
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              portfolioCollageSection.classList.add('is-revealed');
-              revealPendingImages(portfolioCollageSection);
-            });
-          });
-        }
-
+        setupPortfolioCollageBlockReveal();
       }
 
-      function closePortfolioCollage() {
-        portfolioCollageSection.classList.remove('is-revealed');
+      function scrollToFsaeChampionsSection() {
+        if (!fsaeChampionsSection) return;
+
+        const bannerHeight = banner ? banner.offsetHeight : 0;
+        const top = Math.max(
+          0,
+          fsaeChampionsSection.getBoundingClientRect().top + window.scrollY - bannerHeight
+        );
+
+        window.scrollTo({
+          top: top,
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
+      }
+
+      function closePortfolioCollage(options) {
+        options = options || {};
+
         fsaeChampionsCta.classList.remove('is-open');
         fsaeChampionsCta.setAttribute('aria-expanded', 'false');
-        positionPageSections();
 
-        const hideDelay = prefersReducedMotion ? 0 : portfolioRevealDurationMs;
+        if (options.scrollToChampions) {
+          requestAnimationFrame(scrollToFsaeChampionsSection);
+        }
+
+        if (prefersReducedMotion) {
+          finishPortfolioCollageClose();
+          return;
+        }
+
+        startPortfolioCollageClose();
+
         window.setTimeout(function () {
           if (!fsaeChampionsCta.classList.contains('is-open')) {
-            portfolioCollageSection.classList.remove('is-visible');
-            portfolioCollageSection.hidden = true;
+            finishPortfolioCollageClose();
           }
-        }, hideDelay);
+        }, portfolioRevealDurationMs);
       }
 
       function togglePortfolioCollage() {
@@ -2831,7 +2971,9 @@
       }
 
       if (portfolioCollageMinimise && portfolioCollageSection) {
-        portfolioCollageMinimise.addEventListener('click', closePortfolioCollage);
+        portfolioCollageMinimise.addEventListener('click', function () {
+          closePortfolioCollage({ scrollToChampions: true });
+        });
       }
 
       function openPersonalCollage() {
