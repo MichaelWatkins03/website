@@ -30,8 +30,9 @@
       --side-padding: 16vw;
       --font-section-title: clamp(calc(3.5rem / 2), calc(6vw / 2), calc(5.5rem / 2));
       --font-body: clamp(0.9375rem, 2vw, 1.0625rem);
+      --font-about-text: clamp(1.125rem, 2.5vw, 1.3125rem);
       --font-hero-name: clamp(calc(3.5rem / 1.8), calc(6vw / 1.8), calc(5.5rem / 1.8));
-      --font-hero-subtitle: clamp(1.25rem, 2.2vw, 1.75rem);
+      --font-hero-subtitle: clamp(1rem, 1.76vw, 1.4rem);
       --font-collage-heading: clamp(1.5rem, 3vw, 2.25rem);
       --font-footer-role: clamp(1.125rem, 2vw, 1.5rem);
       --image-content-max: 38.75rem;
@@ -519,7 +520,7 @@
     }
 
     .about__text {
-      font-size: var(--font-body);
+      font-size: var(--font-about-text);
       font-weight: 300;
       line-height: 1.5;
       letter-spacing: 0.01em;
@@ -530,7 +531,7 @@
 
     .about__teams {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 1.5rem;
       width: 100%;
       max-width: 87.5rem;
@@ -586,8 +587,8 @@
 
     @media (max-width: 640px) {
       .about__teams {
-        grid-template-columns: 1fr;
-        max-width: min(24rem, 100%);
+        gap: 1rem;
+        max-width: 100%;
       }
     }
 
@@ -778,6 +779,11 @@
       margin-bottom: 0.75rem;
     }
 
+    .hero__title-emphasis {
+      font-weight: 600;
+      color: var(--text);
+    }
+
     .hero__image {
       flex: 1 1 0;
       min-width: 0;
@@ -834,7 +840,7 @@
     }
 
     .great-products__media.split {
-      gap: 2.25rem;
+      gap: 1rem;
     }
 
     /* When we start in split state, avoid any entrance transition flash */
@@ -852,13 +858,11 @@
       aspect-ratio: 1198 / 1080;
       overflow: hidden;
       background-color: var(--white);
-      transition: width 1.6s var(--ease-out-expo),
-                  transform 1.6s var(--ease-out-expo);
+      transition: width 1.6s var(--ease-out-expo);
     }
 
     .great-products__media.split .great-products__video-wrap {
-      width: min(22vw, 19.5rem);
-      transform: translateX(-1.25rem);
+      width: 18vw;
     }
 
     .great-products__video-placeholder {
@@ -899,13 +903,11 @@
       aspect-ratio: 1198 / 1080;
       overflow: hidden;
       background-color: var(--white);
-      transition: width 1.6s var(--ease-out-expo),
-                  transform 1.6s var(--ease-out-expo);
+      transition: width 1.6s var(--ease-out-expo);
     }
 
     .great-products__media.split .great-products__photo-wrap {
-      width: min(22vw, 19.5rem);
-      transform: translateX(1.25rem);
+      width: 18vw;
     }
 
     .great-products__photo-wrap img {
@@ -924,15 +926,12 @@
       aspect-ratio: 1264 / 816;
       background-color: var(--white);
       transition: width 1.6s var(--ease-out-expo),
-                  opacity 1.4s var(--ease-premium) 0.15s,
-                  transform 1.6s var(--ease-out-expo) 0.15s;
-      transform: translateX(2.5rem);
+                  opacity 1.4s var(--ease-premium) 0.15s;
     }
 
     .great-products__media.split .great-products__image-wrap {
-      width: min(38vw, 31.5rem);
+      width: 30vw;
       opacity: 1;
-      transform: translateX(0);
     }
 
     .great-products__image-wrap img,
@@ -996,6 +995,11 @@
       .ucm24-collage__reveal {
         opacity: 1;
         transform: none;
+        transition: none;
+      }
+
+      img.pending-reveal {
+        opacity: 1;
         transition: none;
       }
     }
@@ -1065,6 +1069,15 @@
       width: 100%;
       height: auto;
       display: block;
+    }
+
+    img.pending-reveal:not(.is-loaded) {
+      opacity: 0;
+    }
+
+    img.pending-reveal.is-loaded {
+      opacity: 1;
+      transition: opacity 0.6s var(--ease-premium);
     }
 
     .portfolio-collage__feature {
@@ -1245,8 +1258,9 @@
         --side-padding: clamp(1.5rem, 5vw, 14vw);
         --font-section-title: clamp(1.5rem, 5.5vw, 2.75rem);
         --font-body: clamp(0.9375rem, 2.8vw, 1.0625rem);
+        --font-about-text: clamp(1.0625rem, 3.5vw, 1.3125rem);
         --font-hero-name: clamp(1.75rem, 7vw, 3.0625rem);
-        --font-hero-subtitle: clamp(1.0625rem, 3.5vw, 1.75rem);
+        --font-hero-subtitle: clamp(0.85rem, 2.8vw, 1.4rem);
         --font-collage-heading: clamp(1.25rem, 4.5vw, 2.25rem);
         --font-footer-role: clamp(1.0625rem, 3.5vw, 1.5rem);
         --image-content-max: 100%;
@@ -1257,6 +1271,7 @@
       }
 
       .hero {
+        min-height: auto;
         padding: 12vh var(--side-padding) 12vh;
       }
 
@@ -1277,20 +1292,26 @@
       }
 
       .hero__text {
+        flex: none;
         max-width: 100%;
         padding: 0;
         text-align: center;
         align-items: center;
       }
 
+      .hero__title {
+        margin-bottom: 0;
+      }
+
       .hero__image {
+        flex: none;
         width: 100%;
         max-width: 100%;
       }
 
       .great-products__media.split {
         flex-direction: column;
-        gap: 2rem;
+        gap: 0rem;
         justify-content: center;
       }
 
@@ -1307,7 +1328,8 @@
 
       .hero__inner {
         flex-direction: column;
-        gap: 3rem;
+        align-items: stretch;
+        gap: 1.25rem;
         text-align: center;
       }
 
@@ -1340,8 +1362,9 @@
       :root {
         --font-section-title: clamp(1.375rem, 6vw, 2.75rem);
         --font-body: clamp(0.875rem, 3.2vw, 1.0625rem);
+        --font-about-text: clamp(1rem, 4vw, 1.3125rem);
         --font-hero-name: clamp(1.625rem, 8vw, 3.0625rem);
-        --font-hero-subtitle: clamp(1rem, 4vw, 1.75rem);
+        --font-hero-subtitle: clamp(0.8rem, 3.2vw, 1.4rem);
         --font-collage-heading: clamp(1.125rem, 5vw, 2.25rem);
       }
 
@@ -1426,8 +1449,9 @@
         --side-padding: 16vw;
         --font-section-title: clamp(calc(3.5rem / 2), calc(28.8px + 28.8 * 100vw / 1920), calc(5.5rem / 2));
         --font-body: clamp(0.9375rem, calc(19.2px + 19.2 * 100vw / 1920), 1.0625rem);
+        --font-about-text: clamp(1.125rem, calc(24px + 24 * 100vw / 1920), 1.3125rem);
         --font-hero-name: clamp(calc(3.5rem / 1.8), calc(32px + 32 * 100vw / 1920), calc(5.5rem / 1.8));
-        --font-hero-subtitle: clamp(1.25rem, calc(21.12px + 21.12 * 100vw / 1920), 1.75rem);
+        --font-hero-subtitle: clamp(1rem, calc(16.9px + 16.9 * 100vw / 1920), 1.4rem);
         --font-collage-heading: clamp(1.5rem, calc(28.8px + 28.8 * 100vw / 1920), 2.25rem);
         --font-footer-role: clamp(1.125rem, calc(19.2px + 19.2 * 100vw / 1920), 1.5rem);
       }
@@ -1513,7 +1537,7 @@
           <span class="hero__name-prefix">Mechanical</span>
           Engineer &amp; Designer
         </h1>
-        <p class="hero__title"><br>I aim to design real, reliable, and performing systems from first principles.</p>
+        <p class="hero__title">I aim to design real, reliable, and high-performing solutions with <span class="hero__title-emphasis">accuracy</span>, <span class="hero__title-emphasis">clarity</span>, and <span class="hero__title-emphasis">care</span> for the <span class="hero__title-emphasis">real problem</span>.</p>
 
       </div>
       <div class="hero__image">
@@ -1769,17 +1793,10 @@
   <section class="about" id="about" aria-label="About">
     <div class="about__reveal">
       <h2 class="about__title">About</h2>
-      <p class="about__text">I am currently rotating through engineering, manufacturing, sales, and operations at an industry-leading, tailored product design company in post-harvest vegetable processing solutions.</p>
-      <p class="about__text">I strive to become part of great teams that make great products. Here are some of the teams I have been part of:</p>
+      <p class="about__text">I am currently rotating through engineering, manufacturing, sales, and operations at an industry-leading company that design tailored post-harvest vegetable processing solutions. This broad experience has given me a perspective on how great products can be developed and scaled - from a customer's initial problem through to the end of a product's life.</p>
+      <p class="about__text">Outside of work, I am an avid reader and continue to design and build personal projects in my free time.</p>
+      <p class="about__text">Ultimately, I want to contribte to a strong, collaborative team that creates reliable, meaningful products that people depend on. Here are some of the teams I have been fortunate to work with so far:</p>
       <div class="about__teams">
-        <figure class="about__team">
-          <img src="Media/pnbhs_cricket_team.jpg" alt="PNBHS cricket team">
-          <figcaption>Cricket: 2018 New Zealand Junior Secondary School Boys' National Champions</figcaption>
-        </figure>
-        <figure class="about__team">
-          <img src="Media/manawatu_cricket_team.jpg" alt="Manawatu cricket team">
-          <figcaption>Cricket: 2020 Under 17 Central Districts Regional Champions. This team was coached by Palmerston North's Fire Chief.</figcaption>
-        </figure>
         <figure class="about__team">
           <img src="Media/ucm25.jpg" alt="UCM25 team">
           <figcaption>Engineering: 2025 UCM25 FSAE-A International Champions</figcaption>
@@ -1787,6 +1804,14 @@
         <figure class="about__team">
           <img src="Media/ucm24.jpg" alt="UCM24 team">
           <figcaption>Engineering: 2024 UCM24 team 6th Place at FSAE-A</figcaption>
+        </figure>
+        <figure class="about__team">
+          <img src="Media/pnbhs_cricket_team.jpg" alt="PNBHS cricket team">
+          <figcaption>Cricket: 2018 New Zealand Junior Secondary School Boys' National Champions</figcaption>
+        </figure>
+        <figure class="about__team">
+          <img src="Media/manawatu_cricket_team.jpg" alt="Manawatu cricket team">
+          <figcaption>Cricket: 2020 Under 17 Central Districts Regional Champions. This team was coached by Palmerston North's Fire Chief.</figcaption>
         </figure>
       </div>
     </div>
@@ -2077,11 +2102,39 @@
 
       /* ─── Hero + banner reveal on load (fade + rise) ─────────── */
       function revealHeroSection() {
-        if (heroSection) heroSection.classList.add('is-visible');
+        if (heroSection) {
+          heroSection.classList.add('is-visible');
+          revealPendingImages(heroSection);
+        }
         if (banner) banner.classList.add('visible');
       }
 
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const skipRevealImageSelectors = '.great-products__video-placeholder, .banner__photo, .banner__flag, .contact-car';
+
+      function revealPendingImages(root) {
+        if (!root || prefersReducedMotion) return;
+
+        root.querySelectorAll('img').forEach((img) => {
+          if (img.matches(skipRevealImageSelectors)) return;
+
+          if (img.complete && img.naturalWidth > 0) {
+            if (img.classList.contains('pending-reveal')) {
+              img.classList.add('is-loaded');
+            }
+            return;
+          }
+
+          if (img.dataset.revealPendingBound === 'true') return;
+
+          img.dataset.revealPendingBound = 'true';
+          img.classList.add('pending-reveal');
+
+          const revealImage = () => img.classList.add('is-loaded');
+          img.addEventListener('load', revealImage, { once: true });
+          img.addEventListener('error', revealImage, { once: true });
+        });
+      }
 
       if (prefersReducedMotion) {
         revealHeroSection();
@@ -2099,6 +2152,7 @@
         if (greatProductsRevealed || !greatProductsSection) return;
         greatProductsRevealed = true;
         greatProductsSection.classList.add('is-visible');
+        revealPendingImages(greatProductsSection);
         tryStartSequence();
       }
 
@@ -2130,6 +2184,7 @@
         if (fsaeChampionsRevealed || !fsaeChampionsSection) return;
         fsaeChampionsRevealed = true;
         fsaeChampionsSection.classList.add('is-visible');
+        revealPendingImages(fsaeChampionsSection);
       }
 
       if (fsaeChampionsSection) {
@@ -2616,10 +2671,12 @@
 
         if (prefersReducedMotion) {
           portfolioCollageSection.classList.add('is-revealed');
+          revealPendingImages(portfolioCollageSection);
         } else {
           requestAnimationFrame(function () {
             requestAnimationFrame(function () {
               portfolioCollageSection.classList.add('is-revealed');
+              revealPendingImages(portfolioCollageSection);
             });
           });
         }
@@ -2668,10 +2725,12 @@
 
         if (prefersReducedMotion) {
           personalCollageSection.classList.add('is-revealed');
+          revealPendingImages(personalCollageSection);
         } else {
           requestAnimationFrame(function () {
             requestAnimationFrame(function () {
               personalCollageSection.classList.add('is-revealed');
+              revealPendingImages(personalCollageSection);
             });
           });
         }
@@ -2719,10 +2778,12 @@
 
         if (prefersReducedMotion) {
           ucm24CollageSection.classList.add('is-revealed');
+          revealPendingImages(ucm24CollageSection);
         } else {
           requestAnimationFrame(function () {
             requestAnimationFrame(function () {
               ucm24CollageSection.classList.add('is-revealed');
+              revealPendingImages(ucm24CollageSection);
             });
           });
         }
@@ -2770,6 +2831,7 @@
         if (aboutRevealed || !aboutSection) return;
         aboutRevealed = true;
         aboutSection.classList.add('is-visible');
+        revealPendingImages(aboutSection);
       }
 
       if (aboutSection) {
@@ -2799,6 +2861,7 @@
         if (personalProjectsRevealed || !personalProjectsSection) return;
         personalProjectsRevealed = true;
         personalProjectsSection.classList.add('is-visible');
+        revealPendingImages(personalProjectsSection);
       }
 
       if (personalProjectsSection) {
@@ -2828,6 +2891,7 @@
         if (fsae2024Revealed || !fsae2024Section) return;
         fsae2024Revealed = true;
         fsae2024Section.classList.add('is-visible');
+        revealPendingImages(fsae2024Section);
       }
 
       if (fsae2024Section) {
