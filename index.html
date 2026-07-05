@@ -33,8 +33,15 @@
       --font-about-text: clamp(1.125rem, 2.5vw, 1.3125rem);
       --font-hero-name: clamp(calc(3.5rem / 1.8), calc(6vw / 1.8), calc(5.5rem / 1.8));
       --font-hero-subtitle: clamp(1rem, 1.76vw, 1.4rem);
-      --font-collage-heading: clamp(1.5rem, 3vw, 2.25rem);
-      --font-footer-role: clamp(1.125rem, 2vw, 1.5rem);
+      --font-collage-heading: clamp(calc(3.5rem / 2.25), calc(6vw / 2.25), calc(5.5rem / 2.25));
+      --font-banner-text: clamp(1.125rem, calc(11px + 11 * 100vw / 1920), 1.5rem);
+      --font-banner-text-hover: clamp(1.25rem, calc(12px + 12 * 100vw / 1920), 1.625rem);
+      --font-banner-close: clamp(1.5rem, calc(16px + 16 * 100vw / 1920), 2rem);
+      --font-banner-close-hover: clamp(1.75rem, calc(20px + 20 * 100vw / 1920), 2.5rem);
+      --font-footer-role: clamp(1.25rem, calc(16px + 16 * 100vw / 1920), 1.875rem);
+      --font-footer-secondary: clamp(1rem, calc(11px + 11 * 100vw / 1920), 1.3125rem);
+      --font-footer-link: clamp(1.125rem, calc(12px + 12 * 100vw / 1920), 1.5rem);
+      --font-footer-link-hover: clamp(1.25rem, calc(13px + 13 * 100vw / 1920), 1.625rem);
       --image-content-max: 38.75rem;
       --shadow-deep: 0 2rem 4rem -0.75rem rgba(0, 0, 0, 0.12),
                      0 1rem 2rem -0.5rem rgba(0, 0, 0, 0.08);
@@ -105,31 +112,26 @@
       border: 0.0625rem solid var(--text);
     }
 
-    .banner__name {
+    .banner__name,
+    .banner__contact {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 1.125rem;
+      font-size: var(--font-banner-text);
       font-weight: 400;
       letter-spacing: -0.02em;
+      line-height: 1.1;
     }
 
     .banner__right {
       display: flex;
       align-items: center;
       gap: 0.625rem;
-      font-size: 0.875rem;
-      font-weight: 400;
       color: var(--text-muted);
-      letter-spacing: 0.01em;
     }
 
     .banner__contact {
       background: none;
       border: 0.0625rem solid transparent;
       color: var(--text);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 1.125rem;
-      font-weight: 400;
-      letter-spacing: -0.02em;
       padding: 0.125rem 0.375rem;
       border-radius: 0.1875rem;
       cursor: pointer;
@@ -137,7 +139,15 @@
     }
 
     .banner__contact:hover {
-      font-size: 1.25rem;
+      font-size: var(--font-banner-text-hover);
+    }
+
+    .banner__flag {
+      width: 28px;
+      height: 14px;
+      border-radius: 3px;
+      object-fit: cover;
+      display: block;
     }
 
     .banner__close {
@@ -145,7 +155,7 @@
       background: none;
       border: none;
       color: black;
-      font-size: 1.5rem;
+      font-size: var(--font-banner-close);
       line-height: 1;
       cursor: pointer;
       padding: 0 0.25rem;
@@ -155,7 +165,7 @@
 
     .banner__close:hover {
       color: #333;
-      font-size: 2rem;
+      font-size: var(--font-banner-close-hover);
     }
 
     @media (min-width: 1150px) {
@@ -173,9 +183,9 @@
         border-width: 1px;
       }
 
-      .banner__name {
-        font-size: 18px;
-        line-height: 1.1;
+      .banner__name,
+      .banner__contact {
+        font-weight: 500;
       }
 
       .banner__name-last {
@@ -184,7 +194,6 @@
 
       .banner__right {
         gap: 10px;
-        font-size: 14px;
       }
 
       .banner__flag {
@@ -193,23 +202,14 @@
       }
 
       .banner__contact {
-        font-size: 18px;
         padding: 2px 6px;
         border-width: 1px;
         border-radius: 3px;
       }
 
-      .banner__contact:hover {
-        font-size: 20px;
-      }
-
       .banner__close {
-        font-size: 24px;
+        font-weight: 500;
         padding: 0 4px;
-      }
-
-      .banner__close:hover {
-        font-size: 32px;
       }
     }
 
@@ -364,7 +364,7 @@
 
     .fsae-champions__title {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: var(--font-section-title);
+      font-size: var(--font-hero-name);
       font-weight: 500;
       letter-spacing: -0.04em;
       text-align: center;
@@ -373,8 +373,8 @@
     }
 
     .fsae-champions__subtitle {
-      font-size: var(--font-body);
-      font-weight: 300;
+      font-size: var(--font-hero-subtitle);
+      font-weight: 400;
       color: var(--text-muted);
       text-align: center;
       letter-spacing: 0.01em;
@@ -407,8 +407,8 @@
     .fsae-champions__statement {
       max-width: 87.5rem;
       margin-top: 1.5rem;
-      font-size: var(--font-body);
-      font-weight: 300;
+      font-size: var(--font-hero-subtitle);
+      font-weight: 400;
       line-height: 1.5;
       letter-spacing: 0.01em;
       text-align: center;
@@ -511,7 +511,7 @@
 
     .about__title {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: var(--font-section-title);
+      font-size: var(--font-hero-name);
       font-weight: 500;
       letter-spacing: -0.04em;
       text-align: center;
@@ -520,13 +520,18 @@
     }
 
     .about__text {
-      font-size: var(--font-about-text);
-      font-weight: 300;
+      font-size: var(--font-hero-subtitle);
+      font-weight: 400;
       line-height: 1.5;
       letter-spacing: 0.01em;
       text-align: center;
       color: var(--text-muted);
       margin-bottom: 1.25rem;
+    }
+
+    .about__text-emphasis {
+      font-weight: 600;
+      color: var(--text);
     }
 
     .about__teams {
@@ -590,6 +595,14 @@
         gap: 1rem;
         max-width: 100%;
       }
+    }
+
+    /* TEMP: hide Personal Projects + UCM24 sections */
+    .personal-projects,
+    .personal-collage,
+    .fsae-2024,
+    .ucm24-collage {
+      display: none !important;
     }
 
     /* ─── Personal Projects + FSAE-A 2024 Sections ─────────── */
@@ -790,7 +803,7 @@
       max-width: none;
       width: 100%;
       display: flex;
-      justify-content: center;
+      justify-content: flex-end;
       align-items: center;
     }
 
@@ -806,7 +819,7 @@
     /* Quote */
     .great-products__quote {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: var(--font-section-title);
+      font-size: var(--font-hero-name);
       font-weight: 500;
       /*font-style: italic;*/
       letter-spacing: -0.04em;
@@ -817,8 +830,8 @@
     }
 
     .great-products__quote-continuation {
-      font-size: var(--font-body);
-      font-weight: 300;
+      font-size: var(--font-hero-subtitle);
+      font-weight: 400;
       font-style: normal;
       color: var(--text-muted);
       display: block;
@@ -946,8 +959,8 @@
     .great-products__statement {
       max-width: 87.5rem;
       margin-top: 0.75rem;
-      font-size: var(--font-body);
-      font-weight: 300;
+      font-size: var(--font-hero-subtitle);
+      font-weight: 400;
       line-height: 1.5;
       letter-spacing: 0.01em;
       text-align: center;
@@ -1026,8 +1039,8 @@
       padding: 1.25rem 1rem;
       background: var(--white);
       border-radius: 0.75rem;
-      font-size: var(--font-body);
-      font-weight: 300;
+      font-size: var(--font-hero-subtitle);
+      font-weight: 400;
       line-height: 1.5;
       letter-spacing: 0.01em;
       text-align: center;
@@ -1089,17 +1102,16 @@
     .portfolio-collage__heading {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: var(--font-collage-heading);
-      font-weight: 400;
-      font-style: italic;
-      letter-spacing: -0.02em;
+      font-weight: 500;
+      letter-spacing: -0.04em;
       text-align: center;
       color: var(--text);
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .portfolio-collage__intro {
-      font-size: var(--font-body);
-      font-weight: 300;
+      font-size: var(--font-hero-subtitle);
+      font-weight: 400;
       line-height: 1.5;
       letter-spacing: 0.01em;
       text-align: center;
@@ -1140,13 +1152,31 @@
       grid-template-columns: repeat(2, 1fr);
     }
 
+    .portfolio-collage__row--booklets {
+      width: 66.666%;
+      max-width: 66.666%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     .portfolio-collage__row--4 {
       grid-template-columns: repeat(4, 1fr);
     }
 
+    .portfolio-collage__stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      min-height: 100%;
+    }
+
+    .portfolio-collage__stack .portfolio-collage__item {
+      flex: 1;
+    }
+
     .portfolio-collage__caption {
-      font-size: var(--font-body);
-      font-weight: 300;
+      font-size: var(--font-hero-subtitle);
+      font-weight: 400;
       line-height: 1.5;
       letter-spacing: 0.01em;
       text-align: center;
@@ -1154,8 +1184,44 @@
       margin: 1rem 0 1.5rem;
     }
 
+    .portfolio-collage__emphasis {
+      font-weight: 600;
+      color: var(--text);
+    }
+
     .portfolio-collage__heading--spaced {
       margin-top: 2rem;
+    }
+
+    .portfolio-collage__competition-outcomes {
+      margin-top: 1.5rem;
+    }
+
+    .portfolio-collage__competition-outcomes > .portfolio-collage__caption {
+      margin: 0.5rem 0;
+    }
+
+    .portfolio-collage__competition-outcomes > .portfolio-collage__caption:first-child {
+      margin-top: 0;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .portfolio-collage__competition-outcomes > .portfolio-collage__caption:last-child {
+      margin-top: 1rem;
+      margin-bottom: 0;
+    }
+
+    #portfolio-assembly + .portfolio-collage__row .portfolio-collage__item,
+    #portfolio-competition + .portfolio-collage__row .portfolio-collage__item,
+    #portfolio-competition + .portfolio-collage__row + .portfolio-collage__row .portfolio-collage__item {
+      border-radius: 0.75rem;
+    }
+
+    #portfolio-assembly + .portfolio-collage__row .portfolio-collage__item img,
+    #portfolio-competition + .portfolio-collage__row .portfolio-collage__item img,
+    #portfolio-competition + .portfolio-collage__row + .portfolio-collage__row .portfolio-collage__item img {
+      border-radius: 0.75rem;
     }
 
     @media (max-width: 1149px), (min-width: 1150px) and (max-aspect-ratio: 3/2) {
@@ -1190,7 +1256,7 @@
     .footer__role {
       justify-self: start;
       font-size: var(--font-footer-role);
-      font-weight: 600;
+      font-weight: 500;
       letter-spacing: -0.04em;
       line-height: 1.05;
       text-align: left;
@@ -1205,7 +1271,7 @@
 
     .footer__location {
       justify-self: center;
-      font-size: var(--font-body);
+      font-size: var(--font-footer-secondary);
       font-weight: 300;
       color: var(--text-muted);
       letter-spacing: 0.02em;
@@ -1222,7 +1288,7 @@
       border: 0.0625rem solid transparent;
       color: var(--text);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 1.125rem;
+      font-size: var(--font-footer-link);
       font-weight: 400;
       letter-spacing: -0.02em;
       padding: 0.125rem 0.375rem;
@@ -1232,20 +1298,20 @@
     }
 
     .footer__linkedin:hover {
-      font-size: 1.25rem;
+      font-size: var(--font-footer-link-hover);
     }
 
     .footer__linkedin-icon {
-      width: 1.25rem;
-      height: 1.25rem;
+      width: 1.1em;
+      height: 1.1em;
       flex-shrink: 0;
       transition: width 0.15s var(--ease-premium),
                   height 0.15s var(--ease-premium);
     }
 
     .footer__linkedin:hover .footer__linkedin-icon {
-      width: 1.375rem;
-      height: 1.375rem;
+      width: 1.2em;
+      height: 1.2em;
     }
 
     /* ─── Responsive (narrow + wide nearly-square) ─────────────── */
@@ -1261,8 +1327,15 @@
         --font-about-text: clamp(1.0625rem, 3.5vw, 1.3125rem);
         --font-hero-name: clamp(1.75rem, 7vw, 3.0625rem);
         --font-hero-subtitle: clamp(0.85rem, 2.8vw, 1.4rem);
-        --font-collage-heading: clamp(1.25rem, 4.5vw, 2.25rem);
-        --font-footer-role: clamp(1.0625rem, 3.5vw, 1.5rem);
+        --font-collage-heading: clamp(1.375rem, 5.25vw, 2.45rem);
+        --font-banner-text: clamp(1.125rem, 3.2vw, 1.5rem);
+        --font-banner-text-hover: clamp(1.25rem, 3.5vw, 1.625rem);
+        --font-banner-close: clamp(1.5rem, 4.5vw, 2rem);
+        --font-banner-close-hover: clamp(1.75rem, 5vw, 2.5rem);
+        --font-footer-role: clamp(1.25rem, 4vw, 1.875rem);
+        --font-footer-secondary: clamp(1rem, 2.8vw, 1.3125rem);
+        --font-footer-link: clamp(1.125rem, 3vw, 1.5rem);
+        --font-footer-link-hover: clamp(1.25rem, 3.3vw, 1.625rem);
         --image-content-max: 100%;
       }
 
@@ -1305,8 +1378,11 @@
 
       .hero__image {
         flex: none;
+        align-self: center;
         width: 100%;
         max-width: 100%;
+        margin-right: 0;
+        justify-content: center;
       }
 
       .great-products__media.split {
@@ -1365,20 +1441,19 @@
         --font-about-text: clamp(1rem, 4vw, 1.3125rem);
         --font-hero-name: clamp(1.625rem, 8vw, 3.0625rem);
         --font-hero-subtitle: clamp(0.8rem, 3.2vw, 1.4rem);
-        --font-collage-heading: clamp(1.125rem, 5vw, 2.25rem);
+        --font-collage-heading: clamp(1.25rem, 6vw, 2.45rem);
+        --font-banner-text: clamp(1.0625rem, 3.5vw, 1.5rem);
+        --font-banner-text-hover: clamp(1.1875rem, 3.8vw, 1.625rem);
+        --font-banner-close: clamp(1.375rem, 4.8vw, 2rem);
+        --font-banner-close-hover: clamp(1.625rem, 5.2vw, 2.5rem);
+        --font-footer-role: clamp(1.125rem, 4.5vw, 1.875rem);
+        --font-footer-secondary: clamp(0.9375rem, 3vw, 1.3125rem);
+        --font-footer-link: clamp(1.0625rem, 3.2vw, 1.5rem);
+        --font-footer-link-hover: clamp(1.1875rem, 3.5vw, 1.625rem);
       }
 
       .banner {
         padding: 0.75rem 1.5rem;
-      }
-
-      .banner__name {
-        font-size: 1rem;
-      }
-
-      .banner__contact {
-        font-size: 1rem;
-        font-weight: 700;
       }
 
       .banner__right span {
@@ -1452,12 +1527,31 @@
         --font-about-text: clamp(1.125rem, calc(24px + 24 * 100vw / 1920), 1.3125rem);
         --font-hero-name: clamp(calc(3.5rem / 1.8), calc(32px + 32 * 100vw / 1920), calc(5.5rem / 1.8));
         --font-hero-subtitle: clamp(1rem, calc(16.9px + 16.9 * 100vw / 1920), 1.4rem);
-        --font-collage-heading: clamp(1.5rem, calc(28.8px + 28.8 * 100vw / 1920), 2.25rem);
-        --font-footer-role: clamp(1.125rem, calc(19.2px + 19.2 * 100vw / 1920), 1.5rem);
+        --font-collage-heading: clamp(calc(3.5rem / 2.25), calc(25.6px + 25.6 * 100vw / 1920), calc(5.5rem / 2.25));
+        --font-banner-text: clamp(1.125rem, calc(11px + 11 * 100vw / 1920), 1.5rem);
+        --font-banner-text-hover: clamp(1.25rem, calc(12px + 12 * 100vw / 1920), 1.625rem);
+        --font-banner-close: clamp(1.5rem, calc(16px + 16 * 100vw / 1920), 2rem);
+        --font-banner-close-hover: clamp(1.75rem, calc(20px + 20 * 100vw / 1920), 2.5rem);
+        --font-footer-role: clamp(1.25rem, calc(16px + 16 * 100vw / 1920), 1.875rem);
+        --font-footer-secondary: clamp(1rem, calc(11px + 11 * 100vw / 1920), 1.3125rem);
+        --font-footer-link: clamp(1.125rem, calc(12px + 12 * 100vw / 1920), 1.5rem);
+        --font-footer-link-hover: clamp(1.25rem, calc(13px + 13 * 100vw / 1920), 1.625rem);
       }
 
       html {
         font-size: calc(8px + 100vw / 240);
+      }
+
+      .footer__role {
+        font-weight: 600;
+      }
+
+      .footer__location {
+        font-weight: 400;
+      }
+
+      .footer__linkedin {
+        font-weight: 500;
       }
 
       .hero {
@@ -1482,11 +1576,24 @@
         text-align: left;
         align-items: flex-start;
       }
+    }
 
+    /* Wide 16:9 — hero photo fills the full width of the right column */
+    @media (min-width: 1150px) and (min-aspect-ratio: 3/2) {
       .hero__image {
+        display: block;
+        align-self: stretch;
         width: 100%;
         max-width: none;
         min-width: 0;
+        margin: 0;
+      }
+
+      .hero__image img {
+        width: 100%;
+        max-width: none;
+        display: block;
+        object-fit: cover;
       }
     }
   </style>
@@ -1509,10 +1616,11 @@
       <button class="banner__contact" id="contactBtn">Contact</button>
       <img
         class="banner__flag"
-        src="https://flagcdn.com/w40/nz.png"
+        src="https://flagcdn.com/nz.svg"
         alt="New Zealand flag"
         width="28"
         height="14"
+        decoding="async"
       >
       <button class="banner__close" id="closeContactBtn">×</button>
     </div>
@@ -1619,7 +1727,7 @@
     <div class="portfolio-collage__reveal">
       <div class="portfolio-collage__feature">
         <h3 class="portfolio-collage__heading">Design</h3>
-        <p class="portfolio-collage__intro">The UCM25 vehicle aimed to maximise simplicity and reliablity to maximise the probability of winning FSAE-A 25.</p>
+        <p class="portfolio-collage__intro">The UCM25 vehicle aimed to <span class="portfolio-collage__emphasis">maximise simplicity and reliablity</span> to maximise the <span class="portfolio-collage__emphasis">probability of winning</span> FSAE-A 25.</p>
         <div class="portfolio-collage__row portfolio-collage__row--3">
           <figure class="portfolio-collage__item">
             <img src="Media/Force_Model_Static.png" alt="Force model static" loading="lazy" decoding="async">
@@ -1631,17 +1739,18 @@
             <img src="Media/ucm25_roll_centre.png" alt="UCM25 roll centre" loading="lazy" decoding="async">
           </figure>
         </div>
-        <p class="portfolio-collage__caption">I created the first predictive suspension tuning tool for the University of Canterbury Motorsport Team by validating these forces against real measured forces to be used on future designs</p>
+        <p class="portfolio-collage__caption">I created the <span class="portfolio-collage__emphasis">first predictive suspension tuning tool</span> for the University of Canterbury Motorsport Team by validating these forces against real measured forces to be used on future designs.</p>
         <figure class="portfolio-collage__item">
-          <img src="Media/ucm25_suspension_components_poster.png" alt="UCM25 suspension components poster" loading="lazy" decoding="async">
+          <img src="Media/ucm25_suspension_components_poster.jpg" alt="UCM25 suspension components poster" loading="lazy" decoding="async">
+        </figure>
+        <p class="portfolio-collage__caption">I designed and manufactured several components including the <span class="portfolio-collage__emphasis">brackets, pushrods, and tie rods</span>.</p>
+        <figure class="portfolio-collage__item">
+          <img src="Media/ucm25_suspension_forces_poster.jpg" alt="UCM25 suspension forces poster" loading="lazy" decoding="async">
         </figure>
         <figure class="portfolio-collage__item">
-          <img src="Media/ucm25_suspension_forces_poster.png" alt="UCM25 suspension forces poster" loading="lazy" decoding="async">
+          <img src="Media/ucm25_suspension_vd_poster.jpg" alt="UCM25 suspension vehicle dynamics poster" loading="lazy" decoding="async">
         </figure>
-        <figure class="portfolio-collage__item">
-          <img src="Media/ucm25_suspension_vd_poster.png" alt="UCM25 suspension vehicle dynamics poster" loading="lazy" decoding="async">
-        </figure>
-        <div class="portfolio-collage__row portfolio-collage__row--2">
+        <div class="portfolio-collage__row portfolio-collage__row--2 portfolio-collage__row--booklets">
           <figure class="portfolio-collage__item">
             <img src="Media/ucm25_structural_suspension_design_book.png" alt="UCM25 structural suspension design booklet" loading="lazy" decoding="async">
           </figure>
@@ -1649,7 +1758,7 @@
             <img src="Media/ucm25_suspension_vd_design_book.png" alt="UCM25 suspension vehicle dynamics design booklet" loading="lazy" decoding="async">
           </figure>
         </div>
-        <p class="portfolio-collage__caption">My full documented design work can be found in the two design event booklets I made</p>
+        <p class="portfolio-collage__caption">My <span class="portfolio-collage__emphasis">full documented design work</span> can be found in the two design event booklets I made.</p>
         <div class="portfolio-collage__row portfolio-collage__row--3">
           <figure class="portfolio-collage__item">
             <img src="Media/rear_suspension_strain%20gauge.JPEG" alt="Rear suspension strain gauge" loading="lazy" decoding="async">
@@ -1738,26 +1847,25 @@
             <img src="Media/inside_monocoque.JPEG" alt="Inside monocoque" loading="lazy" decoding="async">
           </figure>
         </div>
-        <h3 class="portfolio-collage__heading portfolio-collage__heading--spaced">Assembly</h3>
-        <div class="portfolio-collage__row portfolio-collage__row--4">
-          <figure class="portfolio-collage__item">
-            <img src="Media/ucm25_monocoque.JPEG" alt="UCM25 monocoque" loading="lazy" decoding="async">
-          </figure>
-          <figure class="portfolio-collage__item">
-            <img src="Media/front_suspension_assembly_wheel.JPEG" alt="Front suspension assembly wheel" loading="lazy" decoding="async">
-          </figure>
+        <h3 class="portfolio-collage__heading portfolio-collage__heading--spaced" id="portfolio-assembly">Assembly</h3>
+        <div class="portfolio-collage__row portfolio-collage__row--3">
           <figure class="portfolio-collage__item">
             <img src="Media/rear_suspension.JPEG" alt="Rear suspension" loading="lazy" decoding="async">
           </figure>
+          <div class="portfolio-collage__stack">
+            <figure class="portfolio-collage__item">
+              <img src="Media/front_suspension_assembly_wheel.JPEG" alt="Front suspension assembly wheel" loading="lazy" decoding="async">
+            </figure>
+            <figure class="portfolio-collage__item">
+              <img src="Media/ucm25_monocoque.JPEG" alt="UCM25 monocoque" loading="lazy" decoding="async">
+            </figure>
+          </div>
           <figure class="portfolio-collage__item">
             <img src="Media/rear_supension_2.JPEG" alt="Rear suspension 2" loading="lazy" decoding="async">
           </figure>
         </div>
-        <figure class="portfolio-collage__item">
-          <img src="Media/ucm25_first_drive.JPEG" alt="UCM25 first drive" loading="lazy" decoding="async">
-        </figure>
-        <h3 class="portfolio-collage__heading portfolio-collage__heading--spaced">Competition</h3>
-        <div class="portfolio-collage__row portfolio-collage__row--4">
+        <h3 class="portfolio-collage__heading portfolio-collage__heading--spaced" id="portfolio-competition">Competition</h3>
+        <div class="portfolio-collage__row portfolio-collage__row--3">
           <figure class="portfolio-collage__item">
             <img src="Media/ucm25_track_day.JPEG" alt="UCM25 track day" loading="lazy" decoding="async">
           </figure>
@@ -1767,13 +1875,23 @@
           <figure class="portfolio-collage__item">
             <img src="Media/ucm25_team.jpg" alt="UCM25 team" loading="lazy" decoding="async">
           </figure>
+        </div>
+        <div class="portfolio-collage__row portfolio-collage__row--2">
           <figure class="portfolio-collage__item">
             <img src="Media/ucm25_prizegiving.jpg" alt="UCM25 prizegiving" loading="lazy" decoding="async">
           </figure>
+          <figure class="portfolio-collage__item">
+            <img src="Media/graduation_photo_ucm25.JPG" alt="Graduation photo UCM25" loading="lazy" decoding="async">
+          </figure>
         </div>
-        <figure class="portfolio-collage__item">
-          <img src="Media/graduation_photo_ucm25.JPEG" alt="Graduation photo UCM25" loading="lazy" decoding="async">
-        </figure>
+        <div class="portfolio-collage__competition-outcomes">
+          <p class="portfolio-collage__caption">1st Place Overall – EV Class</p>
+          <p class="portfolio-collage__caption">1st Skid Pad (The team's first dynamic event win since 2016)</p>
+          <p class="portfolio-collage__caption">2nd Autocross (fastest raw time but received penalty)</p>
+          <p class="portfolio-collage__caption">3rd Endurance</p>
+          <p class="portfolio-collage__caption">4th Engineering Design</p>
+          <p class="portfolio-collage__caption">At the end of 2025, the team moved to 1st in Australasian Formula Student rankings.</p>
+        </div>
       </div>
       <div class="portfolio-collage__actions">
         <button
@@ -1782,7 +1900,7 @@
           id="portfolioCollageMinimise"
           aria-controls="portfolio-collage"
         >
-          <span class="fsae-champions__cta-label">Minimise UCM25 collage</span>
+          <span class="fsae-champions__cta-label">Minimise section</span>
           <span class="fsae-champions__cta-arrow" aria-hidden="true">&gt;</span>
         </button>
       </div>
@@ -1793,9 +1911,9 @@
   <section class="about" id="about" aria-label="About">
     <div class="about__reveal">
       <h2 class="about__title">About</h2>
-      <p class="about__text">I am currently rotating through engineering, manufacturing, sales, and operations at an industry-leading company that design tailored post-harvest vegetable processing solutions. This broad experience has given me a perspective on how great products can be developed and scaled - from a customer's initial problem through to the end of a product's life.</p>
+      <p class="about__text">I am currently completing <span class="about__text-emphasis">graduate rotations</span> through engineering, manufacturing, sales, and operations at an industry-leading company that designs tailored post-harvest vegetable processing solutions. This <span class="about__text-emphasis">broad experience</span> has given me a <span class="about__text-emphasis">comprehensive perspective</span> on the <span class="about__text-emphasis">full product lifecycle</span> - from a customer’s initial problem through design, scaling, and all the way to the end of a product’s life.</p>
       <p class="about__text">Outside of work, I am an avid reader and continue to design and build personal projects in my free time.</p>
-      <p class="about__text">Ultimately, I want to contribte to a strong, collaborative team that creates reliable, meaningful products that people depend on. Here are some of the teams I have been fortunate to work with so far:</p>
+      <p class="about__text">Ultimately, I want to <span class="about__text-emphasis">contribute to a great team</span> that creates <span class="about__text-emphasis">reliable, meaningful products</span> that people depend on. Here are some of the teams I have been fortunate to work with so far:</p>
       <div class="about__teams">
         <figure class="about__team">
           <img src="Media/ucm25.jpg" alt="UCM25 team">
@@ -1811,7 +1929,7 @@
         </figure>
         <figure class="about__team">
           <img src="Media/manawatu_cricket_team.jpg" alt="Manawatu cricket team">
-          <figcaption>Cricket: 2020 Under 17 Central Districts Regional Champions. This team was coached by Palmerston North's Fire Chief.</figcaption>
+          <figcaption>Cricket: 2020 Under 17 Central Districts Regional Champions. This team was coached by Palmerston North's fire chief.</figcaption>
         </figure>
       </div>
     </div>
