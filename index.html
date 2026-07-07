@@ -6,10 +6,15 @@
   <title>Michael Watkins - Mechanical Engineer & Designer</title>
   <meta name="description" content="Michael Watkins — Mechanical Engineer & Designer based in Christchurch, New Zealand.">
 
-  <!-- Google Fonts -->
+  <!-- Fonts: active family is set by --font-family-name in :root (Inter default).
+       To switch to Open Runde, change it to 'Open Runde' there. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/open-runde@5.2.1/400.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/open-runde@5.2.1/500.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/open-runde@5.2.1/600.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/open-runde@5.2.1/700.css">
 
   <style>
     /* ─── Reset & Base ─────────────────────────────────────────── */
@@ -20,6 +25,9 @@
     }
 
     :root {
+      /* Font switch: 'Inter' (default) | 'Open Runde' */
+      --font-family-name: 'Inter';
+      --font-sans: var(--font-family-name), -apple-system, BlinkMacSystemFont, sans-serif;
       --white: #ffffff;
       --text: #111111;
       --text-muted: #666666;
@@ -58,7 +66,7 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       background: var(--white);
       color: var(--text);
       line-height: 1.6;
@@ -123,7 +131,7 @@
 
     .banner__name,
     .banner__contact {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       font-size: var(--font-banner-text);
       font-weight: 400;
       letter-spacing: -0.02em;
@@ -148,6 +156,8 @@
       padding: 0.125rem 0.375rem;
       border-radius: 0.1875rem;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      tap-highlight-color: transparent;
       transition: all 0.15s var(--ease-premium);
     }
 
@@ -173,6 +183,10 @@
       cursor: pointer;
       padding: 0 0.25rem;
       font-weight: 400;
+      -webkit-tap-highlight-color: transparent;
+      tap-highlight-color: transparent;
+      transform: scale(0) rotate(0deg);
+      transform-origin: center center;
       transition: font-size 0.15s var(--ease-premium);
     }
 
@@ -236,6 +250,64 @@
     .banner.contact-open .banner__close {
       display: inline-block;
       color: var(--text);
+      animation: banner-close-enter 0.6s ease forwards;
+    }
+
+    .banner.contact-open.contact-closing .banner__close {
+      animation: banner-close-exit 0.6s ease forwards;
+    }
+
+    .banner.contact-open.contact-closing.is-contact-revealed .banner__contact,
+    .banner.contact-open.contact-closing.is-contact-revealed .banner__flag {
+      display: inline-block;
+      opacity: 1;
+    }
+
+    .banner.contact-open.contact-closing.is-contact-revealed .banner__close {
+      display: none;
+    }
+
+    @keyframes banner-close-enter {
+      from {
+        transform: scale(0) rotate(0deg);
+      }
+      to {
+        transform: scale(1) rotate(360deg);
+      }
+    }
+
+    @keyframes banner-close-exit {
+      from {
+        transform: scale(1) rotate(0deg);
+      }
+      to {
+        transform: scale(0) rotate(-360deg);
+      }
+    }
+
+    .banner__contact.is-revealing,
+    .banner__flag.is-revealing {
+      opacity: 0;
+      transition: opacity 1.2s var(--ease-premium);
+    }
+
+    .banner__contact.is-revealing.is-visible,
+    .banner__flag.is-revealing.is-visible {
+      opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .banner__contact.is-revealing,
+      .banner__flag.is-revealing {
+        opacity: 1;
+        transition: none;
+      }
+
+      .banner.contact-open .banner__close,
+      .banner.contact-open.contact-closing .banner__close {
+        animation: none;
+        transform: none;
+      }
     }
 
     /* Contact overlay - white rest of screen, banner stays on top */
@@ -267,12 +339,25 @@
       background: none;
       padding: 0;
       text-decoration: none;
-      transition: font-size 0.25s ease;
+      opacity: 0;
+      transition: opacity 0.8s var(--ease-premium),
+                  font-size 0.25s ease;
       max-width: 90vw;
+    }
+
+    .contact-email.is-visible {
+      opacity: 1;
     }
 
     .contact-email:hover {
       font-size: calc(3rem * var(--font-scale));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .contact-email {
+        opacity: 1;
+        transition: font-size 0.25s ease;
+      }
     }
 
     .contact-car {
@@ -297,6 +382,26 @@
       clip-path: inset(0 0 0 calc(100% - var(--progress, 0) * 100%));
     }
 
+    .contact-email.is-contact-fading-out,
+    .contact-car.is-contact-fading-out,
+    .contact-tire-marks.is-contact-fading-out {
+      opacity: 0;
+      transition: opacity 200ms ease;
+      pointer-events: none;
+    }
+
+    .contact-email.is-contact-fading-out {
+      transition: opacity 200ms ease, font-size 0.25s ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .contact-email.is-contact-fading-out,
+      .contact-car.is-contact-fading-out,
+      .contact-tire-marks.is-contact-fading-out {
+        transition: none;
+      }
+    }
+
     #transition-circle {
       position: fixed;
       background: white;
@@ -308,6 +413,10 @@
       width: 0;
       height: 0;
       transition: width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease;
+    }
+
+    #transition-circle.is-above-banner {
+      z-index: 101;
     }
 
     /* ─── Great Products Section ─────────────────────────────────────────── */
@@ -378,7 +487,7 @@
     }
 
     .fsae-champions__title {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       font-size: var(--font-hero-name);
       font-weight: 500;
       letter-spacing: -0.04em;
@@ -441,7 +550,7 @@
       color: var(--text);
       border: 0.125rem solid var(--text);
       border-radius: 9999px;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       font-size: var(--font-body);
       font-weight: 400;
       letter-spacing: 0.01em;
@@ -502,7 +611,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 15vh var(--side-padding) 0vh;
+      padding: 20vh calc(var(--side-padding)*2) 10vh;
       background: var(--white);
     }
 
@@ -525,7 +634,7 @@
     }
 
     .about__title {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       font-size: var(--font-hero-name);
       font-weight: 500;
       letter-spacing: -0.04em;
@@ -549,42 +658,6 @@
       color: var(--text);
     }
 
-    .about__teams {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-      width: 100%;
-      max-width: 87.5rem;
-      margin-top: 2.5rem;
-    }
-
-    .about__team {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0;
-    }
-
-    .about__team img {
-      width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 0.75rem;
-      box-shadow: var(--shadow-deep);
-      object-fit: cover;
-      aspect-ratio: 4 / 3;
-    }
-
-    .about__team figcaption {
-      margin-top: 0.75rem;
-      font-size: var(--font-body);
-      font-weight: 300;
-      line-height: 1.5;
-      letter-spacing: 0.01em;
-      text-align: center;
-      color: var(--text-muted);
-    }
-
     @media (prefers-reduced-motion: reduce) {
       .about__reveal {
         opacity: 1;
@@ -597,18 +670,95 @@
       .about {
         padding: 8vh clamp(1.5rem, 5vw, var(--side-padding)) 12vh;
       }
+    }
 
-      .about__teams {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.25rem;
-        max-width: 100%;
+    /* ─── About Teams Section ──────────────────────────────────── */
+    .about-teams {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0vh var(--side-padding) 5vh;
+      overflow: hidden;
+      background: var(--white);
+    }
+
+    .about-teams__reveal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 112.5rem;
+      opacity: 0;
+      transform: translateY(3.5rem);
+      transition: opacity 1.2s var(--ease-premium),
+                  transform 1.2s var(--ease-premium);
+      will-change: opacity, transform;
+    }
+
+    .about-teams.is-visible .about-teams__reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .about-teams__photos {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2.5rem;
+      width: 100%;
+      justify-items: center;
+    }
+
+    .about-teams__photo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      width: 100%;
+      max-width: var(--image-content-max);
+    }
+
+    .about-teams__photo img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-deep);
+      object-fit: cover;
+      aspect-ratio: 4 / 3;
+    }
+
+    .about-teams__photo figcaption {
+      margin-top: 0.75rem;
+      font-size: var(--font-body);
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .about-teams__reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
       }
     }
 
-    @media (max-width: 640px) {
-      .about__teams {
-        gap: 1rem;
+    @media (max-width: 1149px), (min-width: 1150px) and (max-aspect-ratio: 3/2) {
+      .about-teams {
+        padding: 8vh clamp(1.5rem, 5vw, var(--side-padding)) 12vh;
+      }
+
+      .about-teams__photos {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .about-teams__photo {
         max-width: 100%;
+        width: 100%;
       }
     }
 
@@ -654,7 +804,7 @@
 
     .personal-projects__title,
     .fsae-2024__title {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       font-size: var(--font-section-title);
       font-weight: 500;
       letter-spacing: -0.04em;
@@ -833,7 +983,7 @@
 
     /* Quote */
     .great-products__quote {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       font-size: var(--font-hero-name);
       font-weight: 500;
       /*font-style: italic;*/
@@ -1146,7 +1296,7 @@
     }
 
     .portfolio-collage__heading {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       font-size: var(--font-collage-heading);
       font-weight: 500;
       letter-spacing: -0.04em;
@@ -1333,7 +1483,7 @@
       background: none;
       border: 0.0625rem solid transparent;
       color: var(--text);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       font-size: var(--font-footer-link);
       font-weight: 400;
       letter-spacing: -0.02em;
@@ -1364,6 +1514,16 @@
     @media (max-width: 1149px), (min-width: 1150px) and (max-aspect-ratio: 3/2) {
       .banner {
         background: var(--white);
+      }
+
+      .banner__left {
+        left: var(--side-padding);
+        transform: translateY(-50%);
+      }
+
+      .banner__right {
+        right: var(--side-padding);
+        transform: translateY(-50%);
       }
 
       :root {
@@ -1406,8 +1566,8 @@
       }
 
       .footer__inner {
-        padding-left: var(--side-padding);
-        padding-right: var(--side-padding);
+        padding-left: calc(var(--side-padding)/4);
+        padding-right: calc(var(--side-padding)/4);
       }
 
       .hero__text {
@@ -1627,6 +1787,11 @@
 
     /* Wide 16:9 — hero photo fills the full width of the right column */
     @media (min-width: 1150px) and (min-aspect-ratio: 3/2) {
+      .footer__inner {
+        padding-left: calc(var(--side-padding) / 4);
+        padding-right: calc(var(--side-padding) / 4);
+      }
+
       .hero__image {
         display: block;
         align-self: stretch;
@@ -1954,24 +2119,33 @@
   <!-- ═══ About ═══ -->
   <section class="about" id="about" aria-label="About">
     <div class="about__reveal">
-      <h2 class="about__title">About</h2>
-      <p class="about__text">I am currently completing <span class="about__text-emphasis">graduate rotations</span> through engineering, manufacturing, sales, and operations at an industry-leading company that designs tailored post-harvest vegetable processing solutions. This <span class="about__text-emphasis">broad experience</span> has given me a <span class="about__text-emphasis">comprehensive perspective</span> on the <span class="about__text-emphasis">full product lifecycle</span> - from a customer’s initial problem through design, scaling, and all the way to the end of a product’s life.</p>
-      <p class="about__text">Outside of work, I am an avid reader and continue to design and build personal projects in my free time.</p>
-      <p class="about__text">Ultimately, I want to <span class="about__text-emphasis">contribute to a great team</span> that creates <span class="about__text-emphasis">reliable, meaningful products</span> that people depend on. Here are some of the teams I have been fortunate to work with so far:</p>
-      <div class="about__teams">
-        <figure class="about__team">
+      <h2 class="about__title">Michael Watkins is an engineer.</h2>
+      <p class="about__text"><p>
+      <p class="about__text">Currently completing graduate rotations through engineering, manufacturing, sales, and operations at an industry-leading company that designs tailored post-harvest vegetable processing solutions.</p>
+      <p class="about__text">This broad experience has provided a comprehensive perspective on the full product lifecycle - from a customer’s initial problem through design, scaling, and all the way to the end of a product’s life.</p>
+      <p class="about__text">An avid reader, Michael continues to design and build personal projects in his free time.</p>
+      <p class="about__text">Michael seeks to contribute to teams that create reliable, meaningful products people depend on.</p>
+      <p class="about__text">Michael has been fortunate to work with the following teams:</p>
+    </div>
+  </section>
+
+  <!-- ═══ About Teams ═══ -->
+  <section class="about-teams" id="about-teams" aria-label="Teams">
+    <div class="about-teams__reveal">
+      <div class="about-teams__photos">
+        <figure class="about-teams__photo">
           <img src="Media/ucm25.jpg" alt="UCM25 team">
           <figcaption>Engineering: 2025 UCM25 FSAE-A International Champions</figcaption>
         </figure>
-        <figure class="about__team">
+        <figure class="about-teams__photo">
           <img src="Media/ucm24.jpg" alt="UCM24 team">
           <figcaption>Engineering: 2024 UCM24 team 6th Place at FSAE-A</figcaption>
         </figure>
-        <figure class="about__team">
+        <figure class="about-teams__photo">
           <img src="Media/pnbhs_cricket_team.jpg" alt="PNBHS cricket team">
           <figcaption>Cricket: 2018 New Zealand Junior Secondary School Boys' National Champions</figcaption>
         </figure>
-        <figure class="about__team">
+        <figure class="about-teams__photo">
           <img src="Media/manawatu_cricket_team.jpg" alt="Manawatu cricket team">
           <figcaption>Cricket: 2020 Under 17 Central Districts Regional Champions. This team was coached by Palmerston North's fire chief.</figcaption>
         </figure>
@@ -2372,10 +2546,183 @@
       /* ─── Contact mode with circle transition ────────────────── */
       if (contactBtn && closeContactBtn && contactOverlay && contactEmailEl && transitionCircle) {
         let carAnimFrame = null;
+        let contactUIState = 'closed';
+        let contactTransitionId = 0;
+        let contactTransitionTimers = [];
         let currentTrackDrawn = 0;
+
+        function clearContactTransitionTimers() {
+          contactTransitionTimers.forEach((timerId) => clearTimeout(timerId));
+          contactTransitionTimers = [];
+        }
+
+        function afterContactTransition(delay, fn) {
+          const transitionId = contactTransitionId;
+          const timerId = setTimeout(() => {
+            if (transitionId !== contactTransitionId) return;
+            fn();
+          }, delay);
+          contactTransitionTimers.push(timerId);
+        }
+
+        function resetCloseButtonAnimation() {
+          closeContactBtn.style.animation = 'none';
+          closeContactBtn.offsetWidth;
+          closeContactBtn.style.animation = '';
+        }
         let fixedUnderlineWidth = 0;
         let fixedUnderlineCenter = 0;
         let fixedBaseTop = 0;
+
+        function revealContactEmail() {
+          contactEmailEl.classList.remove('is-visible');
+          if (prefersReducedMotion) {
+            contactEmailEl.classList.add('is-visible');
+            return;
+          }
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              contactEmailEl.classList.add('is-visible');
+            });
+          });
+        }
+
+        function hideContactEmail() {
+          contactEmailEl.classList.remove('is-visible');
+        }
+
+        function getContactFadeElements() {
+          const car = document.querySelector('.contact-car');
+          const marks = document.querySelector('.contact-tire-marks');
+          return [contactEmailEl, car, marks].filter(Boolean);
+        }
+
+        function restoreContactFadeElements() {
+          getContactFadeElements().forEach((el) => {
+            if (!el._contactFadeRestore) return;
+
+            el.classList.remove('is-contact-fading-out');
+            const restore = el._contactFadeRestore;
+            const { parent, nextSibling, style } = restore;
+
+            if (nextSibling && nextSibling.parentNode === parent) {
+              parent.insertBefore(el, nextSibling);
+            } else {
+              parent.appendChild(el);
+            }
+
+            el.style.position = style.position;
+            el.style.left = style.left;
+            el.style.top = style.top;
+            el.style.width = style.width;
+            el.style.transform = style.transform;
+            el.style.zIndex = style.zIndex;
+            el.style.margin = style.margin;
+            delete el._contactFadeRestore;
+          });
+        }
+
+        function elevateContactFadeElements() {
+          const car = document.querySelector('.contact-car');
+          const marks = document.querySelector('.contact-tire-marks');
+          const elements = getContactFadeElements();
+
+          elements.forEach((el) => {
+            el._contactFadeRestore = {
+              parent: el.parentNode,
+              nextSibling: el.nextSibling,
+              style: {
+                position: el.style.position,
+                left: el.style.left,
+                top: el.style.top,
+                width: el.style.width,
+                transform: el.style.transform,
+                zIndex: el.style.zIndex,
+                margin: el.style.margin,
+              },
+            };
+
+            document.body.appendChild(el);
+            el.style.position = 'fixed';
+            el.style.zIndex = '97';
+            el.style.margin = '0';
+
+            if (el === car || el === marks) {
+              return;
+            }
+
+            const rect = el.getBoundingClientRect();
+            el.style.left = rect.left + 'px';
+            el.style.top = rect.top + 'px';
+            el.style.width = rect.width + 'px';
+          });
+
+          requestAnimationFrame(() => {
+            elements.forEach((el) => {
+              el.classList.add('is-contact-fading-out');
+            });
+          });
+        }
+
+        function resetContactOverlayContents() {
+          const car = document.querySelector('.contact-car');
+          const marks = document.querySelector('.contact-tire-marks');
+
+          stopCarAnimation();
+          restoreContactFadeElements();
+          contactOverlay.classList.remove('visible');
+          contactEmailEl.classList.remove('is-visible');
+          if (car) {
+            car.style.left = '-12%';
+            car.style.top = '68%';
+            car.style.transform = 'rotate(0deg)';
+          }
+          currentTrackDrawn = 0;
+          updateTracks();
+        }
+
+        const bannerFlagEl = banner.querySelector('.banner__flag');
+
+        function resetBannerContactReveal() {
+          contactBtn.classList.remove('is-revealing', 'is-visible');
+          if (bannerFlagEl) bannerFlagEl.classList.remove('is-revealing', 'is-visible');
+        }
+
+        function revealBannerContact(contactAlreadyVisible) {
+          banner.classList.remove('contact-open', 'contact-closing', 'is-contact-revealed');
+
+          if (contactAlreadyVisible) {
+            contactBtn.classList.remove('is-revealing', 'is-visible');
+            if (bannerFlagEl) bannerFlagEl.classList.remove('is-revealing', 'is-visible');
+            setTimeout(resetBannerContactReveal, 0);
+            return;
+          }
+
+          contactBtn.classList.add('is-revealing');
+          if (bannerFlagEl) bannerFlagEl.classList.add('is-revealing');
+
+          if (prefersReducedMotion) {
+            contactBtn.classList.add('is-visible');
+            if (bannerFlagEl) bannerFlagEl.classList.add('is-visible');
+            setTimeout(resetBannerContactReveal, 0);
+            return;
+          }
+
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              contactBtn.classList.add('is-visible');
+              if (bannerFlagEl) bannerFlagEl.classList.add('is-visible');
+              setTimeout(resetBannerContactReveal, 1200);
+            });
+          });
+        }
+
+        function stopCarAnimation() {
+          if (carAnimFrame) {
+            cancelAnimationFrame(carAnimFrame);
+            carAnimFrame = null;
+          }
+        }
 
         function updateTracks() {
           const marks = document.querySelector('.contact-tire-marks');
@@ -2383,9 +2730,12 @@
 
           const leftPx = fixedUnderlineCenter - fixedUnderlineWidth / 2;
           const w = fixedUnderlineWidth;
+          const marksTop = marks.classList.contains('is-contact-fading-out')
+            ? contactOverlay.getBoundingClientRect().top + fixedBaseTop
+            : fixedBaseTop;
 
           marks.style.left = leftPx + 'px';
-          marks.style.top = fixedBaseTop + 'px';
+          marks.style.top = marksTop + 'px';
           marks.style.width = w + 'px';
           marks.style.setProperty('--progress', currentTrackDrawn);
         }
@@ -2536,7 +2886,7 @@
               updateTracks();
             }
 
-            if (prog < 1 && overlay.classList.contains('visible')) {
+            if (prog < 1 && (overlay.classList.contains('visible') || contactUIState === 'closing')) {
               carAnimFrame = requestAnimationFrame(animate);
             } else {
               carAnimFrame = null;
@@ -2562,14 +2912,25 @@
         function startCircleTransition(originBtn, entering) {
           if (!originBtn) return;
 
+          clearContactTransitionTimers();
+          contactTransitionId += 1;
+
           const rect = originBtn.getBoundingClientRect();
           const centerX = rect.left + rect.width / 2;
           const centerY = rect.top + rect.height / 2;
           const size = Math.max(window.innerWidth, window.innerHeight) * 2.5;
 
           if (entering) {
+            contactUIState = 'opening';
+            resetBannerContactReveal();
+            banner.classList.remove('contact-closing', 'is-contact-revealed');
+            transitionCircle.classList.remove('is-above-banner');
+            stopCarAnimation();
+            restoreContactFadeElements();
+            contactOverlay.classList.remove('visible');
             banner.classList.add('contact-open');
             banner.classList.remove('banner--light');
+            resetCloseButtonAnimation();
 
             transitionCircle.style.transition = 'none';
             transitionCircle.style.left = centerX + 'px';
@@ -2585,19 +2946,30 @@
             transitionCircle.style.left = (centerX - size / 2) + 'px';
             transitionCircle.style.top = (centerY - size / 2) + 'px';
 
-            setTimeout(() => {
+            hideContactEmail();
+            afterContactTransition(550, () => {
+              contactUIState = 'open';
               contactOverlay.classList.add('visible');
               startCarDrive();
+              revealContactEmail();
 
-              transitionCircle.style.transition = 'opacity 0.15s ease';
+              transitionCircle.style.transition = 'none';
               transitionCircle.style.opacity = '0';
-              setTimeout(() => {
-                transitionCircle.style.transition = 'none';
-                transitionCircle.style.width = '0px';
-                transitionCircle.style.height = '0px';
-              }, 200);
-            }, 550);
+              transitionCircle.style.width = '0px';
+              transitionCircle.style.height = '0px';
+            });
           } else {
+            contactUIState = 'closing';
+            const contactFadeDurationMs = 200;
+
+            if (prefersReducedMotion) {
+              stopCarAnimation();
+              resetContactOverlayContents();
+            } else {
+              elevateContactFadeElements();
+              afterContactTransition(contactFadeDurationMs, resetContactOverlayContents);
+            }
+
             transitionCircle.style.transition = 'none';
             transitionCircle.style.left = (centerX - size / 2) + 'px';
             transitionCircle.style.top = (centerY - size / 2) + 'px';
@@ -2606,22 +2978,14 @@
             transitionCircle.style.opacity = '1';
             transitionCircle.offsetWidth;
 
-            contactOverlay.classList.remove('visible');
-            banner.classList.remove('contact-open');
             updateBannerTheme();
 
-            if (carAnimFrame) {
-              cancelAnimationFrame(carAnimFrame);
-              carAnimFrame = null;
-            }
-            const resetCar = document.querySelector('.contact-car');
-            if (resetCar) {
-              resetCar.style.left = '-12%';
-              resetCar.style.top = '68%';
-              resetCar.style.transform = 'rotate(0deg)';
-            }
-            currentTrackDrawn = 0;
-            updateTracks();
+            banner.classList.add('contact-closing');
+            resetCloseButtonAnimation();
+
+            const closeDurationMs = 600;
+            const closeCircleAboveBannerMs = Math.max(closeDurationMs * 0.6, contactFadeDurationMs);
+            const closeContactRevealMs = closeDurationMs * 0.7;
 
             transitionCircle.style.transition = 'width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease';
             transitionCircle.style.width = '0px';
@@ -2629,30 +2993,39 @@
             transitionCircle.style.left = centerX + 'px';
             transitionCircle.style.top = centerY + 'px';
 
-            setTimeout(() => {
-              transitionCircle.style.transition = 'opacity 0.15s ease';
+            afterContactTransition(closeCircleAboveBannerMs, () => {
+              transitionCircle.classList.add('is-above-banner');
+            });
+
+            afterContactTransition(closeContactRevealMs, () => {
+              contactBtn.classList.remove('is-revealing', 'is-visible');
+              if (bannerFlagEl) bannerFlagEl.classList.remove('is-revealing', 'is-visible');
+              banner.classList.add('is-contact-revealed');
+            });
+
+            afterContactTransition(550, () => {
+              transitionCircle.style.transition = 'none';
               transitionCircle.style.opacity = '0';
-              setTimeout(() => {
-                transitionCircle.style.transition = 'none';
-                transitionCircle.style.width = '0px';
-                transitionCircle.style.height = '0px';
-              }, 200);
-            }, 550);
+              transitionCircle.style.width = '0px';
+              transitionCircle.style.height = '0px';
+            });
+
+            afterContactTransition(closeDurationMs, () => {
+              transitionCircle.classList.remove('is-above-banner');
+              contactUIState = 'closed';
+              revealBannerContact(true);
+            });
           }
         }
 
         contactBtn.addEventListener('click', () => {
-          if (!contactOverlay.classList.contains('visible')) {
-            startCircleTransition(contactBtn, true);
-          }
+          if (contactUIState !== 'closed') return;
+          startCircleTransition(contactBtn, true);
         });
 
-
-
         closeContactBtn.addEventListener('click', () => {
-          if (contactOverlay.classList.contains('visible')) {
-            startCircleTransition(closeContactBtn, false);
-          }
+          if (contactUIState !== 'open') return;
+          startCircleTransition(closeContactBtn, false);
         });
 
         contactEmailEl.style.cursor = 'pointer';
@@ -2661,7 +3034,7 @@
         });
 
         document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape' && contactOverlay.classList.contains('visible')) {
+          if (e.key === 'Escape' && contactUIState === 'open') {
             startCircleTransition(closeContactBtn, false);
           }
         });
@@ -2796,10 +3169,17 @@
         if (!aboutSection) return;
 
         aboutSection.classList.remove('is-visible');
+        if (aboutTeamsSection) {
+          aboutTeamsSection.classList.remove('is-visible');
+        }
 
         if (prefersReducedMotion) {
           aboutSection.classList.add('is-visible');
           revealPendingImages(aboutSection);
+          if (aboutTeamsSection) {
+            aboutTeamsSection.classList.add('is-visible');
+            revealPendingImages(aboutTeamsSection);
+          }
           return;
         }
 
@@ -2807,6 +3187,10 @@
           requestAnimationFrame(function () {
             aboutSection.classList.add('is-visible');
             revealPendingImages(aboutSection);
+            if (aboutTeamsSection) {
+              aboutTeamsSection.classList.add('is-visible');
+              revealPendingImages(aboutTeamsSection);
+            }
           });
         });
       }
@@ -2865,6 +3249,7 @@
       }
 
       const aboutSection = document.getElementById('about');
+      const aboutTeamsSection = document.getElementById('about-teams');
       const personalProjectsSection = document.getElementById('personal-projects');
       const personalProjectsCta = document.getElementById('personalProjectsCta');
       const personalCollageMinimise = document.getElementById('personalCollageMinimise');
@@ -2887,6 +3272,13 @@
           }
 
           anchor = aboutSection;
+        }
+
+        if (aboutTeamsSection && anchor) {
+          if (anchor.nextElementSibling !== aboutTeamsSection) {
+            anchor.insertAdjacentElement('afterend', aboutTeamsSection);
+          }
+          anchor = aboutTeamsSection;
         }
 
         if (personalProjectsSection && anchor) {
@@ -3110,6 +3502,15 @@
         revealPendingImages(aboutSection);
       }
 
+      let aboutTeamsRevealed = false;
+
+      function revealAboutTeamsSection() {
+        if (aboutTeamsRevealed || !aboutTeamsSection) return;
+        aboutTeamsRevealed = true;
+        aboutTeamsSection.classList.add('is-visible');
+        revealPendingImages(aboutTeamsSection);
+      }
+
       if (aboutSection) {
         if (prefersReducedMotion) {
           revealAboutSection();
@@ -3127,6 +3528,27 @@
           });
 
           aboutObserver.observe(aboutSection);
+        }
+      }
+
+      /* ─── About teams scroll reveal ──────────────────────────── */
+      if (aboutTeamsSection) {
+        if (prefersReducedMotion) {
+          revealAboutTeamsSection();
+        } else {
+          const aboutTeamsObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                revealAboutTeamsSection();
+                aboutTeamsObserver.disconnect();
+              }
+            });
+          }, {
+            threshold: 0.12,
+            rootMargin: '0px 0px -10% 0px',
+          });
+
+          aboutTeamsObserver.observe(aboutTeamsSection);
         }
       }
 
