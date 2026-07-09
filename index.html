@@ -1491,20 +1491,13 @@
       pointer-events: none;
     }
 
-    .footer.is-contact-elevated.is-visible.is-contact-fading-out {
-      opacity: 0;
-      transition: opacity 200ms ease;
-      pointer-events: none;
-    }
-
     @media (prefers-reduced-motion: reduce) {
       .footer.is-contact-elevated {
         opacity: 1;
         transition: none;
       }
 
-      .footer.is-contact-fading-out,
-      .footer.is-contact-elevated.is-visible.is-contact-fading-out {
+      .footer.is-contact-fading-out {
         transition: none;
       }
     }
@@ -2754,14 +2747,15 @@
             el.style.width = rect.width + 'px';
           });
 
-          requestAnimationFrame(() => {
-            elements.forEach((el) => {
-              el.classList.add('is-contact-fading-out');
-            });
-            if (footerSection && footerSection.classList.contains('is-contact-elevated')) {
-              footerSection.classList.add('is-contact-fading-out');
-            }
+        }
+
+        function startContactFadeOut() {
+          getContactFadeElements().forEach((el) => {
+            el.classList.add('is-contact-fading-out');
           });
+          if (footerSection && footerSection.classList.contains('is-contact-elevated')) {
+            footerSection.classList.add('is-contact-fading-out');
+          }
         }
 
         function resetContactOverlayContents() {
@@ -3090,14 +3084,6 @@
             const circleStartMs = prefersReducedMotion ? 0 : contactFadeDurationMs;
             const circleEndMs = circleStartMs + closeDurationMs;
 
-            if (prefersReducedMotion) {
-              stopCarAnimation();
-              resetContactOverlayContents();
-            } else {
-              elevateContactFadeElements();
-              afterContactTransition(circleEndMs, resetContactOverlayContents);
-            }
-
             transitionCircle.style.transition = 'none';
             transitionCircle.style.left = (centerX - size / 2) + 'px';
             transitionCircle.style.top = (centerY - size / 2) + 'px';
@@ -3110,6 +3096,16 @@
 
             banner.classList.add('contact-closing');
             resetCloseButtonAnimation();
+
+            if (prefersReducedMotion) {
+              stopCarAnimation();
+              resetContactOverlayContents();
+            } else {
+              elevateContactFadeElements();
+              startContactFadeOut();
+              contactEmailEl.offsetWidth;
+              afterContactTransition(circleEndMs, resetContactOverlayContents);
+            }
 
             const startCircleShrink = () => {
               transitionCircle.style.transition = 'width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease';
