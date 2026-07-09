@@ -1491,13 +1491,20 @@
       pointer-events: none;
     }
 
+    .footer.is-contact-elevated.is-visible.is-contact-fading-out {
+      opacity: 0;
+      transition: opacity 200ms ease;
+      pointer-events: none;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .footer.is-contact-elevated {
         opacity: 1;
         transition: none;
       }
 
-      .footer.is-contact-fading-out {
+      .footer.is-contact-fading-out,
+      .footer.is-contact-elevated.is-visible.is-contact-fading-out {
         transition: none;
       }
     }
