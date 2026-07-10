@@ -59,6 +59,7 @@
 
     html {
       scroll-behavior: smooth;
+      scrollbar-gutter: stable;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       -webkit-text-size-adjust: 100%;
@@ -325,6 +326,8 @@
 
     .contact-overlay.visible {
       display: block;
+      overscroll-behavior: none;
+      touch-action: none;
     }
 
     .contact-stage {
@@ -2677,6 +2680,33 @@
         let contactTransitionId = 0;
         let contactTransitionTimers = [];
         let currentTrackDrawn = 0;
+        let contactLockedScrollY = 0;
+        let contactScrollLocked = false;
+
+        function setContactScrollLock(locked) {
+          if (locked) {
+            if (contactScrollLocked) return;
+            contactScrollLocked = true;
+            contactLockedScrollY = window.scrollY || window.pageYOffset;
+            // Keep the scrollbar gutter so locking scroll does not widen the viewport.
+            document.documentElement.style.overflowY = 'scroll';
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.top = '-' + contactLockedScrollY + 'px';
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+          } else {
+            if (!contactScrollLocked) return;
+            contactScrollLocked = false;
+            document.documentElement.style.overflowY = '';
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            window.scrollTo(0, contactLockedScrollY);
+          }
+        }
 
         function clearContactTransitionTimers() {
           contactTransitionTimers.forEach((timerId) => clearTimeout(timerId));
@@ -2840,6 +2870,7 @@
           restoreContactFadeElements();
           hideContactFooter();
           if (contactStageEl) contactStageEl.style.transform = '';
+          setContactScrollLock(false);
           contactOverlay.classList.remove('visible');
           contactEmailEl.classList.remove('is-visible');
           if (car) {
@@ -3107,6 +3138,7 @@
 
           if (entering) {
             contactUIState = 'opening';
+            setContactScrollLock(true);
             resetBannerContactReveal();
             banner.classList.remove('contact-closing', 'is-contact-revealed');
             transitionCircle.classList.remove('is-above-banner');
