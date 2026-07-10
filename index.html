@@ -403,6 +403,18 @@
       touch-action: none;
     }
 
+    /*
+     * Contact scroll lock — do NOT use body { position: fixed }.
+     * That pattern collapses document height and forces iOS Safari to expand
+     * the browser chrome (tabs / URL bar) even when it was previously minimised.
+     */
+    html.is-contact-scroll-locked,
+    html.is-contact-scroll-locked body {
+      overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: none;
+    }
+
     .contact-stage {
       position: absolute;
       inset: 0;
@@ -2822,7 +2834,6 @@
         let currentTrackDrawn = 0;
         let contactLockedScrollY = 0;
         let contactScrollLocked = false;
-        let contactScrollRestore = null;
         let contactBannerDuplicate = null;
 
         function primeScrollbarLayout() {
@@ -2869,26 +2880,10 @@
         }
 
         function showContactBannerDuplicate() {
-          if (!banner || contactBannerDuplicate || contactLockedScrollY <= 0) return;
-
-          contactBannerDuplicate = banner.cloneNode(true);
-          contactBannerDuplicate.removeAttribute('id');
-          contactBannerDuplicate.setAttribute('aria-hidden', 'true');
-          contactBannerDuplicate.querySelectorAll('[id]').forEach(function (el) {
-            el.removeAttribute('id');
-          });
-          contactBannerDuplicate.classList.add('banner--contact-duplicate');
-          document.body.appendChild(contactBannerDuplicate);
-          banner.classList.add('banner--contact-source-hidden');
-          syncContactBannerDuplicate();
-
-          const duplicateCloseBtn = contactBannerDuplicate.querySelector('.banner__close');
-          if (duplicateCloseBtn) {
-            duplicateCloseBtn.addEventListener('click', function () {
-              if (contactUIState !== 'open') return;
-              startCircleTransition(duplicateCloseBtn, false);
-            });
-          }
+          // No-op: the banner is position:fixed and contact scroll lock no longer
+          // uses body { position: fixed }, so the source header stays pinned.
+          // Creating a fixed clone here used to paper over the old sticky/body-fixed
+          // combination and is unnecessary (and risky) now.
         }
 
         function removeContactBannerDuplicate() {
@@ -2900,46 +2895,40 @@
           banner.classList.remove('banner--contact-source-hidden');
         }
 
+        function preventContactBackgroundScroll(e) {
+          e.preventDefault();
+        }
+
         function setContactScrollLock(locked) {
           if (locked) {
             if (contactScrollLocked) return;
             contactScrollLocked = true;
             contactLockedScrollY = window.scrollY || window.pageYOffset;
-            const layoutWidth = document.documentElement.clientWidth;
-            contactScrollRestore = {
-              bodyOverflow: document.body.style.overflow,
-              bodyPosition: document.body.style.position,
-              bodyTop: document.body.style.top,
-              bodyLeft: document.body.style.left,
-              bodyRight: document.body.style.right,
-              bodyWidth: document.body.style.width,
-            };
 
-            document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.top = '-' + contactLockedScrollY + 'px';
-            document.body.style.left = '0';
-            document.body.style.right = '0';
-            document.body.style.width = layoutWidth + 'px';
+            // Avoid body { position: fixed } — on iOS Safari that expands the
+            // browser chrome (tabs bar) from its minimised state.
+            document.documentElement.classList.add('is-contact-scroll-locked');
+            document.addEventListener('touchmove', preventContactBackgroundScroll, {
+              passive: false,
+            });
+            document.addEventListener('wheel', preventContactBackgroundScroll, {
+              passive: false,
+            });
           } else {
-            if (!contactScrollLocked || !contactScrollRestore) return;
+            if (!contactScrollLocked) return;
             contactScrollLocked = false;
 
+            document.documentElement.classList.remove('is-contact-scroll-locked');
+            document.removeEventListener('touchmove', preventContactBackgroundScroll);
+            document.removeEventListener('wheel', preventContactBackgroundScroll);
+
             const scrollY = contactLockedScrollY;
-            const restore = contactScrollRestore;
-            const previousScrollBehavior = document.documentElement.style.scrollBehavior;
-            document.documentElement.style.scrollBehavior = 'auto';
-
-            document.body.style.top = restore.bodyTop;
-            document.body.style.left = restore.bodyLeft;
-            document.body.style.right = restore.bodyRight;
-            document.body.style.width = restore.bodyWidth;
-            document.body.style.position = restore.bodyPosition;
-            document.body.style.overflow = restore.bodyOverflow;
-
-            window.scrollTo(0, scrollY);
-            document.documentElement.style.scrollBehavior = previousScrollBehavior;
-            contactScrollRestore = null;
+            if ((window.scrollY || window.pageYOffset) !== scrollY) {
+              const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+              document.documentElement.style.scrollBehavior = 'auto';
+              window.scrollTo(0, scrollY);
+              document.documentElement.style.scrollBehavior = previousScrollBehavior;
+            }
           }
         }
 
