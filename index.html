@@ -1689,7 +1689,18 @@
       border-top: none;
     }
 
-    .footer.is-contact-elevated {
+    /*
+     * Contact footer: keep the real <footer> in document flow (visibility:hidden)
+     * and show a fixed clone. Elevating the real footer with position:fixed used
+     * to remove it from flow; on close it re-entered and shifted the page
+     * (especially when scrolled near the bottom on mobile).
+     */
+    .footer.is-contact-source-hidden {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .footer.footer--contact-clone {
       position: fixed;
       bottom: 0;
       left: 0;
@@ -1700,20 +1711,22 @@
       transition: opacity 0.8s var(--ease-premium);
       pointer-events: auto;
       padding: 0;
+      /* Not the in-flow footer — no layout impact */
+      margin: 0;
     }
 
-    .footer.is-contact-elevated .footer__inner {
+    .footer.footer--contact-clone .footer__inner {
       position: absolute;
       bottom: 1.75rem;
       left: 0;
       right: 0;
     }
 
-    .footer.is-contact-elevated.is-visible {
+    .footer.footer--contact-clone.is-visible {
       opacity: 1;
     }
 
-    .footer.is-contact-elevated.is-visible.is-contact-fading-out {
+    .footer.footer--contact-clone.is-visible.is-contact-fading-out {
       opacity: 0;
       transition: opacity 200ms ease;
       pointer-events: none;
@@ -1726,12 +1739,12 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .footer.is-contact-elevated {
+      .footer.footer--contact-clone {
         opacity: 1;
         transition: none;
       }
 
-      .footer.is-contact-elevated.is-visible.is-contact-fading-out,
+      .footer.footer--contact-clone.is-visible.is-contact-fading-out,
       .footer.is-contact-fading-out {
         transition: none;
       }
@@ -2009,7 +2022,7 @@
         padding: 0 0 1.5rem;
       }
 
-      .footer.is-contact-elevated .footer__inner {
+      .footer.footer--contact-clone .footer__inner {
         bottom: 1.5rem;
       }
 
@@ -3070,69 +3083,53 @@
           contactEmailEl.classList.remove('is-visible');
         }
 
-        function isMobileContactViewport() {
-          return window.matchMedia('(max-width: 1149px)').matches;
-        }
+        let contactFooterClone = null;
 
         function revealContactFooter() {
-          if (!footerSection) return;
-          footerSection.classList.add('is-contact-elevated');
-          footerSection.classList.remove('is-visible', 'is-contact-fading-out');
+          if (!footerSection || contactFooterClone) return;
+
+          // Keep the real footer in normal document flow so page height (and
+          // scroll position near the bottom) never changes when contact ends.
+          contactFooterClone = footerSection.cloneNode(true);
+          contactFooterClone.removeAttribute('aria-label');
+          contactFooterClone.setAttribute('aria-hidden', 'true');
+          contactFooterClone.querySelectorAll('[id]').forEach(function (el) {
+            el.removeAttribute('id');
+          });
+          contactFooterClone.className = 'footer footer--contact-clone';
+          document.body.appendChild(contactFooterClone);
+
+          footerSection.classList.add('is-contact-source-hidden');
 
           if (prefersReducedMotion) {
-            footerSection.classList.add('is-visible');
+            contactFooterClone.classList.add('is-visible');
             return;
           }
 
-          footerSection.style.transition = 'none';
-          footerSection.offsetWidth;
-          footerSection.style.transition = '';
-          footerSection.classList.add('is-visible');
+          contactFooterClone.style.transition = 'none';
+          void contactFooterClone.offsetWidth;
+          contactFooterClone.style.transition = '';
+          contactFooterClone.classList.add('is-visible');
         }
 
         function hideContactFooter() {
+          if (contactFooterClone) {
+            contactFooterClone.remove();
+            contactFooterClone = null;
+          }
+
           if (!footerSection) return;
-          footerSection.style.transition = 'none';
-          footerSection.classList.remove('is-visible', 'is-contact-elevated', 'is-contact-fading-out');
-          footerSection.offsetWidth;
-          footerSection.style.transition = '';
-        }
 
-        /*
-         * Mobile: keep the elevated footer on-screen for the whole close
-         * animation, then land the page so the in-flow footer is already in
-         * view when scroll lock releases (instead of jumping back mid-page).
-         */
-        function settleContactFooterAfterExit() {
-          if (!footerSection) {
-            hideContactFooter();
-            return;
-          }
-
-          if (!isMobileContactViewport()) {
-            hideContactFooter();
-            return;
-          }
-
+          // Real footer was only visibility-hidden — unhide without layout shift.
           footerSection.style.transition = 'none';
           footerSection.classList.remove(
+            'is-contact-source-hidden',
             'is-visible',
             'is-contact-elevated',
             'is-contact-fading-out'
           );
           void footerSection.offsetWidth;
           footerSection.style.transition = '';
-
-          const maxScroll = Math.max(
-            0,
-            document.documentElement.scrollHeight - window.innerHeight
-          );
-          contactLockedScrollY = maxScroll;
-
-          const previousScrollBehavior = document.documentElement.style.scrollBehavior;
-          document.documentElement.style.scrollBehavior = 'auto';
-          window.scrollTo(0, maxScroll);
-          document.documentElement.style.scrollBehavior = previousScrollBehavior;
         }
 
         function getContactFadeElements() {
@@ -3218,9 +3215,7 @@
 
           stopCarAnimation();
           restoreContactFadeElements();
-          // Mobile keeps elevated footer until here, then scrolls to page bottom
-          // so the real footer is already visible when lock releases.
-          settleContactFooterAfterExit();
+          hideContactFooter();
           if (contactStageEl) contactStageEl.style.transform = '';
           setContactScrollLock(false);
           removeContactBannerDuplicate();
@@ -3538,12 +3533,9 @@
             const contactFadeDurationMs = 200;
             const closeDurationMs = 600;
 
-            // Desktop: drop elevated footer immediately.
-            // Mobile: keep it fixed at the bottom through the close so it never
-            // blanks out, then settle into the in-flow footer at page end.
-            if (!isMobileContactViewport()) {
-              hideContactFooter();
-            }
+            // Drop the fixed clone early so the in-flow footer (already in the
+            // page layout) is visible as the circle reveals the normal page.
+            hideContactFooter();
 
             if (prefersReducedMotion) {
               stopCarAnimation();
