@@ -1333,18 +1333,25 @@
     }
 
     /*
-     * Portfolio minimise veil.
-     * Default: under the banner (z-index 90 < 100).
-     * iPad: cover the banner too (see html.is-ipad-like.is-ipad-minimise-cover).
-     * iPadOS Safari thrashs position:fixed headers when document height
-     * collapses under them; iPhone (solid narrow bar) and Chrome do not.
-     * Covering the header for the reflow window avoids that without changing
-     * banner theme (no forced opaque white).
+     * Portfolio minimise veil — full-viewport white fade above page content
+     * and below the site banner (z-index 99 < 100).
+     *
+     * iPad: content under the fixed header used to stay fully visible (banner
+     * is often transparent at desktop widths, and Safari fixed layers leave
+     * gaps near the browser chrome) then jump away when the collage unmounts.
+     * During minimise we (1) expand the veil past the layout viewport and
+     * (2) temporarily solidify the banner so that strip fades with the page.
      */
     #portfolio-minimise-veil {
       position: fixed;
-      inset: 0;
-      z-index: 90; /* below banner (100) on iPhone / desktop */
+      /* Overscan: cover Safari chrome / overscroll gaps beyond layout viewport */
+      top: -50vh;
+      left: -10vw;
+      right: -10vw;
+      bottom: -50vh;
+      width: auto;
+      height: auto;
+      z-index: 99; /* above page content, below banner (100) */
       background: var(--white);
       opacity: 0;
       visibility: hidden;
@@ -1372,9 +1379,20 @@
                   visibility 0s linear 0.9s;
     }
 
-    /* iPad only: veil above the fixed header during reflow/scroll */
-    html.is-ipad-like.is-ipad-minimise-cover #portfolio-minimise-veil {
-      z-index: 10060;
+    /*
+     * While the cover is up, make the header opaque white with no transition
+     * so page content cannot show through a transparent bar (iPad desktop
+     * breakpoint) and then vanish. Banner theme restores when body classes end.
+     */
+    body.is-portfolio-minimising #banner,
+    body.is-portfolio-minimising #banner .banner__inner,
+    body.is-portfolio-minimise-revealing #banner,
+    body.is-portfolio-minimise-revealing #banner .banner__inner {
+      background: var(--white) !important;
+      transition: none !important;
+      opacity: 1 !important;
+      -webkit-transform: translate3d(0, 0, 0) !important;
+      transform: translate3d(0, 0, 0) !important;
     }
 
     html.is-portfolio-minimise-scroll {
@@ -4031,8 +4049,7 @@
       }
 
       function freezeBannerForMinimise() {
-        if (!banner || isIPadLike) return;
-        // iPad: do not mutate banner styles (forced white was a visible flash).
+        if (!banner) return;
         banner.classList.add('is-minimise-frozen', 'is-settled', 'visible');
       }
 
@@ -4046,10 +4063,7 @@
           'is-portfolio-minimising',
           'is-portfolio-minimise-revealing'
         );
-        document.documentElement.classList.remove(
-          'is-portfolio-minimise-scroll',
-          'is-ipad-minimise-cover'
-        );
+        document.documentElement.classList.remove('is-portfolio-minimise-scroll');
         unfreezeBannerAfterMinimise();
       }
 
@@ -4081,16 +4095,9 @@
         }
 
         document.documentElement.classList.add('is-portfolio-minimise-scroll');
-
-        if (isIPadLike) {
-          // Cover the header for the whole reflow/scroll window. Banner styles
-          // are left untouched so there is no white↔transparent flicker.
-          document.documentElement.classList.add('is-ipad-minimise-cover');
-          if (banner) banner.classList.add('is-settled', 'visible');
-        } else {
-          freezeBannerForMinimise();
-        }
-
+        // Solidify + settle the bar so content under a transparent header fades
+        // with the white veil (especially iPad desktop-width Safari).
+        freezeBannerForMinimise();
         document.body.classList.add('is-portfolio-minimising');
 
         window.setTimeout(function () {
