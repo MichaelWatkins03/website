@@ -620,7 +620,7 @@
       flex-direction: column;
       align-items: left;
       justify-content: left;
-      padding: 20vh calc(var(--side-padding)*2) 10vh;
+      padding: 20vh calc(var(--side-padding)*2) 0vh;
       background: var(--white);
     }
 
@@ -2697,29 +2697,6 @@
           closeContactBtn.offsetWidth;
           closeContactBtn.style.animation = '';
         }
-        function getViewportCenter() {
-          const vv = window.visualViewport;
-          return {
-            x: (vv?.offsetLeft ?? 0) + (vv?.width ?? window.innerWidth) / 2,
-            y: (vv?.offsetTop ?? 0) + (vv?.height ?? window.innerHeight) / 2,
-          };
-        }
-
-        function centerContactStage() {
-          if (!contactStageEl || !contactEmailEl) return;
-          if (!contactOverlay.classList.contains('visible') || contactUIState === 'closing') return;
-
-          const emailRect = contactEmailEl.getBoundingClientRect();
-          const viewportCenter = getViewportCenter();
-          const emailCenterX = emailRect.left + emailRect.width / 2;
-          const emailCenterY = emailRect.top + emailRect.height / 2;
-
-          contactStageEl.style.transform =
-            'translate(' +
-            (viewportCenter.x - emailCenterX) + 'px, ' +
-            (viewportCenter.y - emailCenterY) + 'px)';
-        }
-
         function getContactTrackBounds() {
           if (!contactEmailEl) return null;
 
@@ -2932,15 +2909,12 @@
 
         function syncContactTrackLayout() {
           if (contactOverlay.classList.contains('visible') || contactUIState === 'closing') {
-            centerContactStage();
             updateTracks();
           }
         }
 
         window.addEventListener('resize', syncContactTrackLayout);
-        window.addEventListener('scroll', syncContactTrackLayout, { passive: true });
         if (window.visualViewport) {
-          window.visualViewport.addEventListener('scroll', syncContactTrackLayout);
           window.visualViewport.addEventListener('resize', syncContactTrackLayout);
         }
 
@@ -3163,7 +3137,6 @@
               contactUIState = 'open';
               contactOverlay.classList.add('visible');
               requestAnimationFrame(() => {
-                centerContactStage();
                 startCarDrive();
                 revealContactEmail();
               });
@@ -3711,13 +3684,6 @@
       /* ─── About scroll reveal ────────────────────────────────── */
       let aboutRevealed = false;
 
-      function revealAboutSection() {
-        if (aboutRevealed || !aboutSection) return;
-        aboutRevealed = true;
-        aboutSection.classList.add('is-visible');
-        revealPendingImages(aboutSection);
-      }
-
       let aboutTeamsRevealed = false;
 
       function revealAboutTeamsSection() {
@@ -3725,6 +3691,14 @@
         aboutTeamsRevealed = true;
         aboutTeamsSection.classList.add('is-visible');
         revealPendingImages(aboutTeamsSection);
+      }
+
+      function revealAboutSection() {
+        if (aboutRevealed || !aboutSection) return;
+        aboutRevealed = true;
+        aboutSection.classList.add('is-visible');
+        revealPendingImages(aboutSection);
+        revealAboutTeamsSection();
       }
 
       if (aboutSection) {
@@ -3744,27 +3718,6 @@
           });
 
           aboutObserver.observe(aboutSection);
-        }
-      }
-
-      /* ─── About teams scroll reveal ──────────────────────────── */
-      if (aboutTeamsSection) {
-        if (prefersReducedMotion) {
-          revealAboutTeamsSection();
-        } else {
-          const aboutTeamsObserver = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                revealAboutTeamsSection();
-                aboutTeamsObserver.disconnect();
-              }
-            });
-          }, {
-            threshold: 0.12,
-            rootMargin: '0px 0px -10% 0px',
-          });
-
-          aboutTeamsObserver.observe(aboutTeamsSection);
         }
       }
 
