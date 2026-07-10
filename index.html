@@ -125,6 +125,11 @@
       width: 100%;
       z-index: 100;
       pointer-events: none;
+      /* Own compositor layer — reduces iOS fixed-header flicker during scroll/reflow */
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
     }
 
     .banner.visible {
@@ -142,7 +147,8 @@
       min-height: calc(calc(3.25rem * var(--font-scale)) + 1.75rem);
       background: transparent;
       opacity: 0;
-      transform: translateY(-100%);
+      -webkit-transform: translate3d(0, -100%, 0);
+      transform: translate3d(0, -100%, 0);
       transition: opacity 1.2s var(--ease-premium),
                   transform 1.2s var(--ease-premium),
                   background-color 0.2s var(--ease-premium);
@@ -151,17 +157,34 @@
 
     .banner.visible .banner__inner {
       opacity: 1;
-      transform: translateY(0);
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
       pointer-events: auto;
     }
 
-    /* After entrance, drop transform + entrance transition so large page
-       repaints (e.g. portfolio minimise) cannot re-trigger the slide-in. */
+    /* After entrance, freeze paint state so minimise/scroll cannot re-run slide-in. */
     .banner.is-settled .banner__inner {
       opacity: 1;
-      transform: none;
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
       transition: background-color 0.2s var(--ease-premium);
       pointer-events: auto;
+    }
+
+    /* Hard-freeze during portfolio minimise — solid fill + no transitions */
+    .banner.is-minimise-frozen,
+    .banner.is-minimise-frozen .banner__inner {
+      -webkit-transform: translate3d(0, 0, 0) !important;
+      transform: translate3d(0, 0, 0) !important;
+      transition: none !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      background: var(--white) !important;
+    }
+
+    .banner.is-minimise-frozen {
+      z-index: 200;
+      visibility: visible !important;
     }
 
     /* In-flow stand-in so page content is not under the fixed banner.
@@ -1319,15 +1342,19 @@
      * Portfolio minimise: fade a fixed white veil UNDER the banner instead of
      * setting opacity on body children. Fading siblings forces WebKit to
      * recomposite the fixed header and makes the banner flicker/reset.
+     * Scroll under the veil is INSTANT (see JS) — animated scroll while fixed
+     * layers reflow is the main Safari flicker trigger.
      */
     #portfolio-minimise-veil {
       position: fixed;
       inset: 0;
-      z-index: 90; /* below banner (100), above page content */
+      z-index: 90; /* below banner (100+), above page content */
       background: var(--white);
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
       transition: opacity 0.6s var(--ease-premium),
                   visibility 0s linear 0.6s;
     }
@@ -1348,18 +1375,8 @@
                   visibility 0s linear 0.6s;
     }
 
-    /* Keep banner fully stable while the veil is up */
-    body.is-portfolio-minimising #banner,
-    body.is-portfolio-minimise-revealing #banner {
-      z-index: 110;
-    }
-
-    body.is-portfolio-minimising #banner .banner__inner,
-    body.is-portfolio-minimise-revealing #banner .banner__inner {
-      opacity: 1 !important;
-      transform: none !important;
-      transition: none !important;
-      pointer-events: auto;
+    html.is-portfolio-minimise-scroll {
+      scroll-behavior: auto !important;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -3940,6 +3957,16 @@
         requestAnimationFrame(step);
       }
 
+      function freezeBannerForMinimise() {
+        if (!banner) return;
+        banner.classList.add('is-minimise-frozen', 'is-settled', 'visible');
+      }
+
+      function unfreezeBannerAfterMinimise() {
+        if (!banner) return;
+        banner.classList.remove('is-minimise-frozen');
+      }
+
       function revealPortfolioMinimiseContent() {
         const fadeMs = portfolioMinimiseDurationMs;
 
@@ -3950,6 +3977,8 @@
 
             window.setTimeout(function () {
               document.body.classList.remove('is-portfolio-minimise-revealing');
+              document.documentElement.classList.remove('is-portfolio-minimise-scroll');
+              unfreezeBannerAfterMinimise();
             }, fadeMs);
           });
         });
@@ -3967,20 +3996,25 @@
           return;
         }
 
+        // Freeze banner paint + force auto scroll before any layout/scroll work.
+        freezeBannerForMinimise();
+        document.documentElement.classList.add('is-portfolio-minimise-scroll');
         document.body.classList.add('is-portfolio-minimising');
 
         window.setTimeout(function () {
           if (fsaeChampionsCta.classList.contains('is-open')) {
             document.body.classList.remove('is-portfolio-minimising');
+            document.documentElement.classList.remove('is-portfolio-minimise-scroll');
+            unfreezeBannerAfterMinimise();
             return;
           }
 
+          // Under an opaque veil the scroll is invisible — use INSTANT scroll.
+          // Animated rAF scrollTo is a primary cause of fixed-header flicker on iOS.
           finishPortfolioCollageClose();
-
           scrollToFsaeChampionsSection({
-            animated: true,
+            instant: true,
             centerInViewport: true,
-            durationMs: fadeMs,
             onComplete: function () {
               window.setTimeout(revealPortfolioMinimiseContent, portfolioMinimiseRevealDelayMs);
             },
