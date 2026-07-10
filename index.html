@@ -321,12 +321,18 @@
       background: white;
       z-index: 95;
       display: none;
-      align-items: center;
-      justify-content: center;
     }
 
     .contact-overlay.visible {
+      display: block;
+    }
+
+    .contact-stage {
+      position: absolute;
+      inset: 0;
       display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .contact-email {
@@ -375,7 +381,7 @@
       pointer-events: none;
       z-index: 0;
       overflow: hidden;
-      background-image: url('Media/tire-tracks.jpg');
+      background-image: url('Media/tire-tracks-2.jpg');
       background-repeat: no-repeat;
       background-position: center;
       background-size: 100% auto;
@@ -592,7 +598,7 @@
       }
     }
 
-    @media (max-width: 1149px), (min-width: 1150px) and (max-aspect-ratio: 3/2) {
+    @media (max-width: 1149px) {
       .fsae-champions {
         padding: 8vh clamp(1.5rem, 5vw, var(--side-padding)) 12vh;
       }
@@ -686,7 +692,7 @@
       }
     }
 
-    @media (max-width: 1149px), (min-width: 1150px) and (max-aspect-ratio: 3/2) {
+    @media (max-width: 1149px) {
       .about {
         padding: 8vh clamp(1.5rem, 5vw, var(--side-padding)) 12vh;
       }
@@ -765,7 +771,7 @@
       }
     }
 
-    @media (max-width: 1149px), (min-width: 1150px) and (max-aspect-ratio: 3/2) {
+    @media (max-width: 1149px) {
       .about-teams {
         padding: 8vh clamp(1.5rem, 5vw, var(--side-padding)) 12vh;
       }
@@ -881,7 +887,7 @@
       }
     }
 
-    @media (max-width: 1149px), (min-width: 1150px) and (max-aspect-ratio: 3/2) {
+    @media (max-width: 1149px) {
       .personal-projects,
       .fsae-2024 {
         padding: 8vh clamp(1.5rem, 5vw, var(--side-padding)) 12vh;
@@ -999,6 +1005,9 @@
       display: flex;
       justify-content: flex-end;
       align-items: center;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: var(--shadow-deep);
     }
 
     .hero__image img {
@@ -1006,8 +1015,8 @@
       max-width: 100%;
       height: auto;
       border-radius: 0.75rem;
-      box-shadow: var(--shadow-deep);
       object-fit: cover;
+      display: block;
     }
 
     /* Quote */
@@ -1261,11 +1270,13 @@
     .portfolio-collage__masonry-caption {
       break-inside: avoid;
       margin-bottom: 0.625rem;
-      padding: 1.25rem 1rem;
+      padding: 1rem 1.25rem 1.25rem;
       background: var(--white);
       border-radius: 0.75rem;
-      font-size: var(--font-hero-subtitle);
-      font-weight: 400;
+      overflow: hidden;
+      box-shadow: var(--shadow-deep);
+      font-size: var(--font-body);
+      font-weight: 300;
       line-height: 1.5;
       letter-spacing: 0.01em;
       text-align: center;
@@ -1334,6 +1345,12 @@
       margin-bottom: 1.5rem;
     }
 
+    [data-portfolio-block="manufacture"] .portfolio-collage__heading,
+    [data-portfolio-block="assembly"] .portfolio-collage__heading,
+    [data-portfolio-block="competition"] .portfolio-collage__heading {
+      margin-bottom: 3rem;
+    }
+
     .portfolio-collage__intro {
       font-size: var(--font-hero-subtitle);
       font-weight: 400;
@@ -1346,6 +1363,17 @@
 
     .portfolio-collage__feature > .portfolio-collage__item {
       margin-bottom: 0.625rem;
+    }
+
+    .portfolio-collage__item--poster {
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: var(--white);
+      box-shadow: var(--shadow-deep);
+    }
+
+    .portfolio-collage__item--poster img {
+      border-radius: 0.75rem;
     }
 
     .portfolio-collage__row {
@@ -1382,6 +1410,7 @@
       max-width: 66.666%;
       margin-left: auto;
       margin-right: auto;
+      margin-bottom: 2rem;
     }
 
     .portfolio-collage__row--4 {
@@ -1420,6 +1449,7 @@
 
     .portfolio-collage__competition-outcomes {
       margin-top: 1.5rem;
+      text-align: center;
     }
 
     .portfolio-collage__competition-outcomes > .portfolio-collage__caption {
@@ -1437,6 +1467,23 @@
       margin-bottom: 0;
     }
 
+    .portfolio-collage__competition-list {
+      list-style: disc;
+      display: inline-block;
+      text-align: left;
+      margin: 0.5rem auto;
+      padding-left: 1.25rem;
+    }
+
+    .portfolio-collage__competition-list li {
+      font-size: var(--font-hero-subtitle);
+      font-weight: 400;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+      color: var(--text-muted);
+      margin: 0.5rem 0;
+    }
+
     #portfolio-assembly + .portfolio-collage__row .portfolio-collage__item,
     #portfolio-competition + .portfolio-collage__row .portfolio-collage__item,
     #portfolio-competition + .portfolio-collage__row + .portfolio-collage__row .portfolio-collage__item {
@@ -1449,7 +1496,7 @@
       border-radius: 0.75rem;
     }
 
-    @media (max-width: 1149px), (min-width: 1150px) and (max-aspect-ratio: 3/2) {
+    @media (max-width: 1149px) {
       .portfolio-collage__row--4 {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -1485,6 +1532,12 @@
       opacity: 1;
     }
 
+    .footer.is-contact-elevated.is-visible.is-contact-fading-out {
+      opacity: 0;
+      transition: opacity 200ms ease;
+      pointer-events: none;
+    }
+
     .footer.is-contact-fading-out {
       opacity: 0;
       transition: opacity 200ms ease;
@@ -1497,6 +1550,7 @@
         transition: none;
       }
 
+      .footer.is-contact-elevated.is-visible.is-contact-fading-out,
       .footer.is-contact-fading-out {
         transition: none;
       }
@@ -1572,8 +1626,8 @@
       height: 1.2em;
     }
 
-    /* ─── Responsive (narrow + wide nearly-square) ─────────────── */
-    @media (max-width: 1149px), (min-width: 1150px) and (max-aspect-ratio: 3/2) {
+    /* ─── Responsive (narrow) ─────────────────────────────────── */
+    @media (max-width: 1149px) {
       .banner {
         background: var(--white);
       }
@@ -1758,7 +1812,7 @@
 
       .portfolio-collage__masonry-caption {
         margin-bottom: 0.5rem;
-        padding: 1rem 0.75rem;
+        padding: 1rem 1.25rem 1.25rem;
       }
 
       .footer {
@@ -1845,10 +1899,7 @@
         text-align: left;
         align-items: flex-start;
       }
-    }
 
-    /* Wide 16:9 — hero photo fills the full width of the right column */
-    @media (min-width: 1150px) and (min-aspect-ratio: 3/2) {
       .footer__inner {
         padding-left: calc(var(--side-padding) / 4);
         padding-right: calc(var(--side-padding) / 4);
@@ -1861,6 +1912,9 @@
         max-width: none;
         min-width: 0;
         margin: 0;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: var(--shadow-deep);
       }
 
       .hero__image img {
@@ -1868,6 +1922,7 @@
         max-width: none;
         display: block;
         object-fit: cover;
+        border-radius: 0.75rem;
       }
     }
   </style>
@@ -1902,9 +1957,11 @@
 
   <!-- Contact overlay -->
   <div id="contact-overlay" class="contact-overlay">
-    <img class="contact-car" src="Media/race-car.jpg" alt="Race car">
-    <div class="contact-tire-marks"></div>
-    <div id="contact-email" class="contact-email">mwatkins1470@gmail.com</div>
+    <div id="contact-stage" class="contact-stage">
+      <img class="contact-car" src="Media/race-car.jpg" alt="Race car">
+      <div class="contact-tire-marks"></div>
+      <div id="contact-email" class="contact-email">mwatkins1470@gmail.com</div>
+    </div>
   </div>
 
   <!-- Transition circle -->
@@ -2016,20 +2073,20 @@
         </div>
         <p class="portfolio-collage__caption">I created the <span class="portfolio-collage__emphasis">first predictive suspension tuning tool</span> for the University of Canterbury Motorsport Team by validating these forces against real measured forces to be used on future designs.</p>
         <figure class="portfolio-collage__item">
-          <img src="Media/ucm25_suspension_components_poster.jpg" alt="UCM25 suspension components poster" loading="lazy" decoding="async">
+          <img src="Media/ucm25_suspension_components_poster.png" alt="UCM25 suspension components poster" loading="lazy" decoding="async">
         </figure>
-        <p class="portfolio-collage__caption">I designed and manufactured several components including the <span class="portfolio-collage__emphasis">brackets, pushrods, and tie rods</span>.</p>
-        <figure class="portfolio-collage__item">
+        <p class="portfolio-collage__caption">I designed the suspension geometry, and designed and manufactured several components including the <span class="portfolio-collage__emphasis">brackets, pushrods, and tie rods</span>.</p>
+        <figure class="portfolio-collage__item portfolio-collage__item--poster">
           <img src="Media/ucm25_suspension_forces_poster.jpg" alt="UCM25 suspension forces poster" loading="lazy" decoding="async">
         </figure>
-        <figure class="portfolio-collage__item">
+        <figure class="portfolio-collage__item portfolio-collage__item--poster">
           <img src="Media/ucm25_suspension_vd_poster.jpg" alt="UCM25 suspension vehicle dynamics poster" loading="lazy" decoding="async">
         </figure>
         <div class="portfolio-collage__row portfolio-collage__row--2 portfolio-collage__row--booklets">
-          <figure class="portfolio-collage__item">
+          <figure class="portfolio-collage__item portfolio-collage__item--poster">
             <img src="Media/ucm25_structural_suspension_design_book.png" alt="UCM25 structural suspension design booklet" loading="lazy" decoding="async">
           </figure>
-          <figure class="portfolio-collage__item">
+          <figure class="portfolio-collage__item portfolio-collage__item--poster">
             <img src="Media/ucm25_suspension_vd_design_book.png" alt="UCM25 suspension vehicle dynamics design booklet" loading="lazy" decoding="async">
           </figure>
         </div>
@@ -2044,10 +2101,10 @@
           <figure class="portfolio-collage__item">
             <img src="Media/ti64_sandblast.JPEG" alt="Ti64 sandblast" loading="lazy" decoding="async">
           </figure>
+          <p class="portfolio-collage__masonry-caption">Titanium bracket printing, sand blasting, and vapour blasting.</p>
           <figure class="portfolio-collage__item">
             <img src="Media/ti64_waterblast.PNG" alt="Ti64 waterblast" loading="lazy" decoding="async">
           </figure>
-          <p class="portfolio-collage__masonry-caption">Titanium bracket printing, sand blasting, and vapour blasting.</p>
           <figure class="portfolio-collage__item">
             <img src="Media/machining_rear_bracket.JPEG" alt="Machining rear bracket" loading="lazy" decoding="async">
           </figure>
@@ -2064,17 +2121,17 @@
           <figure class="portfolio-collage__item">
             <img src="Media/brackets_tie%20_tods%20_sandblasted.JPEG" alt="Brackets tie rods sandblasted" loading="lazy" decoding="async">
           </figure>
+          <p class="portfolio-collage__masonry-caption">Tie rod manufacture.</p>
           <figure class="portfolio-collage__item">
             <img src="Media/machined_bung_ends.JPEG" alt="Machined bung ends" loading="lazy" decoding="async">
           </figure>
-          <p class="portfolio-collage__masonry-caption">Tie rod manufacture.</p>
           <figure class="portfolio-collage__item">
             <img src="Media/machining_control_arm.JPEG" alt="Machining control arm" loading="lazy" decoding="async">
           </figure>
+          <p class="portfolio-collage__masonry-caption">Control arm and welding jig.</p>
           <figure class="portfolio-collage__item">
             <img src="Media/control_arm_wleding_jig.JPEG" alt="Control arm welding jig" loading="lazy" decoding="async">
           </figure>
-          <p class="portfolio-collage__masonry-caption">Control arm and welding jig.</p>
           <figure class="portfolio-collage__item">
             <img src="Media/machined_anti_intrusion_plate_spacers.JPG" alt="Machined anti intrusion plate spacers" loading="lazy" decoding="async">
           </figure>
@@ -2156,10 +2213,12 @@
         </div>
         <div class="portfolio-collage__competition-outcomes">
           <p class="portfolio-collage__caption">1st Place Overall – EV Class</p>
-          <p class="portfolio-collage__caption">1st Skid Pad (The team's first dynamic event win since 2016)</p>
-          <p class="portfolio-collage__caption">2nd Autocross (fastest raw time but received penalty)</p>
-          <p class="portfolio-collage__caption">3rd Endurance</p>
-          <p class="portfolio-collage__caption">4th Engineering Design</p>
+          <ul class="portfolio-collage__competition-list">
+            <li>1st Skid Pad (The team's first dynamic event win since 2016)</li>
+            <li>2nd Autocross (fastest raw time but received penalty)</li>
+            <li>3rd Endurance</li>
+            <li>4th Engineering Design</li>
+          </ul>
           <p class="portfolio-collage__caption">At the end of 2025, the team moved to 1st in Australasian Formula Student rankings.</p>
         </div>
         <div class="portfolio-collage__actions">
@@ -2186,9 +2245,10 @@
         <span class="about__title-line about__title-line--main">reliable, meaningful products</span>
         <span class="about__title-line about__title-line--sub">that people depend on.</span>
       </h2>
-      <p class="about__text">I am a two-time national champion in different domains.</p>
-      <p class="about__text">Currently completing graduate rotations through engineering, manufacturing, sales, and operations at an industry-leading company that designs tailored post-harvest vegetable processing solutions.</p>
-      <p class="about__text">This broad experience has provided a comprehensive perspective on the full product lifecycle - from a customer’s initial problem through design, scaling, and all the way to the end of a product’s life.</p>
+      <p class="about__text">My experience leading the suspension system on an international championship winning Formula Student car taught me to break complex problems down into accurate, actionable technical details. </p> 
+      <p class="about__text">Playing junior representative cricket at a national-winning level strengthened my appreciation for how team culture directly shapes the quality of the final outcome.</p>
+      <p class="about__text">I am currently completing graduate rotations through engineering, manufacturing, sales, and operations at an industry-leading company that designs tailored post-harvest vegetable processing solutions.</p>
+      <p class="about__text">This broad exposure has provided a comprehensive perspective on the full product lifecycle - from a customer’s initial problem through design, scaling, and all the way to the end of a product’s life.</p>
       <p class="about__text">An avid reader, I continue to design and build personal projects in my free time.</p>
       <p class="about__text">I have been fortunate to work with the following teams:</p>
     </div>
@@ -2345,6 +2405,7 @@
       const contactBtn    = document.getElementById('contactBtn');
       const closeContactBtn = document.getElementById('closeContactBtn');
       const contactOverlay = document.getElementById('contact-overlay');
+      const contactStageEl = document.getElementById('contact-stage');
       const contactEmailEl = document.getElementById('contact-email');
       const footerSection = document.querySelector('.footer');
       const transitionCircle = document.getElementById('transition-circle');
@@ -2636,9 +2697,42 @@
           closeContactBtn.offsetWidth;
           closeContactBtn.style.animation = '';
         }
-        let fixedUnderlineWidth = 0;
-        let fixedUnderlineCenter = 0;
-        let fixedBaseTop = 0;
+        function getViewportCenter() {
+          const vv = window.visualViewport;
+          return {
+            x: (vv?.offsetLeft ?? 0) + (vv?.width ?? window.innerWidth) / 2,
+            y: (vv?.offsetTop ?? 0) + (vv?.height ?? window.innerHeight) / 2,
+          };
+        }
+
+        function centerContactStage() {
+          if (!contactStageEl || !contactEmailEl) return;
+          if (!contactOverlay.classList.contains('visible') || contactUIState === 'closing') return;
+
+          const emailRect = contactEmailEl.getBoundingClientRect();
+          const viewportCenter = getViewportCenter();
+          const emailCenterX = emailRect.left + emailRect.width / 2;
+          const emailCenterY = emailRect.top + emailRect.height / 2;
+
+          contactStageEl.style.transform =
+            'translate(' +
+            (viewportCenter.x - emailCenterX) + 'px, ' +
+            (viewportCenter.y - emailCenterY) + 'px)';
+        }
+
+        function getContactTrackBounds() {
+          if (!contactEmailEl) return null;
+
+          const emailRect = contactEmailEl.getBoundingClientRect();
+
+          return {
+            left: contactEmailEl.offsetLeft,
+            top: contactEmailEl.offsetTop + contactEmailEl.offsetHeight - 2,
+            width: contactEmailEl.offsetWidth,
+            viewportLeft: emailRect.left,
+            viewportTop: emailRect.bottom - 2,
+          };
+        }
 
         function revealContactEmail() {
           contactEmailEl.classList.remove('is-visible');
@@ -2684,7 +2778,7 @@
         function getContactFadeElements() {
           const car = document.querySelector('.contact-car');
           const marks = document.querySelector('.contact-tire-marks');
-          return [contactEmailEl, car, marks].filter(Boolean);
+          return [car, marks, contactEmailEl].filter(Boolean);
         }
 
         function restoreContactFadeElements() {
@@ -2737,8 +2831,12 @@
             el.style.zIndex = '97';
             el.style.margin = '0';
 
-            if (el === car || el === marks) {
+            if (el === car) {
               return;
+            }
+
+            if (el === marks) {
+              updateTracks();
             }
 
             const rect = el.getBoundingClientRect();
@@ -2747,15 +2845,14 @@
             el.style.width = rect.width + 'px';
           });
 
-        }
-
-        function startContactFadeOut() {
-          getContactFadeElements().forEach((el) => {
-            el.classList.add('is-contact-fading-out');
+          requestAnimationFrame(() => {
+            elements.forEach((el) => {
+              el.classList.add('is-contact-fading-out');
+            });
+            if (footerSection && footerSection.classList.contains('is-contact-elevated')) {
+              footerSection.classList.add('is-contact-fading-out');
+            }
           });
-          if (footerSection && footerSection.classList.contains('is-contact-elevated')) {
-            footerSection.classList.add('is-contact-fading-out');
-          }
         }
 
         function resetContactOverlayContents() {
@@ -2765,6 +2862,7 @@
           stopCarAnimation();
           restoreContactFadeElements();
           hideContactFooter();
+          if (contactStageEl) contactStageEl.style.transform = '';
           contactOverlay.classList.remove('visible');
           contactEmailEl.classList.remove('is-visible');
           if (car) {
@@ -2821,30 +2919,30 @@
 
         function updateTracks() {
           const marks = document.querySelector('.contact-tire-marks');
-          if (!marks) return;
+          const bounds = getContactTrackBounds();
+          if (!marks || !bounds) return;
 
-          const leftPx = fixedUnderlineCenter - fixedUnderlineWidth / 2;
-          const w = fixedUnderlineWidth;
-          const marksTop = marks.classList.contains('is-contact-fading-out')
-            ? contactOverlay.getBoundingClientRect().top + fixedBaseTop
-            : fixedBaseTop;
+          const useViewportCoords = marks.style.position === 'fixed';
 
-          marks.style.left = leftPx + 'px';
-          marks.style.top = marksTop + 'px';
-          marks.style.width = w + 'px';
+          marks.style.left = (useViewportCoords ? bounds.viewportLeft : bounds.left) + 'px';
+          marks.style.top = (useViewportCoords ? bounds.viewportTop : bounds.top) + 'px';
+          marks.style.width = bounds.width + 'px';
           marks.style.setProperty('--progress', currentTrackDrawn);
         }
 
-        window.addEventListener('resize', () => {
-          if (contactOverlay.classList.contains('visible') && contactEmailEl) {
-            const emailRect = contactEmailEl.getBoundingClientRect();
-            const overlayRect = contactOverlay.getBoundingClientRect();
-            fixedUnderlineWidth = emailRect.width;
-            fixedUnderlineCenter = emailRect.left + emailRect.width / 2;
-            fixedBaseTop = emailRect.bottom - overlayRect.top - 2;
+        function syncContactTrackLayout() {
+          if (contactOverlay.classList.contains('visible') || contactUIState === 'closing') {
+            centerContactStage();
             updateTracks();
           }
-        });
+        }
+
+        window.addEventListener('resize', syncContactTrackLayout);
+        window.addEventListener('scroll', syncContactTrackLayout, { passive: true });
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener('scroll', syncContactTrackLayout);
+          window.visualViewport.addEventListener('resize', syncContactTrackLayout);
+        }
 
         function startCarDrive() {
           const car = document.querySelector('.contact-car');
@@ -2854,14 +2952,6 @@
           if (carAnimFrame) {
             cancelAnimationFrame(carAnimFrame);
             carAnimFrame = null;
-          }
-
-          if (contactEmailEl) {
-            const emailRect = contactEmailEl.getBoundingClientRect();
-            const overlayRect = contactOverlay.getBoundingClientRect();
-            fixedUnderlineWidth = emailRect.width;
-            fixedUnderlineCenter = emailRect.left + emailRect.width / 2;
-            fixedBaseTop = emailRect.bottom - overlayRect.top - 2;
           }
 
           const path = [
@@ -2967,12 +3057,15 @@
               const frontTyreOffsetPx = 32;
               const effectiveCarXPx = carXPx + frontTyreOffsetPx;
 
-              const targetRight = fixedUnderlineCenter + fixedUnderlineWidth / 2;
-              const targetLeft = fixedUnderlineCenter - fixedUnderlineWidth / 2;
+              const bounds = getContactTrackBounds();
+              if (!bounds) return;
+
+              const targetRight = bounds.left + bounds.width;
+              const targetLeft = bounds.left;
 
               let frac = 0;
               if (effectiveCarXPx < targetRight) {
-                frac = Math.max(0, (targetRight - effectiveCarXPx) / fixedUnderlineWidth);
+                frac = Math.max(0, (targetRight - effectiveCarXPx) / bounds.width);
                 frac = Math.min(1, frac);
               } else if (effectiveCarXPx <= targetLeft) {
                 frac = 1;
@@ -3069,8 +3162,11 @@
             afterContactTransition(550, () => {
               contactUIState = 'open';
               contactOverlay.classList.add('visible');
-              startCarDrive();
-              revealContactEmail();
+              requestAnimationFrame(() => {
+                centerContactStage();
+                startCarDrive();
+                revealContactEmail();
+              });
 
               transitionCircle.style.transition = 'none';
               transitionCircle.style.opacity = '0';
@@ -3081,8 +3177,18 @@
             contactUIState = 'closing';
             const contactFadeDurationMs = 200;
             const closeDurationMs = 600;
-            const circleStartMs = prefersReducedMotion ? 0 : contactFadeDurationMs;
-            const circleEndMs = circleStartMs + closeDurationMs;
+
+            if (prefersReducedMotion) {
+              stopCarAnimation();
+              resetContactOverlayContents();
+            } else {
+              elevateContactFadeElements();
+              // Hide the white overlay so the page is visible outside the shrinking circle.
+              contactOverlay.classList.remove('visible');
+              // Keep faded elements pinned until the circle finishes — resetting at
+              // contactFadeDurationMs restored car/marks at full opacity too early.
+              afterContactTransition(closeDurationMs, resetContactOverlayContents);
+            }
 
             transitionCircle.style.transition = 'none';
             transitionCircle.style.left = (centerX - size / 2) + 'px';
@@ -3096,52 +3202,33 @@
 
             banner.classList.add('contact-closing');
             resetCloseButtonAnimation();
+            const closeCircleAboveBannerMs = Math.max(closeDurationMs * 0.6, contactFadeDurationMs);
+            const closeContactRevealMs = closeDurationMs * 0.7;
 
-            if (prefersReducedMotion) {
-              stopCarAnimation();
-              resetContactOverlayContents();
-            } else {
-              elevateContactFadeElements();
-              startContactFadeOut();
-              contactEmailEl.offsetWidth;
-              afterContactTransition(circleEndMs, resetContactOverlayContents);
-            }
+            transitionCircle.style.transition = 'width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease';
+            transitionCircle.style.width = '0px';
+            transitionCircle.style.height = '0px';
+            transitionCircle.style.left = centerX + 'px';
+            transitionCircle.style.top = centerY + 'px';
 
-            const startCircleShrink = () => {
-              transitionCircle.style.transition = 'width 0.6s ease, height 0.6s ease, left 0.6s ease, top 0.6s ease';
-              transitionCircle.style.width = '0px';
-              transitionCircle.style.height = '0px';
-              transitionCircle.style.left = centerX + 'px';
-              transitionCircle.style.top = centerY + 'px';
-            };
+            afterContactTransition(closeCircleAboveBannerMs, () => {
+              transitionCircle.classList.add('is-above-banner');
+            });
 
-            if (circleStartMs === 0) {
-              startCircleShrink();
-            } else {
-              afterContactTransition(circleStartMs, startCircleShrink);
-            }
-
-            afterContactTransition(
-              circleStartMs + Math.max(closeDurationMs * 0.6, contactFadeDurationMs),
-              () => {
-                transitionCircle.classList.add('is-above-banner');
-              }
-            );
-
-            afterContactTransition(circleStartMs + closeDurationMs * 0.7, () => {
+            afterContactTransition(closeContactRevealMs, () => {
               contactBtn.classList.remove('is-revealing', 'is-visible');
               if (bannerFlagEl) bannerFlagEl.classList.remove('is-revealing', 'is-visible');
               banner.classList.add('is-contact-revealed');
             });
 
-            afterContactTransition(circleStartMs + 550, () => {
+            afterContactTransition(550, () => {
               transitionCircle.style.transition = 'none';
               transitionCircle.style.opacity = '0';
               transitionCircle.style.width = '0px';
               transitionCircle.style.height = '0px';
             });
 
-            afterContactTransition(circleEndMs, () => {
+            afterContactTransition(closeDurationMs, () => {
               transitionCircle.classList.remove('is-above-banner');
               contactUIState = 'closed';
               revealBannerContact(true);
