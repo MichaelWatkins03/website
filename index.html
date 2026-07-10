@@ -149,12 +149,9 @@
       opacity: 0;
       -webkit-transform: translate3d(0, -100%, 0);
       transform: translate3d(0, -100%, 0);
-      /* No background-color transition: on iPad (desktop breakpoint, transparent
-         bar) a freeze→unfreeze white↔transparent transition reads as flicker.
-         iPhone is always solid white via the narrow media query, so it never
-         showed that flash. */
       transition: opacity 1.2s var(--ease-premium),
-                  transform 1.2s var(--ease-premium);
+                  transform 1.2s var(--ease-premium),
+                  background-color 0.2s var(--ease-premium);
       pointer-events: none;
     }
 
@@ -170,21 +167,11 @@
       opacity: 1;
       -webkit-transform: translate3d(0, 0, 0);
       transform: translate3d(0, 0, 0);
-      transition: none;
+      transition: background-color 0.2s var(--ease-premium);
       pointer-events: auto;
     }
 
-    /*
-     * iPad / iPadOS (incl. desktop-class Safari): keep an opaque bar always.
-     * Transparent desktop styling + page reflow under a fixed header is the
-     * iPad-only minimise flicker (iPhone uses the solid narrow breakpoint).
-     */
-    html.is-ipad-like .banner,
-    html.is-ipad-like .banner__inner {
-      background: var(--white);
-    }
-
-    /* During minimise: opaque, no transitions, stable z-index (no layer hop) */
+    /* Hard-freeze during portfolio minimise — solid fill + no transitions */
     .banner.is-minimise-frozen,
     .banner.is-minimise-frozen .banner__inner {
       -webkit-transform: translate3d(0, 0, 0) !important;
@@ -193,6 +180,10 @@
       opacity: 1 !important;
       pointer-events: auto !important;
       background: var(--white) !important;
+    }
+
+    .banner.is-minimise-frozen {
+      z-index: 200;
       visibility: visible !important;
     }
 
@@ -1386,10 +1377,6 @@
 
     html.is-portfolio-minimise-scroll {
       scroll-behavior: auto !important;
-      /* Keep classic scrollbar slot stable while document height collapses
-         (iPad desktop-class Safari can shift layout when the gutter toggles). */
-      overflow-y: scroll !important;
-      scrollbar-gutter: stable;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -3970,23 +3957,6 @@
         requestAnimationFrame(step);
       }
 
-      /* iPad-only flicker: transparent desktop banner + white freeze/unfreeze.
-         iPhone always uses the solid narrow breakpoint and never showed this. */
-      function isIPadLikeDevice() {
-        const ua = navigator.userAgent || '';
-        if (/iPad/.test(ua)) return true;
-        // iPadOS 13+ “desktop” UA (Macintosh + touch)
-        if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return true;
-        if (/Macintosh/.test(ua) && typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 1) {
-          return true;
-        }
-        return false;
-      }
-
-      if (isIPadLikeDevice()) {
-        document.documentElement.classList.add('is-ipad-like');
-      }
-
       function freezeBannerForMinimise() {
         if (!banner) return;
         banner.classList.add('is-minimise-frozen', 'is-settled', 'visible');
@@ -4008,8 +3978,6 @@
             window.setTimeout(function () {
               document.body.classList.remove('is-portfolio-minimise-revealing');
               document.documentElement.classList.remove('is-portfolio-minimise-scroll');
-              // Unfreeze only after the veil is gone so an iPad transparent bar
-              // never briefly composites over moving page content.
               unfreezeBannerAfterMinimise();
             }, fadeMs);
           });
@@ -4028,37 +3996,30 @@
           return;
         }
 
-        document.documentElement.classList.add('is-portfolio-minimise-scroll');
-
-        // 1) Make the bar fully opaque and settled first (especially iPad, where
-        //    the desktop breakpoint uses a transparent header).
-        // 2) Wait two frames so that paint commits before the veil/reflow.
+        // Freeze banner paint + force auto scroll before any layout/scroll work.
         freezeBannerForMinimise();
+        document.documentElement.classList.add('is-portfolio-minimise-scroll');
+        document.body.classList.add('is-portfolio-minimising');
 
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            document.body.classList.add('is-portfolio-minimising');
+        window.setTimeout(function () {
+          if (fsaeChampionsCta.classList.contains('is-open')) {
+            document.body.classList.remove('is-portfolio-minimising');
+            document.documentElement.classList.remove('is-portfolio-minimise-scroll');
+            unfreezeBannerAfterMinimise();
+            return;
+          }
 
-            window.setTimeout(function () {
-              if (fsaeChampionsCta.classList.contains('is-open')) {
-                document.body.classList.remove('is-portfolio-minimising');
-                document.documentElement.classList.remove('is-portfolio-minimise-scroll');
-                unfreezeBannerAfterMinimise();
-                return;
-              }
-
-              // Veil is opaque — collapse + instant scroll under cover.
-              finishPortfolioCollageClose();
-              scrollToFsaeChampionsSection({
-                instant: true,
-                centerInViewport: true,
-                onComplete: function () {
-                  window.setTimeout(revealPortfolioMinimiseContent, portfolioMinimiseRevealDelayMs);
-                },
-              });
-            }, fadeMs);
+          // Under an opaque veil the scroll is invisible — use INSTANT scroll.
+          // Animated rAF scrollTo is a primary cause of fixed-header flicker on iOS.
+          finishPortfolioCollageClose();
+          scrollToFsaeChampionsSection({
+            instant: true,
+            centerInViewport: true,
+            onComplete: function () {
+              window.setTimeout(revealPortfolioMinimiseContent, portfolioMinimiseRevealDelayMs);
+            },
           });
-        });
+        }, fadeMs);
       }
 
       function closePortfolioCollage(options) {
