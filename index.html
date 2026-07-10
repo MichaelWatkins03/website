@@ -1858,7 +1858,10 @@
     /* ─── Responsive (narrow) ─────────────────────────────────── */
     @media (max-width: 1149px) {
       .banner__inner {
-        background: var(--white);
+        /* Semi-transparent so content can read through while scrolling */
+        background: rgba(255, 255, 255, 0.72);
+        -webkit-backdrop-filter: saturate(1.2) blur(14px);
+        backdrop-filter: saturate(1.2) blur(14px);
       }
 
       .banner__left {
@@ -2659,6 +2662,7 @@
       const graphCanvas = document.getElementById('forceGraph');
       let graphCtx = null;
       let graphComplete = false;
+      let forceFullGraph = false;
       let bgFadeStart = 0;
       let finalCrossfadeStart = 0;
 
@@ -2669,6 +2673,17 @@
       bgImg.src   = 'Media/toe-link-bg.jpg';
 
       let graphImagesReady = 1;
+
+      // Low Power Mode / reduced motion / blocked autoplay: graph is driven by
+      // video time — if the video never runs, show the complete chart instead.
+      const prefersReducedMotionEarly = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function showFullForceGraph() {
+        forceFullGraph = true;
+        graphComplete = true;
+        if (!bgFadeStart) bgFadeStart = Date.now();
+        if (graphCanvas && graphCtx) drawForceGraph();
+      }
 
       /* ─── Image sweep draw ───────────────────────────────────── */
       function drawForceGraph() {
@@ -2684,7 +2699,10 @@
         if (greatProductsVideo && typeof greatProductsVideo.currentTime === 'number') t = greatProductsVideo.currentTime;
 
         let progress = 0;
-        if (!graphComplete) {
+        if (forceFullGraph || prefersReducedMotionEarly) {
+          progress = 1;
+          graphComplete = true;
+        } else if (!graphComplete) {
           progress = Math.min((t + 3) / 26.5, 1);
           if (progress >= 1) {
             graphComplete = true;
@@ -2730,12 +2748,18 @@
         if (!graphCanvas) return;
         graphCtx = graphCanvas.getContext('2d', { alpha: true });
 
+        if (prefersReducedMotionEarly || forceFullGraph) {
+          showFullForceGraph();
+          return;
+        }
+
         drawForceGraph();
 
         function frame() {
           drawForceGraph();
           const crossDone = finalCrossfadeStart > 0 && (Date.now() - finalCrossfadeStart > 1200);
           const fullyDone = graphComplete && crossDone;
+          if (forceFullGraph) return;
           if (greatProductsVideo && !greatProductsVideo.paused && !greatProductsVideo.ended && !fullyDone) {
             requestAnimationFrame(frame);
           }
@@ -2744,6 +2768,7 @@
 
         if (greatProductsVideo) {
           greatProductsVideo.addEventListener('timeupdate', () => {
+            if (forceFullGraph) return;
             if (greatProductsVideo && !greatProductsVideo.paused) {
               if (!graphComplete && greatProductsVideo.currentTime >= 26.5) {
                 graphComplete = true;
@@ -2753,6 +2778,7 @@
             }
           });
           greatProductsVideo.addEventListener('play', () => {
+            if (forceFullGraph) return;
             const crossDone = finalCrossfadeStart > 0 && (Date.now() - finalCrossfadeStart > 1200);
             if (!graphComplete || !crossDone) {
               requestAnimationFrame(frame);
@@ -2776,13 +2802,35 @@
 
       /* ─── NEW: Missing helper functions (this was the bug) ───── */
       function startVideo() {
-        if (!greatProductsVideo) return;
+        if (!greatProductsVideo) {
+          showFullForceGraph();
+          return;
+        }
+        if (prefersReducedMotionEarly) {
+          showFullForceGraph();
+          return;
+        }
+
         greatProductsVideo.muted = true;
         const playPromise = greatProductsVideo.play();
         if (playPromise !== undefined) {
-          playPromise.catch((err) => {
+          playPromise.then(function () {
+            // If Low Power Mode / policy leaves the video paused, fall back.
+            window.setTimeout(function () {
+              if (forceFullGraph) return;
+              if (
+                greatProductsVideo.paused
+                || greatProductsVideo.currentTime < 0.25
+              ) {
+                showFullForceGraph();
+              }
+            }, 1500);
+          }).catch(function (err) {
             console.warn('Hero video autoplay prevented (common on some browsers):', err);
+            showFullForceGraph();
           });
+        } else {
+          showFullForceGraph();
         }
       }
 
