@@ -1874,10 +1874,18 @@
         padding: 0;
         text-align: center;
         align-items: center;
+        /* Drop desktop 2.5rem line-height — with smaller mobile type it
+           adds large gaps between wrapped title lines. */
+        line-height: normal;
       }
 
       .hero__title {
         margin-bottom: 0;
+        line-height: 1.35;
+      }
+
+      .hero__name {
+        line-height: 1.1;
       }
 
       .hero__image {
