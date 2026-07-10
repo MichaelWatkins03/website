@@ -1367,8 +1367,9 @@
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      transition: opacity 0.6s var(--ease-premium),
-                  visibility 0s linear 0.6s;
+      /* 50% longer than the 0.6s cover fade-out (0.9s) */
+      transition: opacity 0.9s var(--ease-premium),
+                  visibility 0s linear 0.9s;
     }
 
     /* iPad only: veil above the fixed header during reflow/scroll */
@@ -3718,6 +3719,8 @@
 
       const portfolioRevealDurationMs = 1200;
       const portfolioMinimiseDurationMs = 600;
+      /* Cover fade-out / section reveal — 50% slower than the 600ms cover-in */
+      const portfolioMinimiseRevealMs = 900;
       const portfolioMinimiseRevealDelayMs = 800;
 
       let portfolioCollageBlockObserver = null;
