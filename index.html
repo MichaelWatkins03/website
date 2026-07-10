@@ -110,15 +110,14 @@
       text-decoration: none;
     }
 
-    /* ─── Top chrome (fixed shell) + banner ─────────────────────── */
+    /* ─── Fixed Banner ─────────────────────────────────────────── */
     /*
-     * Banner is position:relative inside a single fixed #site-top-chrome shell.
-     * Multiple top-level position:fixed siblings (banner + veil + overlays)
-     * thrash and flicker on iOS Safari during page reflow/scroll. One fixed
-     * shell is far more stable. During portfolio minimise we also swap in a
-     * documentElement-level freeze clone so body reflows cannot repaint it.
+     * Always use position:fixed (not sticky). iOS Safari routinely fails to
+     * attach sticky headers until a major layout reset (e.g. contact scroll
+     * lock). Fixed + a flow spacer is reliable on WebKit and Chrome.
+     * Animate only .banner__inner — never put transform on the fixed shell.
      */
-    #site-top-chrome {
+    .banner {
       position: fixed;
       top: 0;
       left: 0;
@@ -126,16 +125,11 @@
       width: 100%;
       z-index: 100;
       pointer-events: none;
+      /* Own compositor layer — reduces iOS fixed-header flicker during scroll/reflow */
       -webkit-transform: translate3d(0, 0, 0);
       transform: translate3d(0, 0, 0);
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
-    }
-
-    .banner {
-      position: relative;
-      width: 100%;
-      pointer-events: none;
     }
 
     .banner.visible {
@@ -177,57 +171,20 @@
       pointer-events: auto;
     }
 
-    /* Touch / coarse pointers (iPad): always solid white so content never
-       flashes through a transparent header during Safari repaints. */
-    @media (hover: none), (pointer: coarse) {
-      #site-top-chrome,
-      .banner__inner {
-        background: var(--white);
-      }
+    /* Hard-freeze during portfolio minimise — solid fill + no transitions */
+    .banner.is-minimise-frozen,
+    .banner.is-minimise-frozen .banner__inner {
+      -webkit-transform: translate3d(0, 0, 0) !important;
+      transform: translate3d(0, 0, 0) !important;
+      transition: none !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      background: var(--white) !important;
     }
 
-    /* Source banner hidden while freeze clone is on screen */
-    .banner.is-minimise-source-hidden {
-      visibility: hidden !important;
-      pointer-events: none !important;
-    }
-
-    /*
-     * Freeze clone lives on <html>, outside <body> reflows.
-     * No transitions, solid fill, highest chrome z-index.
-     */
-    #banner-minimise-clone {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      width: 100% !important;
-      z-index: 10050 !important;
-      margin: 0 !important;
-      pointer-events: none !important;
+    .banner.is-minimise-frozen {
+      z-index: 200;
       visibility: visible !important;
-      opacity: 1 !important;
-      background: var(--white) !important;
-      -webkit-transform: translate3d(0, 0, 0) !important;
-      transform: translate3d(0, 0, 0) !important;
-      transition: none !important;
-      animation: none !important;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-    }
-
-    #banner-minimise-clone,
-    #banner-minimise-clone * {
-      transition: none !important;
-      animation: none !important;
-    }
-
-    #banner-minimise-clone .banner__inner {
-      opacity: 1 !important;
-      -webkit-transform: translate3d(0, 0, 0) !important;
-      transform: translate3d(0, 0, 0) !important;
-      background: var(--white) !important;
-      pointer-events: none !important;
     }
 
     /* In-flow stand-in so page content is not under the fixed banner.
@@ -1382,15 +1339,16 @@
     }
 
     /*
-     * Portfolio minimise veil — full-screen white under the freeze clone
-     * (clone z-index 10050). Controlled via html classes so body reflow work
-     * does not retarget the veil through body > child selectors.
-     * Scroll under the veil is INSTANT (see JS).
+     * Portfolio minimise: fade a fixed white veil UNDER the banner instead of
+     * setting opacity on body children. Fading siblings forces WebKit to
+     * recomposite the fixed header and makes the banner flicker/reset.
+     * Scroll under the veil is INSTANT (see JS) — animated scroll while fixed
+     * layers reflow is the main Safari flicker trigger.
      */
     #portfolio-minimise-veil {
       position: fixed;
       inset: 0;
-      z-index: 10040;
+      z-index: 90; /* below banner (100+), above page content */
       background: var(--white);
       opacity: 0;
       visibility: hidden;
@@ -1401,7 +1359,7 @@
                   visibility 0s linear 0.6s;
     }
 
-    html.is-portfolio-minimising #portfolio-minimise-veil {
+    body.is-portfolio-minimising #portfolio-minimise-veil {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
@@ -1409,7 +1367,7 @@
                   visibility 0s linear 0s;
     }
 
-    html.is-portfolio-minimise-revealing #portfolio-minimise-veil {
+    body.is-portfolio-minimise-revealing #portfolio-minimise-veil {
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
@@ -2157,35 +2115,33 @@
 </head>
 <body>
 
-  <!-- ═══ Fixed top chrome (banner is relative inside this shell) ═══ -->
-  <div id="site-top-chrome">
-    <header class="banner" id="banner" role="banner">
-      <div class="banner__inner">
-        <div class="banner__left">
-          <img
-            class="banner__photo"
-            src="Media/michael-watkins-profile.jpg"
-            alt="Michael Watkins"
-            width="256"
-            height="256"
-          >
-          <span class="banner__name"><span class="banner__name-first">Michael</span> <span class="banner__name-last">Watkins</span></span>
-        </div>
-        <div class="banner__right">
-          <button class="banner__contact" id="contactBtn">Contact</button>
-          <img
-            class="banner__flag"
-            src="https://flagcdn.com/nz.svg"
-            alt="New Zealand flag"
-            width="34"
-            height="17"
-            decoding="async"
-          >
-          <button class="banner__close" id="closeContactBtn">×</button>
-        </div>
+  <!-- ═══ Fixed Banner (spacer reserves in-flow height) ═══ -->
+  <header class="banner" id="banner" role="banner">
+    <div class="banner__inner">
+      <div class="banner__left">
+        <img
+          class="banner__photo"
+          src="Media/michael-watkins-profile.jpg"
+          alt="Michael Watkins"
+          width="256"
+          height="256"
+        >
+        <span class="banner__name"><span class="banner__name-first">Michael</span> <span class="banner__name-last">Watkins</span></span>
       </div>
-    </header>
-  </div>
+      <div class="banner__right">
+        <button class="banner__contact" id="contactBtn">Contact</button>
+        <img
+          class="banner__flag"
+          src="https://flagcdn.com/nz.svg"
+          alt="New Zealand flag"
+          width="34"
+          height="17"
+          decoding="async"
+        >
+        <button class="banner__close" id="closeContactBtn">×</button>
+      </div>
+    </div>
+  </header>
   <div class="banner-flow-spacer" id="banner-flow-spacer" aria-hidden="true"></div>
   <div id="portfolio-minimise-veil" class="portfolio-minimise-veil" aria-hidden="true"></div>
 
@@ -2797,28 +2753,23 @@
         startGraph();
       }
 
-      /* Keep in-flow spacer matched to fixed chrome height (Safari-safe). */
+      /* Keep in-flow spacer matched to fixed banner height (Safari-safe). */
       const bannerFlowSpacer = document.getElementById('banner-flow-spacer');
-      const siteTopChrome = document.getElementById('site-top-chrome');
-      let bannerResizeObserver = null;
-      let bannerSpacerSyncPaused = false;
 
       function syncBannerFlowSpacer() {
-        if (bannerSpacerSyncPaused || !bannerFlowSpacer) return;
-        const heightSource = siteTopChrome || banner;
-        if (!heightSource) return;
-        const height = heightSource.offsetHeight;
+        if (!banner || !bannerFlowSpacer) return;
+        const height = banner.offsetHeight;
         if (height > 0) {
           bannerFlowSpacer.style.height = height + 'px';
         }
       }
 
-      if (bannerFlowSpacer && (siteTopChrome || banner)) {
+      if (banner && bannerFlowSpacer) {
         syncBannerFlowSpacer();
         window.addEventListener('resize', syncBannerFlowSpacer);
         if (typeof ResizeObserver !== 'undefined') {
-          bannerResizeObserver = new ResizeObserver(syncBannerFlowSpacer);
-          bannerResizeObserver.observe(siteTopChrome || banner);
+          const bannerResizeObserver = new ResizeObserver(syncBannerFlowSpacer);
+          bannerResizeObserver.observe(banner);
         }
       }
 
@@ -4006,60 +3957,14 @@
         requestAnimationFrame(step);
       }
 
-      let bannerMinimiseClone = null;
-
       function freezeBannerForMinimise() {
-        if (!banner || bannerMinimiseClone) return;
-
-        // Pause spacer ResizeObserver — height thrash during reflow flickers iOS.
-        bannerSpacerSyncPaused = true;
-
-        // Clone onto <html> so body layout/scroll work cannot repaint the chrome.
-        bannerMinimiseClone = banner.cloneNode(true);
-        bannerMinimiseClone.id = 'banner-minimise-clone';
-        bannerMinimiseClone.removeAttribute('role');
-        bannerMinimiseClone.setAttribute('aria-hidden', 'true');
-        bannerMinimiseClone.className = 'banner visible is-settled';
-        bannerMinimiseClone.querySelectorAll('[id]').forEach(function (el) {
-          el.removeAttribute('id');
-        });
-
-        // Prefer documentElement: outside body reflow subtree on WebKit.
-        document.documentElement.appendChild(bannerMinimiseClone);
-
-        // Hide the live banner only after the clone is in the tree.
-        banner.classList.add('is-minimise-source-hidden', 'is-settled', 'visible');
+        if (!banner) return;
+        banner.classList.add('is-minimise-frozen', 'is-settled', 'visible');
       }
 
       function unfreezeBannerAfterMinimise() {
-        if (banner) {
-          banner.classList.remove('is-minimise-source-hidden');
-        }
-
-        // Double rAF: ensure the live banner has painted before removing clone
-        // so there is never a frame with no header.
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            if (bannerMinimiseClone) {
-              bannerMinimiseClone.remove();
-              bannerMinimiseClone = null;
-            }
-            bannerSpacerSyncPaused = false;
-            syncBannerFlowSpacer();
-          });
-        });
-      }
-
-      function clearPortfolioMinimiseChromeState() {
-        document.documentElement.classList.remove(
-          'is-portfolio-minimising',
-          'is-portfolio-minimise-revealing',
-          'is-portfolio-minimise-scroll'
-        );
-        document.body.classList.remove(
-          'is-portfolio-minimising',
-          'is-portfolio-minimise-revealing'
-        );
+        if (!banner) return;
+        banner.classList.remove('is-minimise-frozen');
       }
 
       function revealPortfolioMinimiseContent() {
@@ -4067,13 +3972,12 @@
 
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
-            document.documentElement.classList.remove('is-portfolio-minimising');
-            document.documentElement.classList.add('is-portfolio-minimise-revealing');
             document.body.classList.remove('is-portfolio-minimising');
             document.body.classList.add('is-portfolio-minimise-revealing');
 
             window.setTimeout(function () {
-              clearPortfolioMinimiseChromeState();
+              document.body.classList.remove('is-portfolio-minimise-revealing');
+              document.documentElement.classList.remove('is-portfolio-minimise-scroll');
               unfreezeBannerAfterMinimise();
             }, fadeMs);
           });
@@ -4092,42 +3996,30 @@
           return;
         }
 
-        // 1) Mount isolated freeze clone on <html>
-        // 2) After it paints, show veil + do layout/scroll under cover
+        // Freeze banner paint + force auto scroll before any layout/scroll work.
         freezeBannerForMinimise();
         document.documentElement.classList.add('is-portfolio-minimise-scroll');
+        document.body.classList.add('is-portfolio-minimising');
 
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            document.documentElement.classList.add('is-portfolio-minimising');
-            document.body.classList.add('is-portfolio-minimising');
+        window.setTimeout(function () {
+          if (fsaeChampionsCta.classList.contains('is-open')) {
+            document.body.classList.remove('is-portfolio-minimising');
+            document.documentElement.classList.remove('is-portfolio-minimise-scroll');
+            unfreezeBannerAfterMinimise();
+            return;
+          }
 
-            // Move veil to documentElement so it stacks with the freeze clone,
-            // outside body reflow, for the duration of the transition.
-            const veil = document.getElementById('portfolio-minimise-veil');
-            if (veil && veil.parentNode !== document.documentElement) {
-              document.documentElement.appendChild(veil);
-            }
-
-            window.setTimeout(function () {
-              if (fsaeChampionsCta.classList.contains('is-open')) {
-                clearPortfolioMinimiseChromeState();
-                unfreezeBannerAfterMinimise();
-                return;
-              }
-
-              // Under an opaque veil the scroll is invisible — INSTANT only.
-              finishPortfolioCollageClose();
-              scrollToFsaeChampionsSection({
-                instant: true,
-                centerInViewport: true,
-                onComplete: function () {
-                  window.setTimeout(revealPortfolioMinimiseContent, portfolioMinimiseRevealDelayMs);
-                },
-              });
-            }, fadeMs);
+          // Under an opaque veil the scroll is invisible — use INSTANT scroll.
+          // Animated rAF scrollTo is a primary cause of fixed-header flicker on iOS.
+          finishPortfolioCollageClose();
+          scrollToFsaeChampionsSection({
+            instant: true,
+            centerInViewport: true,
+            onComplete: function () {
+              window.setTimeout(revealPortfolioMinimiseContent, portfolioMinimiseRevealDelayMs);
+            },
           });
-        });
+        }, fadeMs);
       }
 
       function closePortfolioCollage(options) {
