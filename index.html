@@ -55,16 +55,39 @@
       --image-content-max: 38.75rem;
       --shadow-deep: 0 2rem 4rem -0.75rem rgba(0, 0, 0, 0.12),
                      0 1rem 2rem -0.5rem rgba(0, 0, 0, 0.08);
+      --scrollbar-track: var(--white);
+      --scrollbar-thumb: rgba(17, 17, 17, 0.22);
+      --scrollbar-thumb-hover: rgba(17, 17, 17, 0.36);
     }
 
     html {
       scroll-behavior: smooth;
       scrollbar-gutter: stable;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
       font-size: var(--fluid-root);
+    }
+
+    html::-webkit-scrollbar {
+      width: 0.5rem;
+    }
+
+    html::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+    }
+
+    html::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 999px;
+      border: 0.125rem solid var(--scrollbar-track);
+    }
+
+    html::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
     }
 
     body {
@@ -244,6 +267,20 @@
       }
     }
 
+    .banner--contact-source-hidden {
+      visibility: hidden;
+    }
+
+    .banner--contact-duplicate {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 100;
+      pointer-events: auto;
+    }
+
     /* Contact mode: hide Contact + flag, show X */
     .banner.contact-open .banner__contact,
     .banner.contact-open .banner__flag {
@@ -336,6 +373,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transform: translateY(-2%);
     }
 
     .contact-email {
@@ -1215,6 +1253,28 @@
       transform: translateY(-3.5rem);
     }
 
+    body.is-portfolio-minimising > :not(#banner):not(script),
+    body.is-portfolio-minimise-revealing > :not(#banner):not(script) {
+      transition: opacity 0.6s var(--ease-premium);
+    }
+
+    body.is-portfolio-minimising > :not(#banner):not(script) {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.is-portfolio-minimise-revealing > :not(#banner):not(script) {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body.is-portfolio-minimising > :not(#banner):not(script),
+      body.is-portfolio-minimise-revealing > :not(#banner):not(script) {
+        transition: none;
+      }
+    }
+
     .portfolio-collage__block + .portfolio-collage__block {
       margin-top: 2rem;
     }
@@ -1515,7 +1575,7 @@
 
     /* ─── Footer ───────────────────────────────────────────────── */
     .footer {
-      padding: 5rem 0 3rem;
+      padding: 0 0 1.75rem;
       border-top: none;
     }
 
@@ -1529,6 +1589,14 @@
       opacity: 0;
       transition: opacity 0.8s var(--ease-premium);
       pointer-events: auto;
+      padding: 0;
+    }
+
+    .footer.is-contact-elevated .footer__inner {
+      position: absolute;
+      bottom: 1.75rem;
+      left: 0;
+      right: 0;
     }
 
     .footer.is-contact-elevated.is-visible {
@@ -1562,7 +1630,7 @@
     .footer__inner {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
-      align-items: center;
+      align-items: end;
       gap: 2rem;
       width: 100%;
       padding: 0 3vw;
@@ -1590,6 +1658,7 @@
       font-weight: 300;
       color: var(--text-muted);
       letter-spacing: 0.02em;
+      line-height: 1.05;
       text-align: center;
       white-space: nowrap;
     }
@@ -1819,7 +1888,11 @@
       }
 
       .footer {
-        padding: 4rem 0 2.5rem;
+        padding: 0 0 1.5rem;
+      }
+
+      .footer.is-contact-elevated .footer__inner {
+        bottom: 1.5rem;
       }
 
       .footer__inner {
@@ -2682,29 +2755,124 @@
         let currentTrackDrawn = 0;
         let contactLockedScrollY = 0;
         let contactScrollLocked = false;
+        let contactScrollRestore = null;
+        let contactBannerDuplicate = null;
+
+        function primeScrollbarLayout() {
+          const html = document.documentElement;
+          const savedOverflowY = html.style.overflowY;
+          html.style.overflowY = 'scroll';
+          void html.offsetWidth;
+          html.style.overflowY = savedOverflowY;
+        }
+
+        primeScrollbarLayout();
+
+        function getActiveCloseContactBtn() {
+          if (contactBannerDuplicate) {
+            return contactBannerDuplicate.querySelector('.banner__close');
+          }
+
+          return closeContactBtn;
+        }
+
+        function syncContactBannerDuplicate() {
+          if (!contactBannerDuplicate) return;
+
+          contactBannerDuplicate.className = 'banner banner--contact-duplicate';
+
+          banner.classList.forEach(function (className) {
+            if (className === 'banner--contact-source-hidden') return;
+            contactBannerDuplicate.classList.add(className);
+          });
+
+          const pairs = [
+            ['.banner__contact', '.banner__contact'],
+            ['.banner__flag', '.banner__flag'],
+            ['.banner__close', '.banner__close'],
+          ];
+
+          pairs.forEach(function (pair) {
+            const sourceEl = banner.querySelector(pair[0]);
+            const duplicateEl = contactBannerDuplicate.querySelector(pair[1]);
+            if (sourceEl && duplicateEl) {
+              duplicateEl.className = sourceEl.className;
+            }
+          });
+        }
+
+        function showContactBannerDuplicate() {
+          if (!banner || contactBannerDuplicate || contactLockedScrollY <= 0) return;
+
+          contactBannerDuplicate = banner.cloneNode(true);
+          contactBannerDuplicate.removeAttribute('id');
+          contactBannerDuplicate.setAttribute('aria-hidden', 'true');
+          contactBannerDuplicate.querySelectorAll('[id]').forEach(function (el) {
+            el.removeAttribute('id');
+          });
+          contactBannerDuplicate.classList.add('banner--contact-duplicate');
+          document.body.appendChild(contactBannerDuplicate);
+          banner.classList.add('banner--contact-source-hidden');
+          syncContactBannerDuplicate();
+
+          const duplicateCloseBtn = contactBannerDuplicate.querySelector('.banner__close');
+          if (duplicateCloseBtn) {
+            duplicateCloseBtn.addEventListener('click', function () {
+              if (contactUIState !== 'open') return;
+              startCircleTransition(duplicateCloseBtn, false);
+            });
+          }
+        }
+
+        function removeContactBannerDuplicate() {
+          if (contactBannerDuplicate) {
+            contactBannerDuplicate.remove();
+            contactBannerDuplicate = null;
+          }
+
+          banner.classList.remove('banner--contact-source-hidden');
+        }
 
         function setContactScrollLock(locked) {
           if (locked) {
             if (contactScrollLocked) return;
             contactScrollLocked = true;
             contactLockedScrollY = window.scrollY || window.pageYOffset;
-            // Keep the scrollbar gutter so locking scroll does not widen the viewport.
-            document.documentElement.style.overflowY = 'scroll';
+            const layoutWidth = document.documentElement.clientWidth;
+            contactScrollRestore = {
+              bodyOverflow: document.body.style.overflow,
+              bodyPosition: document.body.style.position,
+              bodyTop: document.body.style.top,
+              bodyLeft: document.body.style.left,
+              bodyRight: document.body.style.right,
+              bodyWidth: document.body.style.width,
+            };
+
             document.body.style.overflow = 'hidden';
             document.body.style.position = 'fixed';
             document.body.style.top = '-' + contactLockedScrollY + 'px';
             document.body.style.left = '0';
             document.body.style.right = '0';
+            document.body.style.width = layoutWidth + 'px';
           } else {
-            if (!contactScrollLocked) return;
+            if (!contactScrollLocked || !contactScrollRestore) return;
             contactScrollLocked = false;
-            document.documentElement.style.overflowY = '';
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.left = '';
-            document.body.style.right = '';
-            window.scrollTo(0, contactLockedScrollY);
+
+            const scrollY = contactLockedScrollY;
+            const restore = contactScrollRestore;
+            const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+            document.documentElement.style.scrollBehavior = 'auto';
+
+            document.body.style.top = restore.bodyTop;
+            document.body.style.left = restore.bodyLeft;
+            document.body.style.right = restore.bodyRight;
+            document.body.style.width = restore.bodyWidth;
+            document.body.style.position = restore.bodyPosition;
+            document.body.style.overflow = restore.bodyOverflow;
+
+            window.scrollTo(0, scrollY);
+            document.documentElement.style.scrollBehavior = previousScrollBehavior;
+            contactScrollRestore = null;
           }
         }
 
@@ -2723,9 +2891,12 @@
         }
 
         function resetCloseButtonAnimation() {
-          closeContactBtn.style.animation = 'none';
-          closeContactBtn.offsetWidth;
-          closeContactBtn.style.animation = '';
+          const activeCloseBtn = getActiveCloseContactBtn();
+          if (!activeCloseBtn) return;
+
+          activeCloseBtn.style.animation = 'none';
+          activeCloseBtn.offsetWidth;
+          activeCloseBtn.style.animation = '';
         }
         function getContactTrackBounds() {
           if (!contactEmailEl) return null;
@@ -2778,8 +2949,10 @@
 
         function hideContactFooter() {
           if (!footerSection) return;
-          footerSection.style.transition = '';
+          footerSection.style.transition = 'none';
           footerSection.classList.remove('is-visible', 'is-contact-elevated', 'is-contact-fading-out');
+          footerSection.offsetWidth;
+          footerSection.style.transition = '';
         }
 
         function getContactFadeElements() {
@@ -2856,9 +3029,6 @@
             elements.forEach((el) => {
               el.classList.add('is-contact-fading-out');
             });
-            if (footerSection && footerSection.classList.contains('is-contact-elevated')) {
-              footerSection.classList.add('is-contact-fading-out');
-            }
           });
         }
 
@@ -2871,6 +3041,7 @@
           hideContactFooter();
           if (contactStageEl) contactStageEl.style.transform = '';
           setContactScrollLock(false);
+          removeContactBannerDuplicate();
           contactOverlay.classList.remove('visible');
           contactEmailEl.classList.remove('is-visible');
           if (car) {
@@ -2890,6 +3061,7 @@
         }
 
         function revealBannerContact(contactAlreadyVisible) {
+          removeContactBannerDuplicate();
           banner.classList.remove('contact-open', 'contact-closing', 'is-contact-revealed');
 
           if (contactAlreadyVisible) {
@@ -3146,6 +3318,7 @@
             restoreContactFadeElements();
             contactOverlay.classList.remove('visible');
             banner.classList.add('contact-open');
+            showContactBannerDuplicate();
             banner.classList.remove('banner--light');
             resetCloseButtonAnimation();
 
@@ -3183,6 +3356,8 @@
             const contactFadeDurationMs = 200;
             const closeDurationMs = 600;
 
+            hideContactFooter();
+
             if (prefersReducedMotion) {
               stopCarAnimation();
               resetContactOverlayContents();
@@ -3206,6 +3381,7 @@
             updateBannerTheme();
 
             banner.classList.add('contact-closing');
+            syncContactBannerDuplicate();
             resetCloseButtonAnimation();
             const closeCircleAboveBannerMs = Math.max(closeDurationMs * 0.6, contactFadeDurationMs);
             const closeContactRevealMs = closeDurationMs * 0.7;
@@ -3224,6 +3400,7 @@
               contactBtn.classList.remove('is-revealing', 'is-visible');
               if (bannerFlagEl) bannerFlagEl.classList.remove('is-revealing', 'is-visible');
               banner.classList.add('is-contact-revealed');
+              syncContactBannerDuplicate();
             });
 
             afterContactTransition(550, () => {
@@ -3248,7 +3425,7 @@
 
         closeContactBtn.addEventListener('click', () => {
           if (contactUIState !== 'open') return;
-          startCircleTransition(closeContactBtn, false);
+          startCircleTransition(getActiveCloseContactBtn(), false);
         });
 
         contactEmailEl.style.cursor = 'pointer';
@@ -3258,7 +3435,7 @@
 
         document.addEventListener('keydown', function(e) {
           if (e.key === 'Escape' && contactUIState === 'open') {
-            startCircleTransition(closeContactBtn, false);
+            startCircleTransition(getActiveCloseContactBtn(), false);
           }
         });
       }
@@ -3359,6 +3536,8 @@
       const portfolioCollageSection = document.getElementById('portfolio-collage');
 
       const portfolioRevealDurationMs = 1200;
+      const portfolioMinimiseDurationMs = 600;
+      const portfolioMinimiseRevealDelayMs = 800;
 
       let portfolioCollageBlockObserver = null;
 
@@ -3546,23 +3725,162 @@
         setupPortfolioCollageBlockReveal();
       }
 
-      function scrollToFsaeChampionsSection() {
-        if (!fsaeChampionsSection) return;
+      function easePremiumProgress(progress) {
+        const t = Math.max(0, Math.min(1, progress));
+        const x = 1 - t;
+        return 1 - (x * x * x);
+      }
 
-        const bannerHeight = banner ? banner.offsetHeight : 0;
-        const top = Math.max(
-          0,
-          fsaeChampionsSection.getBoundingClientRect().top + window.scrollY - bannerHeight
-        );
+      function scrollToFsaeChampionsSection(options) {
+        if (typeof options === 'boolean') {
+          options = { instant: options };
+        }
 
-        window.scrollTo({
-          top: top,
-          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        options = options || {};
+
+        if (!fsaeChampionsSection) {
+          if (options.onComplete) options.onComplete();
+          return;
+        }
+
+        const sectionRect = fsaeChampionsSection.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        let targetTop;
+
+        if (options.centerInViewport) {
+          const maxScroll = Math.max(
+            0,
+            document.documentElement.scrollHeight - viewportHeight
+          );
+          targetTop = window.scrollY
+            + sectionRect.top
+            - (viewportHeight / 2)
+            + (sectionRect.height / 2);
+          targetTop = Math.max(0, Math.min(targetTop, maxScroll));
+        } else {
+          const bannerHeight = banner ? banner.offsetHeight : 0;
+          targetTop = Math.max(
+            0,
+            sectionRect.top + window.scrollY - bannerHeight
+          );
+        }
+        const onComplete = options.onComplete;
+        const durationMs = options.durationMs || portfolioRevealDurationMs;
+
+        if (prefersReducedMotion || options.instant) {
+          window.scrollTo({
+            top: targetTop,
+            behavior: 'auto',
+          });
+
+          if (onComplete) {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(onComplete);
+            });
+          }
+
+          return;
+        }
+
+        if (!options.animated) {
+          window.scrollTo({
+            top: targetTop,
+            behavior: 'smooth',
+          });
+
+          if (onComplete) {
+            if ('onscrollend' in window) {
+              window.addEventListener('scrollend', function () {
+                onComplete();
+              }, { once: true });
+            } else {
+              window.setTimeout(onComplete, durationMs);
+            }
+          }
+
+          return;
+        }
+
+        const startTop = window.scrollY;
+        const distance = targetTop - startTop;
+
+        if (distance === 0) {
+          if (onComplete) onComplete();
+          return;
+        }
+
+        const startTime = performance.now();
+
+        function step(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / durationMs, 1);
+          window.scrollTo(0, startTop + distance * easePremiumProgress(progress));
+
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else if (onComplete) {
+            onComplete();
+          }
+        }
+
+        requestAnimationFrame(step);
+      }
+
+      function revealPortfolioMinimiseContent() {
+        const fadeMs = portfolioMinimiseDurationMs;
+
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            document.body.classList.remove('is-portfolio-minimising');
+            document.body.classList.add('is-portfolio-minimise-revealing');
+
+            window.setTimeout(function () {
+              document.body.classList.remove('is-portfolio-minimise-revealing');
+            }, fadeMs);
+          });
         });
+      }
+
+      function closePortfolioCollageWithMinimiseTransition() {
+        const fadeMs = portfolioMinimiseDurationMs;
+
+        fsaeChampionsCta.classList.remove('is-open');
+        fsaeChampionsCta.setAttribute('aria-expanded', 'false');
+
+        if (prefersReducedMotion) {
+          finishPortfolioCollageClose();
+          scrollToFsaeChampionsSection({ instant: true, centerInViewport: true });
+          return;
+        }
+
+        document.body.classList.add('is-portfolio-minimising');
+
+        window.setTimeout(function () {
+          if (fsaeChampionsCta.classList.contains('is-open')) {
+            document.body.classList.remove('is-portfolio-minimising');
+            return;
+          }
+
+          finishPortfolioCollageClose();
+
+          scrollToFsaeChampionsSection({
+            animated: true,
+            centerInViewport: true,
+            durationMs: fadeMs,
+            onComplete: function () {
+              window.setTimeout(revealPortfolioMinimiseContent, portfolioMinimiseRevealDelayMs);
+            },
+          });
+        }, fadeMs);
       }
 
       function closePortfolioCollage(options) {
         options = options || {};
+
+        if (options.minimiseTransition) {
+          closePortfolioCollageWithMinimiseTransition();
+          return;
+        }
 
         fsaeChampionsCta.classList.remove('is-open');
         fsaeChampionsCta.setAttribute('aria-expanded', 'false');
@@ -3601,7 +3919,7 @@
 
       if (portfolioCollageMinimise && portfolioCollageSection) {
         portfolioCollageMinimise.addEventListener('click', function () {
-          closePortfolioCollage({ scrollToChampions: true });
+          closePortfolioCollage({ minimiseTransition: true });
         });
       }
 
@@ -3715,8 +4033,26 @@
 
       /* ─── About scroll reveal ────────────────────────────────── */
       let aboutRevealed = false;
-
       let aboutTeamsRevealed = false;
+      let aboutObserver = null;
+      let aboutTeamsObserver = null;
+
+      const aboutRevealObserverOptions = {
+        threshold: 0.12,
+        rootMargin: '0px 0px -10% 0px',
+      };
+
+      function disconnectAboutRevealObservers() {
+        if (aboutObserver) {
+          aboutObserver.disconnect();
+          aboutObserver = null;
+        }
+
+        if (aboutTeamsObserver) {
+          aboutTeamsObserver.disconnect();
+          aboutTeamsObserver = null;
+        }
+      }
 
       function revealAboutTeamsSection() {
         if (aboutTeamsRevealed || !aboutTeamsSection) return;
@@ -3725,31 +4061,44 @@
         revealPendingImages(aboutTeamsSection);
       }
 
-      function revealAboutSection() {
-        if (aboutRevealed || !aboutSection) return;
-        aboutRevealed = true;
-        aboutSection.classList.add('is-visible');
-        revealPendingImages(aboutSection);
+      function revealAboutContent() {
+        if (!aboutRevealed && aboutSection) {
+          aboutRevealed = true;
+          aboutSection.classList.add('is-visible');
+          revealPendingImages(aboutSection);
+        }
+
         revealAboutTeamsSection();
+        disconnectAboutRevealObservers();
       }
 
-      if (aboutSection) {
+      if (aboutSection || aboutTeamsSection) {
         if (prefersReducedMotion) {
-          revealAboutSection();
+          revealAboutContent();
         } else {
-          const aboutObserver = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                revealAboutSection();
-                aboutObserver.disconnect();
-              }
-            });
-          }, {
-            threshold: 0.12,
-            rootMargin: '0px 0px -10% 0px',
-          });
+          if (aboutSection) {
+            aboutObserver = new IntersectionObserver(function (entries) {
+              entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                  revealAboutContent();
+                }
+              });
+            }, aboutRevealObserverOptions);
 
-          aboutObserver.observe(aboutSection);
+            aboutObserver.observe(aboutSection);
+          }
+
+          if (aboutTeamsSection) {
+            aboutTeamsObserver = new IntersectionObserver(function (entries) {
+              entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                  revealAboutContent();
+                }
+              });
+            }, aboutRevealObserverOptions);
+
+            aboutTeamsObserver.observe(aboutTeamsSection);
+          }
         }
       }
 
