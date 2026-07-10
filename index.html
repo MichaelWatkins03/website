@@ -109,15 +109,30 @@
     }
 
     /* ─── Sticky Banner ────────────────────────────────────────── */
+    /*
+     * Sticky must live on the outer header with NO transform.
+     * WebKit breaks position:sticky when transform is on the sticky node
+     * (including translateY(0) after the load animation). Animate .banner__inner.
+     */
     .banner {
       position: sticky;
       top: 0;
       left: 0;
       right: 0;
       z-index: 100;
+      pointer-events: none;
+    }
+
+    .banner.visible {
+      pointer-events: auto;
+    }
+
+    .banner__inner {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 100%;
       padding: 0.875rem 0;
       /* Keep bar height once children are absolutely positioned */
       min-height: calc(calc(3.25rem * var(--font-scale)) + 1.75rem);
@@ -130,10 +145,31 @@
       pointer-events: none;
     }
 
-    .banner.visible {
+    .banner.visible .banner__inner {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
+    }
+
+    /*
+     * During portfolio minimise, pin the banner fixed so iOS Safari does not
+     * drop sticky positioning when document height collapses mid-scroll.
+     * A matching spacer keeps the banner's in-flow height so layout does not jump.
+     */
+    .banner.banner--minimise-pin {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+    }
+
+    .banner-minimise-spacer {
+      display: block;
+      width: 100%;
+      flex-shrink: 0;
+      pointer-events: none;
+      visibility: hidden;
     }
 
     .banner__left {
@@ -221,7 +257,7 @@
     }
 
     @media (min-width: 1150px) {
-      .banner {
+      .banner__inner {
         padding-top: 14px;
         padding-bottom: 14px;
         min-height: calc(calc(52px * var(--font-scale)) + 28px);
@@ -973,12 +1009,16 @@
 
     @media (prefers-reduced-motion: reduce) {
       .hero__reveal,
-      .banner {
+      .banner__inner {
         opacity: 1;
         transition: none;
       }
 
       .banner {
+        pointer-events: auto;
+      }
+
+      .banner__inner {
         transform: none;
         pointer-events: auto;
       }
@@ -1700,7 +1740,7 @@
 
     /* ─── Responsive (narrow) ─────────────────────────────────── */
     @media (max-width: 1149px) {
-      .banner {
+      .banner__inner {
         background: var(--white);
       }
 
@@ -1846,7 +1886,7 @@
         --font-footer-link-hover: clamp(calc(1.1875rem * var(--font-scale)), calc(3.5vw * var(--font-scale)), calc(1.625rem * var(--font-scale)));
       }
 
-      .banner {
+      .banner__inner {
         padding-top: 0.75rem;
         padding-bottom: 0.75rem;
       }
@@ -2007,27 +2047,29 @@
 
   <!-- ═══ Sticky Banner ═══ -->
   <header class="banner" id="banner" role="banner">
-    <div class="banner__left">
-      <img
-        class="banner__photo"
-        src="Media/michael-watkins-profile.jpg"
-        alt="Michael Watkins"
-        width="256"
-        height="256"
-      >
-      <span class="banner__name"><span class="banner__name-first">Michael</span> <span class="banner__name-last">Watkins</span></span>
-    </div>
-    <div class="banner__right">
-      <button class="banner__contact" id="contactBtn">Contact</button>
-      <img
-        class="banner__flag"
-        src="https://flagcdn.com/nz.svg"
-        alt="New Zealand flag"
-        width="34"
-        height="17"
-        decoding="async"
-      >
-      <button class="banner__close" id="closeContactBtn">×</button>
+    <div class="banner__inner">
+      <div class="banner__left">
+        <img
+          class="banner__photo"
+          src="Media/michael-watkins-profile.jpg"
+          alt="Michael Watkins"
+          width="256"
+          height="256"
+        >
+        <span class="banner__name"><span class="banner__name-first">Michael</span> <span class="banner__name-last">Watkins</span></span>
+      </div>
+      <div class="banner__right">
+        <button class="banner__contact" id="contactBtn">Contact</button>
+        <img
+          class="banner__flag"
+          src="https://flagcdn.com/nz.svg"
+          alt="New Zealand flag"
+          width="34"
+          height="17"
+          decoding="async"
+        >
+        <button class="banner__close" id="closeContactBtn">×</button>
+      </div>
     </div>
   </header>
 
@@ -3826,6 +3868,38 @@
         requestAnimationFrame(step);
       }
 
+      let bannerMinimiseSpacer = null;
+
+      function pinBannerForPortfolioMinimise() {
+        if (!banner || banner.classList.contains('banner--minimise-pin')) return;
+
+        const height = banner.offsetHeight;
+
+        if (!bannerMinimiseSpacer) {
+          bannerMinimiseSpacer = document.createElement('div');
+          bannerMinimiseSpacer.className = 'banner-minimise-spacer';
+          bannerMinimiseSpacer.setAttribute('aria-hidden', 'true');
+        }
+
+        bannerMinimiseSpacer.style.height = height + 'px';
+
+        if (!bannerMinimiseSpacer.parentNode) {
+          banner.insertAdjacentElement('afterend', bannerMinimiseSpacer);
+        }
+
+        banner.classList.add('banner--minimise-pin');
+      }
+
+      function unpinBannerForPortfolioMinimise() {
+        if (!banner) return;
+
+        banner.classList.remove('banner--minimise-pin');
+
+        if (bannerMinimiseSpacer && bannerMinimiseSpacer.parentNode) {
+          bannerMinimiseSpacer.remove();
+        }
+      }
+
       function revealPortfolioMinimiseContent() {
         const fadeMs = portfolioMinimiseDurationMs;
 
@@ -3836,6 +3910,8 @@
 
             window.setTimeout(function () {
               document.body.classList.remove('is-portfolio-minimise-revealing');
+              // Restore sticky only after layout/scroll have settled (iOS Safari).
+              unpinBannerForPortfolioMinimise();
             }, fadeMs);
           });
         });
@@ -3848,16 +3924,22 @@
         fsaeChampionsCta.setAttribute('aria-expanded', 'false');
 
         if (prefersReducedMotion) {
+          pinBannerForPortfolioMinimise();
           finishPortfolioCollageClose();
           scrollToFsaeChampionsSection({ instant: true, centerInViewport: true });
+          requestAnimationFrame(function () {
+            requestAnimationFrame(unpinBannerForPortfolioMinimise);
+          });
           return;
         }
 
+        pinBannerForPortfolioMinimise();
         document.body.classList.add('is-portfolio-minimising');
 
         window.setTimeout(function () {
           if (fsaeChampionsCta.classList.contains('is-open')) {
             document.body.classList.remove('is-portfolio-minimising');
+            unpinBannerForPortfolioMinimise();
             return;
           }
 
