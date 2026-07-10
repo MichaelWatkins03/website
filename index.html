@@ -171,22 +171,6 @@
       pointer-events: auto;
     }
 
-    /* Hard-freeze during portfolio minimise — solid fill + no transitions */
-    .banner.is-minimise-frozen,
-    .banner.is-minimise-frozen .banner__inner {
-      -webkit-transform: translate3d(0, 0, 0) !important;
-      transform: translate3d(0, 0, 0) !important;
-      transition: none !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      background: var(--white) !important;
-    }
-
-    .banner.is-minimise-frozen {
-      z-index: 200;
-      visibility: visible !important;
-    }
-
     /* In-flow stand-in so page content is not under the fixed banner.
        min-height matches .banner__inner until JS sets the exact pixel height. */
     .banner-flow-spacer {
@@ -1339,27 +1323,28 @@
     }
 
     /*
-     * Portfolio minimise: fade a fixed white veil UNDER the banner instead of
-     * setting opacity on body children. Fading siblings forces WebKit to
-     * recomposite the fixed header and makes the banner flicker/reset.
-     * Scroll under the veil is INSTANT (see JS) — animated scroll while fixed
-     * layers reflow is the main Safari flicker trigger.
+     * Portfolio minimise cover (iPad Safari flicker fix)
+     * ─────────────────────────────────────────────────
+     * One full-screen fixed layer. The banner snapshot inside it is NORMAL
+     * document flow (not position:fixed). iOS only flickers fixed headers when
+     * the page reflows/scrolls; an in-flow header inside a stable cover cannot
+     * participate in that thrash. Real page banner sits underneath, untouched.
      */
-    #portfolio-minimise-veil {
+    #portfolio-minimise-cover {
       position: fixed;
       inset: 0;
-      z-index: 90; /* below banner (100+), above page content */
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
       background: var(--white);
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      -webkit-transform: translate3d(0, 0, 0);
-      transform: translate3d(0, 0, 0);
       transition: opacity 0.6s var(--ease-premium),
                   visibility 0s linear 0.6s;
     }
 
-    body.is-portfolio-minimising #portfolio-minimise-veil {
+    #portfolio-minimise-cover.is-active {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
@@ -1367,7 +1352,7 @@
                   visibility 0s linear 0s;
     }
 
-    body.is-portfolio-minimise-revealing #portfolio-minimise-veil {
+    #portfolio-minimise-cover.is-leaving {
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
@@ -1375,12 +1360,61 @@
                   visibility 0s linear 0.6s;
     }
 
+    /* Host for the banner snapshot at the top of the cover */
+    #portfolio-minimise-cover-banner {
+      position: relative;
+      flex: 0 0 auto;
+      width: 100%;
+      background: var(--white);
+      pointer-events: none;
+    }
+
+    #portfolio-minimise-cover-banner,
+    #portfolio-minimise-cover-banner * {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    /*
+     * Critical: the clone keeps class "banner" (normally position:fixed).
+     * Force it to in-flow relative so iOS cannot thrash it as a fixed layer.
+     */
+    #portfolio-minimise-cover .banner {
+      position: relative !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      width: 100% !important;
+      z-index: auto !important;
+      -webkit-transform: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+      pointer-events: none !important;
+      background: var(--white) !important;
+    }
+
+    #portfolio-minimise-cover .banner__inner {
+      opacity: 1 !important;
+      -webkit-transform: none !important;
+      transform: none !important;
+      background: var(--white) !important;
+      pointer-events: none !important;
+      transition: none !important;
+    }
+
+    #portfolio-minimise-cover-body {
+      flex: 1 1 auto;
+      width: 100%;
+      background: var(--white);
+      min-height: 0;
+    }
+
     html.is-portfolio-minimise-scroll {
       scroll-behavior: auto !important;
     }
 
     @media (prefers-reduced-motion: reduce) {
-      #portfolio-minimise-veil {
+      #portfolio-minimise-cover {
         transition: none;
       }
     }
@@ -2143,7 +2177,11 @@
     </div>
   </header>
   <div class="banner-flow-spacer" id="banner-flow-spacer" aria-hidden="true"></div>
-  <div id="portfolio-minimise-veil" class="portfolio-minimise-veil" aria-hidden="true"></div>
+  <!-- Full-screen minimise cover: in-flow banner snapshot + white body -->
+  <div id="portfolio-minimise-cover" aria-hidden="true">
+    <div id="portfolio-minimise-cover-banner"></div>
+    <div id="portfolio-minimise-cover-body"></div>
+  </div>
 
   <!-- Contact overlay -->
   <div id="contact-overlay" class="contact-overlay">
@@ -3957,28 +3995,59 @@
         requestAnimationFrame(step);
       }
 
-      function freezeBannerForMinimise() {
-        if (!banner) return;
-        banner.classList.add('is-minimise-frozen', 'is-settled', 'visible');
+      const portfolioMinimiseCover = document.getElementById('portfolio-minimise-cover');
+      const portfolioMinimiseCoverBanner = document.getElementById('portfolio-minimise-cover-banner');
+
+      function mountMinimiseCover() {
+        if (!portfolioMinimiseCover || !portfolioMinimiseCoverBanner || !banner) return;
+
+        // Snapshot live banner into the cover as IN-FLOW content (not fixed).
+        // Strip ids so we never duplicate live control ids.
+        const snapshot = banner.cloneNode(true);
+        snapshot.removeAttribute('id');
+        snapshot.removeAttribute('role');
+        snapshot.className = 'banner visible is-settled';
+        snapshot.querySelectorAll('[id]').forEach(function (el) {
+          el.removeAttribute('id');
+        });
+
+        portfolioMinimiseCoverBanner.replaceChildren(snapshot);
+        portfolioMinimiseCover.classList.remove('is-leaving');
+        portfolioMinimiseCover.classList.add('is-active');
+        portfolioMinimiseCover.setAttribute('aria-hidden', 'false');
+
+        // Real fixed banner stays put underneath; cover fully occludes it.
+        banner.classList.add('is-settled', 'visible');
       }
 
-      function unfreezeBannerAfterMinimise() {
-        if (!banner) return;
-        banner.classList.remove('is-minimise-frozen');
+      function clearMinimiseCover() {
+        if (!portfolioMinimiseCover) return;
+        portfolioMinimiseCover.classList.remove('is-active', 'is-leaving');
+        portfolioMinimiseCover.setAttribute('aria-hidden', 'true');
+        if (portfolioMinimiseCoverBanner) {
+          portfolioMinimiseCoverBanner.replaceChildren();
+        }
       }
 
       function revealPortfolioMinimiseContent() {
         const fadeMs = portfolioMinimiseDurationMs;
 
+        if (!portfolioMinimiseCover) {
+          document.documentElement.classList.remove('is-portfolio-minimise-scroll');
+          return;
+        }
+
+        // Ensure live banner is settled under the cover before we fade the cover out.
+        if (banner) banner.classList.add('is-settled', 'visible');
+
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
-            document.body.classList.remove('is-portfolio-minimising');
-            document.body.classList.add('is-portfolio-minimise-revealing');
+            portfolioMinimiseCover.classList.add('is-leaving');
+            portfolioMinimiseCover.classList.remove('is-active');
 
             window.setTimeout(function () {
-              document.body.classList.remove('is-portfolio-minimise-revealing');
+              clearMinimiseCover();
               document.documentElement.classList.remove('is-portfolio-minimise-scroll');
-              unfreezeBannerAfterMinimise();
             }, fadeMs);
           });
         });
@@ -3996,21 +4065,18 @@
           return;
         }
 
-        // Freeze banner paint + force auto scroll before any layout/scroll work.
-        freezeBannerForMinimise();
         document.documentElement.classList.add('is-portfolio-minimise-scroll');
-        document.body.classList.add('is-portfolio-minimising');
+        mountMinimiseCover();
 
         window.setTimeout(function () {
           if (fsaeChampionsCta.classList.contains('is-open')) {
-            document.body.classList.remove('is-portfolio-minimising');
+            clearMinimiseCover();
             document.documentElement.classList.remove('is-portfolio-minimise-scroll');
-            unfreezeBannerAfterMinimise();
             return;
           }
 
-          // Under an opaque veil the scroll is invisible — use INSTANT scroll.
-          // Animated rAF scrollTo is a primary cause of fixed-header flicker on iOS.
+          // Cover is fully opaque — page reflow/scroll is invisible and cannot
+          // thrash the in-flow snapshot header (iOS Safari fixed-header bug).
           finishPortfolioCollageClose();
           scrollToFsaeChampionsSection({
             instant: true,
