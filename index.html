@@ -1343,7 +1343,18 @@
      */
     #portfolio-minimise-veil {
       position: fixed;
-      inset: 0;
+      /*
+       * Overscan past the layout viewport. On Safari (especially iPad),
+       * fixed inset:0 does not cover the visual area under the tabs/URL
+       * chrome, so page content there skipped the fade and then popped away.
+       * Extending the veil fades that strip too. (No other minimise behaviour.)
+       */
+      top: -50vh;
+      right: -25vw;
+      bottom: -50vh;
+      left: -25vw;
+      width: auto;
+      height: auto;
       z-index: 90; /* below banner (100) on iPhone / desktop */
       background: var(--white);
       opacity: 0;
