@@ -504,6 +504,14 @@
       clip-path: inset(0 0 0 calc(100% - var(--progress, 0) * 100%));
     }
 
+    /* Mobile: no car / tire-track animation on the contact screen */
+    @media (max-width: 1149px) {
+      .contact-car,
+      .contact-tire-marks {
+        display: none !important;
+      }
+    }
+
     .contact-email.is-contact-fading-out,
     .contact-car.is-contact-fading-out,
     .contact-tire-marks.is-contact-fading-out {
@@ -3325,6 +3333,9 @@
         }
 
         function startCarDrive() {
+          // Mobile contact UI is email + footer only — skip the car animation.
+          if (window.matchMedia('(max-width: 1149px)').matches) return;
+
           const car = document.querySelector('.contact-car');
           const overlay = contactOverlay;
           if (!car || !overlay) return;
