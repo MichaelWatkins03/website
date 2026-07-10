@@ -3953,13 +3953,18 @@
 
         const sectionRect = fsaeChampionsSection.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
+        const maxScroll = Math.max(
+          0,
+          document.documentElement.scrollHeight - viewportHeight
+        );
         let targetTop;
 
-        if (options.centerInViewport) {
-          const maxScroll = Math.max(
-            0,
-            document.documentElement.scrollHeight - viewportHeight
-          );
+        if (options.alignSectionBottom) {
+          // Pin the bottom of the champions section to the bottom of the viewport
+          // (mobile minimise — user was viewing the lower/CTA end of the section).
+          targetTop = window.scrollY + sectionRect.top + sectionRect.height - viewportHeight;
+          targetTop = Math.max(0, Math.min(targetTop, maxScroll));
+        } else if (options.centerInViewport) {
           targetTop = window.scrollY
             + sectionRect.top
             - (viewportHeight / 2)
@@ -3971,6 +3976,7 @@
             0,
             sectionRect.top + window.scrollY - bannerHeight
           );
+          targetTop = Math.min(targetTop, maxScroll);
         }
         const onComplete = options.onComplete;
         const durationMs = options.durationMs || portfolioRevealDurationMs;
@@ -4094,13 +4100,17 @@
 
       function closePortfolioCollageWithMinimiseTransition() {
         const fadeMs = portfolioMinimiseDurationMs;
+        // Mobile: land on the bottom of champions (CTA end). Desktop: center.
+        const minimiseScrollOpts = window.matchMedia('(max-width: 1149px)').matches
+          ? { alignSectionBottom: true }
+          : { centerInViewport: true };
 
         fsaeChampionsCta.classList.remove('is-open');
         fsaeChampionsCta.setAttribute('aria-expanded', 'false');
 
         if (prefersReducedMotion) {
           finishPortfolioCollageClose();
-          scrollToFsaeChampionsSection({ instant: true, centerInViewport: true });
+          scrollToFsaeChampionsSection(Object.assign({ instant: true }, minimiseScrollOpts));
           return;
         }
 
@@ -4126,13 +4136,12 @@
 
           // Opaque cover — collapse + instant scroll (invisible to the user).
           finishPortfolioCollageClose();
-          scrollToFsaeChampionsSection({
+          scrollToFsaeChampionsSection(Object.assign({
             instant: true,
-            centerInViewport: true,
             onComplete: function () {
               window.setTimeout(revealPortfolioMinimiseContent, portfolioMinimiseRevealDelayMs);
             },
-          });
+          }, minimiseScrollOpts));
         }, fadeMs);
       }
 
