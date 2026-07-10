@@ -2490,7 +2490,7 @@
         <span class="about__title-line about__title-line--main">reliable, meaningful products</span>
         <span class="about__title-line about__title-line--sub">that people depend on.</span>
       </h2>
-      <p class="about__text">My experience leading the suspension subsystem on an international championship winning FSAE car taught me how to break complex problems down into smaller, more actionable problems whilst retaining accuracy and clarity.</p> 
+      <p class="about__text">My experience leading the suspension subsystem for an internationally championship-winning FSAE team strengthened my ability to decompose complex engineering problems into actionable sub-problems while maintaining accuracy, clarity, and coherence.</p> 
       <p class="about__text">Playing junior representative cricket at a national-winning level strengthened my appreciation for how team culture directly shapes the quality of the final outcome.</p>
       <p class="about__text">I am currently completing graduate rotations through engineering, manufacturing, sales, and operations at an industry-leading company that designs tailored post-harvest vegetable processing solutions.</p>
       <p class="about__text">This broad exposure has provided a comprehensive perspective on the full product lifecycle - from a customer’s initial problem through design, scaling, and all the way to the end of a product’s life.</p>
@@ -3169,6 +3169,10 @@
         function getContactFadeElements() {
           const car = document.querySelector('.contact-car');
           const marks = document.querySelector('.contact-tire-marks');
+          // On mobile the car/tracks are not shown — only fade the email.
+          if (window.matchMedia('(max-width: 1149px)').matches) {
+            return [contactEmailEl].filter(Boolean);
+          }
           return [car, marks, contactEmailEl].filter(Boolean);
         }
 
