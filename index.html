@@ -3062,6 +3062,10 @@
           contactEmailEl.classList.remove('is-visible');
         }
 
+        function isMobileContactViewport() {
+          return window.matchMedia('(max-width: 1149px)').matches;
+        }
+
         function revealContactFooter() {
           if (!footerSection) return;
           footerSection.classList.add('is-contact-elevated');
@@ -3084,6 +3088,43 @@
           footerSection.classList.remove('is-visible', 'is-contact-elevated', 'is-contact-fading-out');
           footerSection.offsetWidth;
           footerSection.style.transition = '';
+        }
+
+        /*
+         * Mobile: keep the elevated footer on-screen for the whole close
+         * animation, then land the page so the in-flow footer is already in
+         * view when scroll lock releases (instead of jumping back mid-page).
+         */
+        function settleContactFooterAfterExit() {
+          if (!footerSection) {
+            hideContactFooter();
+            return;
+          }
+
+          if (!isMobileContactViewport()) {
+            hideContactFooter();
+            return;
+          }
+
+          footerSection.style.transition = 'none';
+          footerSection.classList.remove(
+            'is-visible',
+            'is-contact-elevated',
+            'is-contact-fading-out'
+          );
+          void footerSection.offsetWidth;
+          footerSection.style.transition = '';
+
+          const maxScroll = Math.max(
+            0,
+            document.documentElement.scrollHeight - window.innerHeight
+          );
+          contactLockedScrollY = maxScroll;
+
+          const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+          document.documentElement.style.scrollBehavior = 'auto';
+          window.scrollTo(0, maxScroll);
+          document.documentElement.style.scrollBehavior = previousScrollBehavior;
         }
 
         function getContactFadeElements() {
@@ -3169,7 +3210,9 @@
 
           stopCarAnimation();
           restoreContactFadeElements();
-          hideContactFooter();
+          // Mobile keeps elevated footer until here, then scrolls to page bottom
+          // so the real footer is already visible when lock releases.
+          settleContactFooterAfterExit();
           if (contactStageEl) contactStageEl.style.transform = '';
           setContactScrollLock(false);
           removeContactBannerDuplicate();
@@ -3487,7 +3530,12 @@
             const contactFadeDurationMs = 200;
             const closeDurationMs = 600;
 
-            hideContactFooter();
+            // Desktop: drop elevated footer immediately.
+            // Mobile: keep it fixed at the bottom through the close so it never
+            // blanks out, then settle into the in-flow footer at page end.
+            if (!isMobileContactViewport()) {
+              hideContactFooter();
+            }
 
             if (prefersReducedMotion) {
               stopCarAnimation();
